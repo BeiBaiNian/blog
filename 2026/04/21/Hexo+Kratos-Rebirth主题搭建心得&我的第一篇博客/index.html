@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+  <!-- 元数据 -->
+  <meta charset="utf-8">
+  
+    <link rel="icon" href="/images/favicon.png">
+  
+  
+  <title>Hexo + Kratos-Rebirth 主题搭建心得 &amp; 我的第一篇博客 | 北白念</title>
+  <link rel="canonical" href="https://dzy.github.io/2026/04/21/Hexo+Kratos-Rebirth%E4%B8%BB%E9%A2%98%E6%90%AD%E5%BB%BA%E5%BF%83%E5%BE%97&%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/">
+  <meta name="author" content="董子阳" />
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="robots" content="index,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="format-detection" content="telphone=no, email=no" />
+  
+    <meta name="keywords" content="Hexo & Kratos-Rebirth" />
+  
+  <meta name="description" content="大家好！这是我用 Hexo 框架搭配 Kratos-Rebirth 主题搭建的个人博客的第一篇文章。 经过两三天的折腾，终于把博客基本弄好了。Hexo 是一个非常优秀的静态博客框架，速度快、配置简单，而且有丰富的主题和插件生态。Kratos-Rebirth 则是一个简洁美观、功能完善的主题，非常适合技术博客使用。 我的搭建心得在搭建过程中踩了不少坑，这里分享几个新手容易犯的错误，希望能帮到后来的人">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo + Kratos-Rebirth 主题搭建心得 &amp; 我的第一篇博客">
+<meta property="og:url" content="https://dzy.github.io/2026/04/21/Hexo+Kratos-Rebirth%E4%B8%BB%E9%A2%98%E6%90%AD%E5%BB%BA%E5%BF%83%E5%BE%97&%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/index.html">
+<meta property="og:site_name" content="北白念">
+<meta property="og:description" content="大家好！这是我用 Hexo 框架搭配 Kratos-Rebirth 主题搭建的个人博客的第一篇文章。 经过两三天的折腾，终于把博客基本弄好了。Hexo 是一个非常优秀的静态博客框架，速度快、配置简单，而且有丰富的主题和插件生态。Kratos-Rebirth 则是一个简洁美观、功能完善的主题，非常适合技术博客使用。 我的搭建心得在搭建过程中踩了不少坑，这里分享几个新手容易犯的错误，希望能帮到后来的人">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://dzy.github.io/images/favicon.png">
+<meta property="article:published_time" content="2026-04-21T12:03:30.000Z">
+<meta property="article:modified_time" content="2026-04-21T12:03:51.794Z">
+<meta property="article:author" content="董子阳">
+<meta property="article:tag" content="Hexo &amp; Kratos-Rebirth">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://dzy.github.io/images/favicon.png">
+  
+  <!-- JSON-LD 结构化数据 -->
+  
+  
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"Hexo + Kratos-Rebirth 主题搭建心得 & 我的第一篇博客","description":"大家好！这是我用 Hexo 框架搭配 Kratos-Rebirth 主题搭建的个人博...","image":"https://dzy.github.io/images/logo.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://dzy.github.io/images/logo.png"}},"datePublished":"2026-04-21T12:03:30.000Z","dateModified":"2026-04-21T12:03:51.794Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://dzy.github.io/2026/04/21/Hexo+Kratos-Rebirth%E4%B8%BB%E9%A2%98%E6%90%AD%E5%BB%BA%E5%BF%83%E5%BE%97&%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/"}}
+    </script>
+  
+  <!-- 关键 CSS 预加载 -->
+  <link rel="preload" href="/css/kr-core.min.css" as="style" crossorigin>
+  <link rel="preload" href="/css/kr-theme/light.min.css" as="style" crossorigin>
+  <link rel="preload" href="/css/kr-theme/dark.min.css" as="style" crossorigin>
+  <!-- 样式表文件 -->
+  <link rel="stylesheet" id="kratos-css" href="/css/kr-core.min.css" media="all">
+  <link rel="stylesheet" id="theme-light-css" href="/css/kr-theme/light.min.css" media="all">
+  <link rel="stylesheet" id="theme-dark-css" href="/css/kr-theme/dark.min.css" media="(prefers-color-scheme: dark)">
+  
+    <link rel="stylesheet"  id="highlight-css" href="/css/highlight/highlight.js/night-eighties.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/css/highlight/highlight.js/night-eighties.min.css"></noscript>
+  
+  <script src="/js/kr-theme.min.js"></script>
+  <link rel="stylesheet"  id="fontawe-css" href="/vendors/font-awesome@4.7.0/css/font-awesome.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/vendors/font-awesome@4.7.0/css/font-awesome.min.css"></noscript>
+  
+    <link rel="stylesheet"  id="nprogress-css" href="/vendors/nprogress@0.2.0/nprogress.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/vendors/nprogress@0.2.0/nprogress.css"></noscript>
+  
+  
+    <link rel="stylesheet"  href="/vendors/viewerjs@1.11.6/dist/viewer.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/vendors/viewerjs@1.11.6/dist/viewer.min.css"></noscript>
+  
+  <!-- 预先加载的JS文件 -->
+  
+    <script src="/vendors/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  
+  <!-- 自定义站点横幅和背景 -->
+  <style>
+    
+      .kratos-cover.kratos-cover-2 {
+        background-image: url('/images/light.png');
+      }
+      html[data-theme="dark"] .kratos-cover.kratos-cover-2 {
+        background-image: url('/images/dark.png');
+      }
+    
+    
+      @media(min-width:768px) {
+        body.custom-background {
+          background-image: url('/images/background.png');
+        }
+        html[data-theme="dark"] body.custom-background {
+          background-image: url('/images/background.png');
+        }
+      }
+    
+    
+      .widget-kratos-about .photo-background {
+        background-image: url('/images/light.png');
+      }
+      html[data-theme="dark"] .widget-kratos-about .photo-background {
+        background-image: url('/images/dark.png');
+      }
+    
+  </style>
+
+  <!-- 额外的追加注入项 -->
+  
+</head>
+
+    <body class="custom-background">
+        <div id="kratos-wrapper">
+    <div id="kratos-page">
+        <div id="kratos-header">
+            <header id="kratos-desktop-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="nav-header">
+                        <nav id="kratos-menu-wrap">
+                            <ul id="kratos-primary-menu" class="sf-menu">
+                                
+                                    <li>
+                                        
+                                            <a href="/">
+                                        
+                                            
+                                                <i class="fa fa-home"></i>
+                                            
+                                            首页
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/archives/">
+                                        
+                                            
+                                                <i class="fa fa-file"></i>
+                                            
+                                            档案馆
+                                        </a>
+                                        
+                                    </li>
+                                
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <header id="kratos-mobile-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="color-logo"><a href="/">北白念</a></div>
+                    <div id="kratos-nav-toggle-wrapper" class="nav-toggle">
+                        <a id="kratos-nav-toggle" class="kratos-nav-toggle">
+                            <i></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="kratos-start kratos-hero-2">
+            <!-- <div class="kratos-overlay"></div> -->
+            <div class="kratos-cover kratos-cover-2 text-center">
+                <div class="desc desc2 animate-box">
+                    <a href="/">
+                        <h2>北白念</h2> <br />
+                        <span>记录个人的学习笔记和技术文章，偶尔也会分享一些生活感悟。</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="kratos-blog-post">
+            <div class="container">
+                <div id="main" class="row">
+
+
+        
+
+            
+
+            <section class="kr-main-col col-md-8">
+
+        
+
+            <article itemscope itemtype="https://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://dzy.github.io/2026/04/21/Hexo+Kratos-Rebirth%E4%B8%BB%E9%A2%98%E6%90%AD%E5%BB%BA%E5%BF%83%E5%BE%97&amp;%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/">
+    <div class="kratos-hentry kratos-page-inner clearfix">
+        <header class="kratos-page-header">
+            
+                <h1 class="kratos-page-title text-center" itemprop="name headline">Hexo + Kratos-Rebirth 主题搭建心得 & 我的第一篇博客</h1>
+            
+            <ul class="kratos-page-meta text-center">
+                <li><time datetime="2026-04-21T12:03:30.000Z" itemprop="datePublished"><i class="fa fa-calendar"></i> 2026-04-21</time></li>
+                <li itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <i class="fa fa-user"></i> 作者 <span itemprop="name">董子阳</span>
+                </li>
+                
+                    <li>
+                        <i class="fa fa-edit"></i> 
+                        
+                        
+                            1383
+                        
+                        字
+                    </li>
+                
+                
+                
+            </ul>
+        </header>
+        <div class="kratos-page-content kr-post">
+            
+            
+            
+            <hr />
+            <div itemprop="articleBody"><p>大家好！这是我用 <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo">Hexo</a> 框架搭配 <a target="_blank" rel="noopener" href="https://github.com/Candinya/Kratos-Rebirth">Kratos-Rebirth</a> 主题搭建的个人博客的第一篇文章。</p>
+<p>经过两三天的折腾，终于把博客基本弄好了。Hexo 是一个非常优秀的静态博客框架，速度快、配置简单，而且有丰富的主题和插件生态。Kratos-Rebirth 则是一个简洁美观、功能完善的主题，非常适合技术博客使用。</p>
+<h2 id="我的搭建心得"><a href="#我的搭建心得" class="headerlink" title="我的搭建心得"></a>我的搭建心得</h2><p>在搭建过程中踩了不少坑，这里分享几个新手容易犯的错误，希望能帮到后来的人：</p>
+<h3 id="不要直接修改-public-文件夹"><a href="#不要直接修改-public-文件夹" class="headerlink" title="不要直接修改 public 文件夹"></a>不要直接修改 <code>public</code> 文件夹</h3><p>刚开始我以为修改 <code>public</code> 文件夹里的 HTML、CSS 文件就能直接改变网站样式，结果每次执行 <code>hexo g</code> 之后，所有修改都被覆盖了，白忙活了好几个小时。</p>
+<p><strong>正确做法</strong>：所有样式和布局的修改都应该在 <code>source</code> 目录或者主题目录下进行，修改后重新编译生成即可。</p>
+<h3 id="主题配置的正确姿势"><a href="#主题配置的正确姿势" class="headerlink" title="主题配置的正确姿势"></a>主题配置的正确姿势</h3><p>Kratos-Rebirth 主题支持配置覆盖，<strong>个人感觉不应该直接修改主题目录下的 <code>_config.yml</code> 文件</strong>！</p>
+<p><strong>个人做法</strong>：在博客根目录创建一个 <code>_config.back.yml</code> 文件，存储原来默认配置信息，然后修改<code>_config.yml</code>文件，把你需要修改的配置项写在这里。这样主题更新时，不会因为刚开始了解配置信息，修改报错导致无法找回原来信息。（默认配置信息给的都挺详细的，建议保留以备不时之需）。</p>
+<h3 id="🛠️-简化开发流程"><a href="#🛠️-简化开发流程" class="headerlink" title="🛠️ 简化开发流程"></a>🛠️ 简化开发流程</h3><p>每次修改主题源码后，都需要执行以下命令才能看到效果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在主题目录下编译源码</span></span><br><span class="line"><span class="built_in">cd</span> themes/Kratos-Rebirth</span><br><span class="line">npm run build</span><br><span class="line"></span><br><span class="line"><span class="comment"># 回到博客根目录重新生成并预览</span></span><br><span class="line"><span class="built_in">cd</span> ../..</span><br><span class="line">hexo clean &amp;&amp; hexo g &amp;&amp; hexo s</span><br></pre></td></tr></table></figure>
+
+<p>为了简化操作，我在博客根目录写了一个 <code>run.bat</code> 脚本，一键执行所有命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@echo off</span><br><span class="line">cd themes/Kratos-Rebirth</span><br><span class="line">call npm run build</span><br><span class="line">cd ../..</span><br><span class="line">call hexo clean</span><br><span class="line">call hexo g</span><br><span class="line">call hexo s</span><br></pre></td></tr></table></figure>
+
+<h2 id="Hexo-常用命令"><a href="#Hexo-常用命令" class="headerlink" title="Hexo 常用命令"></a>Hexo 常用命令</h2><p>最后附上 Hexo 的几个常用命令，方便自己以后查阅：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">### 创建新文章</span></span><br><span class="line">$ hexo new <span class="string">&quot;文章标题&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### 清除之前构建的静态文件</span></span><br><span class="line">$ hexo clean</span><br><span class="line"></span><br><span class="line"><span class="comment">### 生成静态文件</span></span><br><span class="line">$ hexo generate</span><br><span class="line"></span><br><span class="line"><span class="comment">### 本地预览</span></span><br><span class="line">$ hexo server</span><br><span class="line"></span><br><span class="line"><span class="comment">### 部署到远程</span></span><br><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+<h2 id="博客未来规划"><a href="#博客未来规划" class="headerlink" title="博客未来规划"></a>博客未来规划</h2><p>这个博客主要用来记录我的学习历程和技术成长，未来会更新以下内容：</p>
+<ul>
+<li>技术文档和教程</li>
+<li>学习笔记和心得</li>
+<li>项目实战经验</li>
+<li>个人生活感悟</li>
+</ul>
+<p>希望能通过写博客的方式，把自己学到的知识整理沉淀下来，同时也能帮助到有需要的人。</p>
+<hr>
+<p>Hexo官方文档：<a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/">Hexo官方文档</a></p>
+<p>再次感谢 Hexo 和 Kratos-Rebirth 提供这么优秀的工具和主题。再次附上github地址 <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo">Hexo : https://github.com/hexojs/hexo</a> 和 <a target="_blank" rel="noopener" href="https://github.com/Candinya/Kratos-Rebirth">Kratos-Rebirth : https://github.com/Candinya/Kratos-Rebirth</a></p>
+<p>第一篇博客就写到这里啦！接下来我会慢慢完善博客的功能和内容，敬请期待！</p>
+</div>
+        </div>
+        
+        <footer class="kratos-entry-footer clearfix">
+            
+            
+            
+                <div class="post-actions text-center clearfix" id="post-actions">
+                
+                    <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
+                
+                
+                </div>
+            
+            <div class="footer-tag clearfix">
+                <div class="pull-left">
+                <i class="fa fa-tags"></i>
+                    <a class="tag-none-link" href="/tags/Hexo-Kratos-Rebirth/" rel="tag">Hexo & Kratos-Rebirth</a>
+                </div>
+                <div class="pull-date">
+                    <time datetime="2026-04-21T12:03:51.794Z" itemprop="dateModified">最后编辑：2026-04-21</time>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    
+</article>
+
+        
+
+            </section>
+
+            
+                
+
+<section id="kratos-widget-area" class="col-md-4 hidden-xs hidden-sm">
+    <!-- 文章和页面根据splitter来分割，没有的话就从头开始设置为sticky -->
+    
+    
+                <aside id="krw-about" class="widget widget-kratos-about clearfix">
+    <div class="photo-background"></div>
+    <div class="photo-wrapper clearfix">
+        <div class="photo-wrapper-tip text-center">
+            <img class="about-photo" src="/images/logo.png" alt="董子阳" loading="lazy" decoding="auto" />
+        </div>
+    </div>
+    <div class="textwidget">
+        <p class="text-center">软件开发 | RISC-V | Java | 算法</p>
+    </div>
+    <div class="site-meta">
+        <a class="meta-item" href="/archives/">
+            <span class="title">
+                文章
+            </span>
+            <span class="count">
+                1
+            </span>
+        </a>
+        <a class="meta-item" href="/categories/">
+            <span class="title">
+                分类
+            </span>
+            <span class="count">
+                1
+            </span>
+        </a>
+        <a class="meta-item" href="/tags/">
+            <span class="title">
+                标签
+            </span>
+            <span class="count">
+                1
+            </span>
+        </a>
+    </div>
+</aside>
+            
+                    <div class="sticky-area">
+                
+                
+  <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
+    <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/">技术笔记</a><span class="category-list-count">1</span></li></ul>
+  </aside>
+
+
+            
+                
+  <aside id="krw-tags" class="widget widget-kratos-tags clearfix">
+    <h4 class="widget-title"><i class="fa fa-tags"></i>标签聚合</h4>
+      <div class="tag-clouds">
+        <a href="/tags/Hexo-Kratos-Rebirth/" style="font-size: 0.6em;">Hexo & Kratos-Rebirth</a>
+      </div>
+  </aside>
+
+            
+                
+  <aside id="krw-posts" class="widget widget-kratos-posts">
+  <h4 class="widget-title"><i class="fa fa-file"></i>最新文章</h4>
+  <div class="tab-content">
+      <ul class="list-group">
+        
+        
+          
+          
+            <a class="list-group-item" href="/2026/04/21/Hexo+Kratos-Rebirth%E4%B8%BB%E9%A2%98%E6%90%AD%E5%BB%BA%E5%BF%83%E5%BE%97&%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/"><i class="fa fa-book"></i> Hexo + Kratos-Rebirth 主题搭建心得 & 我的第一篇博客</a>
+            
+          
+        
+      </ul>
+  </div>
+  </aside>
+
+            
+    </div>
+</section>
+            
+
+        
+
+                </div>
+    </div>
+</div>
+
+<footer>
+    <div id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 footer-list text-center">
+                    <ul class="kratos-social-icons">
+                        
+                    </ul>
+                    <ul class="kratos-copyright">
+                        <div>
+                            <li>&copy; 2026 北白念 版权所有.</li>
+                            <li>本站已运行<span id="kr-since">Loading...</span></li>
+                        </div>
+                        <div>
+                            <li>网站基于hexo 使用 <a href="https://github.com/Candinya/Kratos-Rebirth" target="_blank">Kratos:Rebirth</a> 主题</li>
+                            <li>站点由<i class="fa fa-heart" style="color:#d43f57"></i>北白念<i class="fa fa-heart" style="color:#d43f57"></i> 搭建</li>
+                        </div>
+                        <!-- 额外的追加注入项 -->
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="kr-tool text-center">
+            <div class="tool">
+                <!-- 额外的追加注入项 -->
+                
+                
+                    <div class="box search-box">
+                        <a href="/search">
+                            <span class="fa fa-search"></span>
+                        </a>
+                    </div>
+                
+                <div class="box theme-box" id="theme-toggle">
+                    <span class="fa fa-adjust"></span>
+                </div>
+            </div>
+            <div id="gotop-box" class="box gotop-box">
+                <span class="fa fa-chevron-up"></span>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</div>
+
+
+    <div id="kr-donate-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseDonateModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-bitcoin"></i>
+            </div>
+            <div class="kr-modal-title">💖 感谢支持，点击查看收款码</div>
+            <button class="kr-modal-close" onclick="krCloseDonateModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-donate-message">你的鼓励是我持续更新的动力！</div>
+            <div class="kr-donate-qr" id="kr-donate-qr">
+                
+            </div>
+            <div class="kr-donate-platforms">
+                
+                    
+                        <button class="kr-donate-platform-button" style="color: #07C160;" title="微信" onclick="krDonateModalShowPlatformQR('/images/wechat.png', '#07C160')">
+                            <i class="fa fa-fa-weixin"></i>
+                        </button>
+                    
+                
+                    
+                        <button class="kr-donate-platform-button" style="color: #1677FF;" title="支付宝" onclick="krDonateModalShowPlatformQR('/images/alipay.png', '#1677FF')">
+                            <i class="fa fa-fa-alipay"></i>
+                        </button>
+                    
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/js/kr-modal/donate.min.js"></script>
+
+
+
+
+
+<!-- 额外的追加注入项 -->
+
+
+        <script>
+    if (!window.kr) {
+        window.kr = {};
+    }
+    window.kr.notMobile = (!(navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)));
+    window.kr.siteRoot = "/";
+</script>
+
+
+  <script defer src="/vendors/nprogress@0.2.0/nprogress.js"></script>
+
+
+
+  <script defer src="/vendors/viewerjs@1.11.6/dist/viewer.min.js"></script>
+
+
+<script defer src="/js/kr-core.min.js"></script>
+
+
+  <script defer src="/js/kr-pjax.min.js"></script>
+
+
+<!-- 额外的追加注入项 -->
+
+
+    </body>
+</html>
