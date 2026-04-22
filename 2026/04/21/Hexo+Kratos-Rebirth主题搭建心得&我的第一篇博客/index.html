@@ -4,7 +4,7 @@
   <!-- 元数据 -->
   <meta charset="utf-8">
   
-    <link rel="icon" href="images/favicon.png">
+    <link rel="icon" href="/blog/images/favicon.png">
   
   
   <title>Hexo + Kratos-Rebirth 主题搭建心得 &amp; 我的第一篇博客 | 北白念</title>
@@ -26,19 +26,19 @@
 <meta property="og:site_name" content="北白念">
 <meta property="og:description" content="大家好！这是我用 Hexo 框架搭配 Kratos-Rebirth 主题搭建的个人博客的第一篇文章。 经过两三天的折腾，终于把博客基本弄好了。Hexo 是一个非常优秀的静态博客框架，速度快、配置简单，而且有丰富的主题和插件生态。Kratos-Rebirth 则是一个简洁美观、功能完善的主题，非常适合技术博客使用。 我的搭建心得在搭建过程中踩了不少坑，这里分享几个新手容易犯的错误，希望能帮到后来的人">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://beibainian.github.io/blog/images/favicon.png">
+<meta property="og:image" content="https://beibainian.github.io/blog/blog/images/default.png">
 <meta property="article:published_time" content="2026-04-21T12:03:30.000Z">
-<meta property="article:modified_time" content="2026-04-21T12:03:51.794Z">
+<meta property="article:modified_time" content="2026-04-22T06:36:34.646Z">
 <meta property="article:author" content="董子阳">
 <meta property="article:tag" content="Hexo &amp; Kratos-Rebirth">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://beibainian.github.io/blog/images/favicon.png">
+<meta name="twitter:image" content="https://beibainian.github.io/blog/blog/images/default.png">
   
   <!-- JSON-LD 结构化数据 -->
   
   
     <script type="application/ld+json">
-    {"@context":"https://schema.org","@type":"BlogPosting","headline":"Hexo + Kratos-Rebirth 主题搭建心得 & 我的第一篇博客","description":"大家好！这是我用 Hexo 框架搭配 Kratos-Rebirth 主题搭建的个人博...","image":"https://beibainian.github.io/blog/images/logo.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/images/logo.png"}},"datePublished":"2026-04-21T12:03:30.000Z","dateModified":"2026-04-21T12:03:51.794Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/04/21/Hexo+Kratos-Rebirth%E4%B8%BB%E9%A2%98%E6%90%AD%E5%BB%BA%E5%BF%83%E5%BE%97&%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/"}}
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"Hexo + Kratos-Rebirth 主题搭建心得 & 我的第一篇博客","description":"大家好！这是我用 Hexo 框架搭配 Kratos-Rebirth 主题搭建的个人博...","image":"https://beibainian.github.io/blog/2026/04/21/Hexo+Kratos-Rebirth%E4%B8%BB%E9%A2%98%E6%90%AD%E5%BB%BA%E5%BF%83%E5%BE%97&%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/blog/images/default.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-04-21T12:03:30.000Z","dateModified":"2026-04-22T06:36:34.646Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/04/21/Hexo+Kratos-Rebirth%E4%B8%BB%E9%A2%98%E6%90%AD%E5%BB%BA%E5%BF%83%E5%BE%97&%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/"}}
     </script>
   
   <!-- 关键 CSS 预加载 -->
@@ -68,28 +68,28 @@
   <style>
     
       .kratos-cover.kratos-cover-2 {
-        background-image: url('images/light.png');
+        background-image: url('/blog/images/light.png');
       }
       html[data-theme="dark"] .kratos-cover.kratos-cover-2 {
-        background-image: url('images/dark.png');
+        background-image: url('/blog/images/dark.png');
       }
     
     
       @media(min-width:768px) {
         body.custom-background {
-          background-image: url('images/background.png');
+          background-image: url('/blog/images/background.png');
         }
         html[data-theme="dark"] body.custom-background {
-          background-image: url('images/background.png');
+          background-image: url('/blog/images/background.png');
         }
       }
     
     
       .widget-kratos-about .photo-background {
-        background-image: url('images/light.png');
+        background-image: url('/blog/images/light.png');
       }
       html[data-theme="dark"] .widget-kratos-about .photo-background {
-        background-image: url('images/dark.png');
+        background-image: url('/blog/images/dark.png');
       }
     
   </style>
@@ -251,7 +251,7 @@
                     <a class="tag-none-link" href="/blog/tags/Hexo-Kratos-Rebirth/" rel="tag">Hexo & Kratos-Rebirth</a>
                 </div>
                 <div class="pull-date">
-                    <time datetime="2026-04-21T12:03:51.794Z" itemprop="dateModified">最后编辑：2026-04-21</time>
+                    <time datetime="2026-04-22T06:36:34.646Z" itemprop="dateModified">最后编辑：2026-04-22</time>
                 </div>
             </div>
         </footer>
@@ -275,7 +275,7 @@
     <div class="photo-background"></div>
     <div class="photo-wrapper clearfix">
         <div class="photo-wrapper-tip text-center">
-            <img class="about-photo" src="images/logo.png" alt="董子阳" loading="lazy" decoding="auto" />
+            <img class="about-photo" src="/blog/images/logo.png" alt="董子阳" loading="lazy" decoding="auto" />
         </div>
     </div>
     <div class="textwidget">
