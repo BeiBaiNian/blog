@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+  <!-- 元数据 -->
+  <meta charset="utf-8">
+  
+    <link rel="icon" href="/blog/images/favicon.png">
+  
+  
+  <title>智养舒居：基于YOLOv8-pose与多模态的居家安全监护系统实战 | 北白念</title>
+  <link rel="canonical" href="https://beibainian.github.io/blog/2026/04/29/%E6%99%BA%E5%85%BB%E6%95%B0%E6%8D%AE/">
+  <meta name="author" content="董子阳" />
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="robots" content="index,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="format-detection" content="telphone=no, email=no" />
+  
+    <meta name="keywords" content="Spring Boot, Vue, YOLOv8, 树莓派" />
+  
+  <meta name="description" content="这篇博客分享一个我大二、大三期间主导并深度参与的实战项目《智养舒居—基于YOLOv8-pose构建的多模态居家安全监护系统》。 这个项目源于日益严峻的老龄化社会背景，传统设备存在盲区大、隐私泄露风险高、且误报率高的问题。为了解决这些痛点，我们团队从零开始，研发了一套结合 AI 视觉、环境感知与边缘计算的全闭环智慧系统。 写这篇博客，主要是想对这个项目做一个阶段性的技术复盘，梳理一下我在其中应用的技">
+<meta property="og:type" content="article">
+<meta property="og:title" content="智养舒居：基于YOLOv8-pose与多模态的居家安全监护系统实战">
+<meta property="og:url" content="https://beibainian.github.io/blog/2026/04/29/%E6%99%BA%E5%85%BB%E6%95%B0%E6%8D%AE/index.html">
+<meta property="og:site_name" content="北白念">
+<meta property="og:description" content="这篇博客分享一个我大二、大三期间主导并深度参与的实战项目《智养舒居—基于YOLOv8-pose构建的多模态居家安全监护系统》。 这个项目源于日益严峻的老龄化社会背景，传统设备存在盲区大、隐私泄露风险高、且误报率高的问题。为了解决这些痛点，我们团队从零开始，研发了一套结合 AI 视觉、环境感知与边缘计算的全闭环智慧系统。 写这篇博客，主要是想对这个项目做一个阶段性的技术复盘，梳理一下我在其中应用的技">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://beibainian.github.io/blog/blog/images/technology.png">
+<meta property="article:published_time" content="2026-04-29T07:09:39.000Z">
+<meta property="article:modified_time" content="2026-04-29T09:06:14.666Z">
+<meta property="article:author" content="董子阳">
+<meta property="article:tag" content="YOLOv8">
+<meta property="article:tag" content="树莓派">
+<meta property="article:tag" content="Vue">
+<meta property="article:tag" content="Spring Boot">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://beibainian.github.io/blog/blog/images/technology.png">
+  
+  <!-- JSON-LD 结构化数据 -->
+  
+  
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"智养舒居：基于YOLOv8-pose与多模态的居家安全监护系统实战","description":"这篇博客分享一个我大二、大三期间主导并深度参与的实战项目《智养舒居—基于YOLOv8-pose构建的多模态居家安全监护系统》。\n这个项目源于日益严峻的老龄化社会背景，传统设备存在盲区大、隐私泄露风险高、且误...","image":"https://beibainian.github.io/blog/2026/04/29/%E6%99%BA%E5%85%BB%E6%95%B0%E6%8D%AE/blog/images/technology.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-04-29T07:09:39.000Z","dateModified":"2026-04-29T09:06:14.666Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/04/29/%E6%99%BA%E5%85%BB%E6%95%B0%E6%8D%AE/"}}
+    </script>
+  
+  <!-- 关键 CSS 预加载 -->
+  <link rel="preload" href="/blog/css/kr-core.min.css" as="style" crossorigin>
+  <link rel="preload" href="/blog/css/kr-theme/light.min.css" as="style" crossorigin>
+  <link rel="preload" href="/blog/css/kr-theme/dark.min.css" as="style" crossorigin>
+  <!-- 样式表文件 -->
+  <link rel="stylesheet" id="kratos-css" href="/blog/css/kr-core.min.css" media="all">
+  <link rel="stylesheet" id="theme-light-css" href="/blog/css/kr-theme/light.min.css" media="all">
+  <link rel="stylesheet" id="theme-dark-css" href="/blog/css/kr-theme/dark.min.css" media="(prefers-color-scheme: dark)">
+  
+    <link rel="stylesheet"  id="highlight-css" href="/blog/css/highlight/highlight.js/night-eighties.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/css/highlight/highlight.js/night-eighties.min.css"></noscript>
+  
+  <script src="/blog/js/kr-theme.min.js"></script>
+  <link rel="stylesheet"  id="fontawe-css" href="/blog/vendors/font-awesome@4.7.0/css/font-awesome.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/font-awesome@4.7.0/css/font-awesome.min.css"></noscript>
+  
+    <link rel="stylesheet"  id="nprogress-css" href="/blog/vendors/nprogress@0.2.0/nprogress.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/nprogress@0.2.0/nprogress.css"></noscript>
+  
+  
+    <link rel="stylesheet"  href="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.css"></noscript>
+  
+  <!-- 预先加载的JS文件 -->
+  
+    <script src="/blog/vendors/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  
+  <!-- 自定义站点横幅和背景 -->
+  <style>
+    
+      .kratos-cover.kratos-cover-2 {
+        background-image: url('/blog/images/light.png');
+      }
+      html[data-theme="dark"] .kratos-cover.kratos-cover-2 {
+        background-image: url('/blog/images/dark.png');
+      }
+    
+    
+      @media(min-width:768px) {
+        body.custom-background {
+          background-image: url('/blog/images/background.png');
+        }
+        html[data-theme="dark"] body.custom-background {
+          background-image: url('/blog/images/background.png');
+        }
+      }
+    
+    
+      .widget-kratos-about .photo-background {
+        background-image: url('/blog/images/light.png');
+      }
+      html[data-theme="dark"] .widget-kratos-about .photo-background {
+        background-image: url('/blog/images/dark.png');
+      }
+    
+  </style>
+
+  <!-- 额外的追加注入项 -->
+  
+</head>
+
+    <body class="custom-background">
+        <div id="kratos-wrapper">
+    <div id="kratos-page">
+        <div id="kratos-header">
+            <header id="kratos-desktop-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="nav-header">
+                        <nav id="kratos-menu-wrap">
+                            <ul id="kratos-primary-menu" class="sf-menu">
+                                
+                                    <li>
+                                        
+                                            <a href="/blog/">
+                                        
+                                            
+                                                <i class="fa fa-home"></i>
+                                            
+                                            首页
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/blog/archives/">
+                                        
+                                            
+                                                <i class="fa fa-file"></i>
+                                            
+                                            档案馆
+                                        </a>
+                                        
+                                    </li>
+                                
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <header id="kratos-mobile-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="color-logo"><a href="/blog/">北白念</a></div>
+                    <div id="kratos-nav-toggle-wrapper" class="nav-toggle">
+                        <a id="kratos-nav-toggle" class="kratos-nav-toggle">
+                            <i></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="kratos-start kratos-hero-2">
+            <!-- <div class="kratos-overlay"></div> -->
+            <div class="kratos-cover kratos-cover-2 text-center">
+                <div class="desc desc2 animate-box">
+                    <a href="/blog/">
+                        <h2>北白念</h2> <br />
+                        <span>记录个人的学习笔记和技术文章，偶尔也会分享一些生活感悟。</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="kratos-blog-post">
+            <div class="container">
+                <div id="main" class="row">
+
+
+        
+
+            
+
+            <section class="kr-main-col col-md-8">
+
+        
+
+            <article itemscope itemtype="https://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://beibainian.github.io/blog/2026/04/29/%E6%99%BA%E5%85%BB%E6%95%B0%E6%8D%AE/">
+    <div class="kratos-hentry kratos-page-inner clearfix">
+        <header class="kratos-page-header">
+            
+                <h1 class="kratos-page-title text-center" itemprop="name headline">智养舒居：基于YOLOv8-pose与多模态的居家安全监护系统实战</h1>
+            
+            <ul class="kratos-page-meta text-center">
+                <li><time datetime="2026-04-29T07:09:39.000Z" itemprop="datePublished"><i class="fa fa-calendar"></i> 2026-04-29</time></li>
+                <li itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <i class="fa fa-user"></i> 作者 <span itemprop="name">董子阳</span>
+                </li>
+                
+                    <li>
+                        <i class="fa fa-edit"></i> 
+                        
+                        
+                            ~2.69K
+                        
+                        字
+                    </li>
+                
+                
+                
+            </ul>
+        </header>
+        <div class="kratos-page-content kr-post">
+            
+            
+            
+            <hr />
+            <div itemprop="articleBody"><p>这篇博客分享一个我<strong>大二、大三期间</strong>主导并深度参与的实战项目《<strong>智养舒居—基于YOLOv8-pose构建的多模态居家安全监护系统</strong>》。</p>
+<p>这个项目源于日益严峻的老龄化社会背景，传统设备存在盲区大、隐私泄露风险高、且误报率高的问题。为了解决这些痛点，我们团队从零开始，研发了一套结合 AI 视觉、环境感知与边缘计算的全闭环智慧系统。</p>
+<p>写这篇博客，主要是想对这个项目做一个阶段性的技术复盘，梳理一下我在其中应用的技术栈、攻克的难点以及最终的落地成果。</p>
+<h2 id="🛠️核心技术栈总览"><a href="#🛠️核心技术栈总览" class="headerlink" title="🛠️核心技术栈总览"></a>🛠️核心技术栈总览</h2><p>在这个项目中，我全面参与了从底层算法、硬件接入到前后端平台开发的全流程，主要技术栈涵盖：</p>
+<ul>
+<li><strong>大模型的训练</strong>：YOLOv8-pose( 姿态估计 )、SVM( 支持向量机 )、K-means 聚类算法、Python。</li>
+<li><strong>后端开发</strong>：Spring Boot 框架、RESTful API 架构、MySQL 数据库、Redis 缓存系统。</li>
+<li><strong>前端与跨端开发</strong>：Vue.js、Element-UI、Uni-App( 微信小程序开发 )。</li>
+<li><strong>边缘计算与硬件</strong>：Raspberry Pi( 树莓派 4B )、多源传感器网络( DHT11 温湿度、MQ-2 烟雾传感器 )、Linux 环境部署。</li>
+</ul>
+<p><img src="/blog/blog/zysj/architecture_overview.png" alt="系统整体架构图"></p>
+<h2 id="💡我的核心工作与难点攻克"><a href="#💡我的核心工作与难点攻克" class="headerlink" title="💡我的核心工作与难点攻克"></a>💡我的核心工作与难点攻克</h2><p>为了让系统真正在复杂居家环境中落地，我在开发过程中投入了大量精力解决实际工程问题。以下是我在项目中主导的几个核心模块：</p>
+<h3 id="1-边缘计算与硬件通信部署-Edge-Computing-Hardware"><a href="#1-边缘计算与硬件通信部署-Edge-Computing-Hardware" class="headerlink" title="1. 边缘计算与硬件通信部署 (Edge Computing &amp; Hardware)"></a>1. 边缘计算与硬件通信部署 (Edge Computing &amp; Hardware)</h3><p>为了在控制成本的前提下保证高可用性，系统的感知层完全基于边缘计算架构独立搭建。我负责了整个硬件节点的选型、环境配置、代码烧录与通信链路打通。</p>
+<ul>
+<li><strong>硬件选型与装配</strong>：以树莓派 4B 为核心主控，通过 CSI 接口外挂 Camera Module V2 采集视频流，并利用 GPIO 引脚精准接入 DHT11（温湿度）与 MQ-2（烟雾）多源传感器。</li>
+<li><strong>环境部署与推流</strong>：在树莓派中配置了基于 Ubuntu 的轻量级 Linux 运行环境，编写 Python 数据采集脚本，实现传感器数据的实时读取与视频流的硬件解码。</li>
+<li><strong>数据上云</strong>：优化了数据传输协议，通过内置 Wi-Fi 模块，将预处理后的多模态数据以低于 80ms 的极低延迟稳定推流至云端服务器，打通了端到端的数据链路。</li>
+</ul>
+<p><img src="/blog/blog/zysj/hardware_equipment.jpg" alt="硬件设备效果图"></p>
+<h3 id="2-核心算法调优与多模态数据融合-AI-Model-Data-Analysis"><a href="#2-核心算法调优与多模态数据融合-AI-Model-Data-Analysis" class="headerlink" title="2. 核心算法调优与多模态数据融合 (AI Model &amp; Data Analysis)"></a>2. 核心算法调优与多模态数据融合 (AI Model &amp; Data Analysis)</h3><p>这是整个系统最核心的“大脑”部分。为了在复杂居家环境中精准识别老人行为，我主导了深度学习模型的训练与多模态数据的融合策略。</p>
+<ul>
+<li><strong>大模型训练与显存优化</strong>：放弃了算力要求过高的传统方案，转而采用 YOLOv8-pose 框架。全程主导了涵盖 4 类核心动作（站、坐、蹲、躺）的 7900 张海量数据集的采集、清洗与标注。面对训练时的显存瓶颈，我设计了分批次迁移学习策略，并通过模型集成技术，最终将行为识别准确率拉升至 96.1%。</li>
+<li><strong>多模态数据融合</strong>：单一的视觉检测极易产生误报。我引入了融合算法，将视觉提取的人体 17 个关键点坐标，与传感器传回的环境温湿度、烟雾浓度进行融合特征提取。</li>
+<li><strong>SVM 风险决策</strong>：利用 Z-score 归一化处理异构数据，并基于径向基函数（RBF）构建了 SVM 风险决策模型。实现了“异常姿态 + 环境参数”的交叉验证，构建了精准的异常行为分级预警机制。</li>
+</ul>
+<p><img src="/blog/blog/zysj/yolo_v8_pre.jpg" alt="模型训练效果图"></p>
+<p><img src="/blog/blog/zysj/PosePR_curve.png" alt="模型各项指标图"></p>
+<h3 id="3-全栈架构开发与多端业务闭环-Full-Stack-Multi-Terminal"><a href="#3-全栈架构开发与多端业务闭环-Full-Stack-Multi-Terminal" class="headerlink" title="3. 全栈架构开发与多端业务闭环 (Full-Stack &amp; Multi-Terminal)"></a>3. 全栈架构开发与多端业务闭环 (Full-Stack &amp; Multi-Terminal)</h3><p>为了让底层数据真正服务于业务场景，我参与搭建了基于前后端分离的完整业务闭环，实现了从数据感知到用户干预的无缝衔接。</p>
+<ul>
+<li><strong>后端中枢支撑</strong>：采用 Spring Boot 框架构建高并发后端，使用 MySQL 持久化结构数据，并引入 Redis 缓存层大幅提升高频请求的响应速度。</li>
+<li><strong>Web 管理端与数据大屏</strong>：使用 Vue.js 配合可视化工具，为社区工作人员开发了直观的数据可视化大屏与实时监控后台，实现了区域养老资源的全局掌控。</li>
+<li><strong>适老化移动端</strong>：基于 Uni-App 开发了微信小程序。内嵌腾讯云 TRTC 实现低延迟音视频通话，支持语音交互智能点餐与健康档案追踪，彻底打通了“监测-预警-响应”的最后一公里。</li>
+</ul>
+<p><img src="/blog/blog/zysj/Web_architecture.png" alt="Web端架构图"></p>
+<p><img src="/blog/blog/zysj/databig.png" alt="前端监控数据大屏"><br><em>(图注：Web 管理端的数据分析与实时监控可视化大屏)</em></p>
+<h2 id="🏆-项目完成度与阶段性成果"><a href="#🏆-项目完成度与阶段性成果" class="headerlink" title="🏆 项目完成度与阶段性成果"></a>🏆 项目完成度与阶段性成果</h2><p>目前，该系统已经完成了软硬件闭环联调，核心功能均已平稳运行，能够有效满足独居老人的全天候监护需求。</p>
+<p>在攻克这些技术难关的过程中，我们的系统也获得了比赛的认可。从项目成立至今荣获了：</p>
+<p><em><strong>学科竞赛荣誉</strong></em></p>
+<ul>
+<li><strong>第十届全国青年科普创新实验暨作品大赛</strong> 河北赛区 <strong>省级二等奖</strong>（2024.5）</li>
+<li><strong>第十二届全国大学生数字媒体科技作品及创意竞赛</strong> <strong>国家级三等奖</strong>（2024.11）</li>
+<li><strong>2024年华北五省（市、自治区）及港澳台大学生计算机应用大赛</strong> 决赛 <strong>省级三等奖</strong>（2024.12）</li>
+<li><strong>2025河北水利电力学院大学生创新大赛</strong> <strong>校级三等奖</strong>（2025.5）</li>
+<li><strong>第十一届全国青年科普创新实验暨作品大赛</strong> 河北赛区 <strong>省级一等奖</strong>（2025.6）</li>
+<li><strong>2025年大学生创新训练计划项目</strong> <strong>省级顺利结项</strong>（2025.6）</li>
+<li><strong>2025年华北五省（市、自治区）及港澳台大学生计算机应用大赛</strong> 决赛 <strong>省级三等奖</strong>（2026.1）</li>
+</ul>
+<p><em><strong>软件著作权</strong></em></p>
+<ul>
+<li><strong>基于图像识别技术的智慧养老小程序</strong>，计算机软件著作权，登记号：<strong>2025SR0893448</strong>，2025.05.29，原始取得，享有全部著作权</li>
+<li><strong>基于图像识别技术的智慧养老系统管理端</strong>，计算机软件著作权，登记号：<strong>2025SR2321087</strong>，2025.12.02，原始取得，享有全部著作权</li>
+</ul>
+<p><em><strong>学术论文成果</strong></em></p>
+<ul>
+<li>李亚男,董子阳,刘然,刘雨佳.基于YOLOv8-pose构建的多模态居家安全监护系统[J].河北水利电力学院学报,2025:1-6.</li>
+</ul>
+<p>这些成果是对我全栈开发能力和工程实践落地的最好证明。</p>
+<h2 id="🔗-技术专栏占位"><a href="#🔗-技术专栏占位" class="headerlink" title="🔗 技术专栏占位"></a>🔗 技术专栏占位</h2><p>为了保持这篇复盘的简洁，关于项目中涉及的底层硬核技术，我将它们拆分成了独立的系列文章。感兴趣的朋友或面试官，可以点击下方链接查看我的具体实现思路：</p>
+<ul>
+<li>👉 <a href="/blog/404.html">《YOLOv8-pose 显存受限下的分批次训练与模型集成方案》</a></li>
+<li>👉 <a href="/blog/404.html">《基于 SVM 与多源传感器数据的异常行为决策树设计》</a></li>
+<li>👉 <a href="/blog/404.html">《Spring Boot + Uni-App 构建低延迟适老化交互系统的踩坑记录》</a></li>
+</ul>
+<p>通过这个项目，我不仅深化了代码能力，更深刻体会到了技术落地去解决实际社会痛点的成就感。期待未来能用技术创造更多价值！</p>
+</div>
+        </div>
+        
+        <footer class="kratos-entry-footer clearfix">
+            
+            
+            
+                <div class="post-actions text-center clearfix" id="post-actions">
+                
+                    <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
+                
+                
+                </div>
+            
+            <div class="footer-tag clearfix">
+                <div class="pull-left">
+                <i class="fa fa-tags"></i>
+                    <a class="tag-none-link" href="/blog/tags/Spring-Boot/" rel="tag">Spring Boot</a>, <a class="tag-none-link" href="/blog/tags/Vue/" rel="tag">Vue</a>, <a class="tag-none-link" href="/blog/tags/YOLOv8/" rel="tag">YOLOv8</a>, <a class="tag-none-link" href="/blog/tags/%E6%A0%91%E8%8E%93%E6%B4%BE/" rel="tag">树莓派</a>
+                </div>
+                <div class="pull-date">
+                    <time datetime="2026-04-29T09:06:14.666Z" itemprop="dateModified">最后编辑：2026-04-29</time>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+        <nav class="navigation post-navigation clearfix" role="navigation">
+            
+            <div class="nav-previous clearfix">
+                <a title=" Hexo + Kratos-Rebirth 主题搭建心得 &amp; 我的第一篇博客" href="/blog/2026/04/21/Hexo+Kratos-Rebirth主题搭建心得&我的第一篇博客/"><i class="fa fa-angle-left"></i> 上一篇</a>
+            </div>
+            
+            
+        </nav>
+    
+    
+</article>
+
+        
+
+            </section>
+
+            
+                
+
+<section id="kratos-widget-area" class="col-md-4 hidden-xs hidden-sm">
+    <!-- 文章和页面根据splitter来分割，没有的话就从头开始设置为sticky -->
+    
+    
+                <aside id="krw-about" class="widget widget-kratos-about clearfix">
+    <div class="photo-background"></div>
+    <div class="photo-wrapper clearfix">
+        <div class="photo-wrapper-tip text-center">
+            <img class="about-photo" src="/blog/images/logo.png" alt="董子阳" loading="lazy" decoding="auto" />
+        </div>
+    </div>
+    <div class="textwidget">
+        <p class="text-center">软件开发 | RISC-V | Java | 算法</p>
+    </div>
+    <div class="site-meta">
+        <a class="meta-item" href="/blog/archives/">
+            <span class="title">
+                文章
+            </span>
+            <span class="count">
+                2
+            </span>
+        </a>
+        <a class="meta-item" href="/blog/categories/">
+            <span class="title">
+                分类
+            </span>
+            <span class="count">
+                2
+            </span>
+        </a>
+        <a class="meta-item" href="/blog/tags/">
+            <span class="title">
+                标签
+            </span>
+            <span class="count">
+                5
+            </span>
+        </a>
+    </div>
+</aside>
+            
+                    <div class="sticky-area">
+                
+                
+  <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
+    <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/">技术笔记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/">项目经历</a><span class="category-list-count">1</span></li></ul>
+  </aside>
+
+
+            
+                
+  <aside id="krw-tags" class="widget widget-kratos-tags clearfix">
+    <h4 class="widget-title"><i class="fa fa-tags"></i>标签聚合</h4>
+      <div class="tag-clouds">
+        <a href="/blog/tags/Hexo-Kratos-Rebirth/" style="font-size: 0.6em;">Hexo & Kratos-Rebirth</a> <a href="/blog/tags/Spring-Boot/" style="font-size: 0.6em;">Spring Boot</a> <a href="/blog/tags/Vue/" style="font-size: 0.6em;">Vue</a> <a href="/blog/tags/YOLOv8/" style="font-size: 0.6em;">YOLOv8</a> <a href="/blog/tags/%E6%A0%91%E8%8E%93%E6%B4%BE/" style="font-size: 0.6em;">树莓派</a>
+      </div>
+  </aside>
+
+            
+                
+  <aside id="krw-posts" class="widget widget-kratos-posts">
+  <h4 class="widget-title"><i class="fa fa-file"></i>最新文章</h4>
+  <div class="tab-content">
+      <ul class="list-group">
+        
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/04/29/%E6%99%BA%E5%85%BB%E6%95%B0%E6%8D%AE/"><i class="fa fa-book"></i> 智养舒居：基于YOLOv8-pose与多模态的居家安全监护系统实战</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/04/21/Hexo+Kratos-Rebirth%E4%B8%BB%E9%A2%98%E6%90%AD%E5%BB%BA%E5%BF%83%E5%BE%97&%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/"><i class="fa fa-book"></i> Hexo + Kratos-Rebirth 主题搭建心得 & 我的第一篇博客</a>
+            
+          
+        
+      </ul>
+  </div>
+  </aside>
+
+            
+    </div>
+</section>
+            
+
+        
+
+        </div>
+</div>
+</div>
+
+<footer>
+    <div id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 footer-list text-center">
+                    <ul class="kratos-social-icons">
+                        
+                    </ul>
+                    <ul class="kratos-copyright">
+                        <div>
+                            <li>&copy; 2026 北白念 版权所有.</li>
+                            <li>本站已运行<span id="kr-since">Loading...</span></li>
+                        </div>
+                        <div>
+                            <li></li>
+                            <li>站点由<i class="fa fa-heart" style="color:#d43f57"></i>北白念<i class="fa fa-heart" style="color:#d43f57"></i> 搭建</li>
+                        </div>
+                        <!-- 额外的追加注入项 -->
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="kr-tool text-center">
+            <div class="tool">
+                <!-- 额外的追加注入项 -->
+                
+                            
+                                <div class="box search-box">
+                                    <a href="/blog/search">
+                                        <span class="fa fa-search"></span>
+                                    </a>
+                                </div>
+                                
+                                    <div class="box theme-box" id="theme-toggle">
+                                        <span class="fa fa-adjust"></span>
+                                    </div>
+            </div>
+            <div id="gotop-box" class="box gotop-box">
+                <span class="fa fa-chevron-up"></span>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</div>
+
+
+    <div id="kr-donate-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseDonateModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-bitcoin"></i>
+            </div>
+            <div class="kr-modal-title">💖 感谢支持，点击查看收款码</div>
+            <button class="kr-modal-close" onclick="krCloseDonateModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-donate-message">你的鼓励是我持续更新的动力！</div>
+            <div class="kr-donate-qr" id="kr-donate-qr">
+                
+            </div>
+            <div class="kr-donate-platforms">
+                
+                    
+                        <button class="kr-donate-platform-button" style="color: #07C160;" title="微信" onclick="krDonateModalShowPlatformQR('images/wechat.png', '#07C160')">
+                            <i class="fa fa-fa-weixin"></i>
+                        </button>
+                    
+                
+                    
+                        <button class="kr-donate-platform-button" style="color: #1677FF;" title="支付宝" onclick="krDonateModalShowPlatformQR('images/alipay.png', '#1677FF')">
+                            <i class="fa fa-fa-alipay"></i>
+                        </button>
+                    
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/blog/js/kr-modal/donate.min.js"></script>
+
+        
+
+            
+
+                        <!-- 额外的追加注入项 -->
+                        
+        <script>
+    if (!window.kr) {
+        window.kr = {};
+    }
+    window.kr.notMobile = (!(navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)));
+    window.kr.siteRoot = "/blog/";
+</script>
+
+
+  <script defer src="/blog/vendors/nprogress@0.2.0/nprogress.js"></script>
+
+
+
+  <script defer src="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.js"></script>
+
+
+<script defer src="/blog/js/kr-core.min.js"></script>
+
+
+  <script defer src="/blog/js/kr-pjax.min.js"></script>
+
+
+<!-- 额外的追加注入项 -->
+
+
+    </body>
+</html>
