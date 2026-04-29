@@ -19,16 +19,16 @@
   
     <meta name="keywords" content="Spring Boot, Vue, YOLOv8, 树莓派" />
   
-  <meta name="description" content="这篇博客分享一个我大二、大三期间主导并深度参与的实战项目《智养舒居—基于YOLOv8-pose构建的多模态居家安全监护系统》。 这个项目源于日益严峻的老龄化社会背景，传统设备存在盲区大、隐私泄露风险高、且误报率高的问题。为了解决这些痛点，我们团队从零开始，研发了一套结合 AI 视觉、环境感知与边缘计算的全闭环智慧系统。 写这篇博客，主要是想对这个项目做一个阶段性的技术复盘，梳理一下我在其中应用的技">
+  <meta name="description" content="这篇博客分享一个我大二、大三期间主导并深度参与的实战项目《智养舒居—基于YOLOv8-pose构建的多模态居家安全监护系统》。 这个项目源于日益严峻的老龄化社会背景，传统设备存在盲区大、隐私泄露风险高、且误报率高的问题。为了解决这些痛点，这个项目从零开始，研发了一套结合AI视觉、环境感知与边缘计算的全闭环智慧系统。 🛠️核心技术栈总览在本项目中，我全程深度参与从算法模型训练、边缘硬件接入到后端服">
 <meta property="og:type" content="article">
 <meta property="og:title" content="智养舒居：基于YOLOv8-pose与多模态的居家安全监护系统实战">
 <meta property="og:url" content="https://beibainian.github.io/blog/2026/04/29/%E6%99%BA%E5%85%BB%E6%95%B0%E6%8D%AE/index.html">
 <meta property="og:site_name" content="北白念">
-<meta property="og:description" content="这篇博客分享一个我大二、大三期间主导并深度参与的实战项目《智养舒居—基于YOLOv8-pose构建的多模态居家安全监护系统》。 这个项目源于日益严峻的老龄化社会背景，传统设备存在盲区大、隐私泄露风险高、且误报率高的问题。为了解决这些痛点，我们团队从零开始，研发了一套结合 AI 视觉、环境感知与边缘计算的全闭环智慧系统。 写这篇博客，主要是想对这个项目做一个阶段性的技术复盘，梳理一下我在其中应用的技">
+<meta property="og:description" content="这篇博客分享一个我大二、大三期间主导并深度参与的实战项目《智养舒居—基于YOLOv8-pose构建的多模态居家安全监护系统》。 这个项目源于日益严峻的老龄化社会背景，传统设备存在盲区大、隐私泄露风险高、且误报率高的问题。为了解决这些痛点，这个项目从零开始，研发了一套结合AI视觉、环境感知与边缘计算的全闭环智慧系统。 🛠️核心技术栈总览在本项目中，我全程深度参与从算法模型训练、边缘硬件接入到后端服">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://beibainian.github.io/blog/blog/images/technology.png">
 <meta property="article:published_time" content="2026-04-29T07:09:39.000Z">
-<meta property="article:modified_time" content="2026-04-29T09:20:35.322Z">
+<meta property="article:modified_time" content="2026-04-29T11:37:55.074Z">
 <meta property="article:author" content="董子阳">
 <meta property="article:tag" content="YOLOv8">
 <meta property="article:tag" content="树莓派">
@@ -41,7 +41,7 @@
   
   
     <script type="application/ld+json">
-    {"@context":"https://schema.org","@type":"BlogPosting","headline":"智养舒居：基于YOLOv8-pose与多模态的居家安全监护系统实战","description":"这篇博客分享一个我大二、大三期间主导并深度参与的实战项目《智养舒居—基于YOLOv8-pose构建的多模态居家安全监护系统》。\n这个项目源于日益严峻的老龄化社会背景，传统设备存在盲区大、隐私泄露风险高、且误...","image":"https://beibainian.github.io/blog/2026/04/29/%E6%99%BA%E5%85%BB%E6%95%B0%E6%8D%AE/blog/images/technology.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-04-29T07:09:39.000Z","dateModified":"2026-04-29T09:20:35.322Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/04/29/%E6%99%BA%E5%85%BB%E6%95%B0%E6%8D%AE/"}}
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"智养舒居：基于YOLOv8-pose与多模态的居家安全监护系统实战","description":"这篇博客分享一个我大二、大三期间主导并深度参与的实战项目《智养舒居—基于YOLOv8-pose构建的多模态居家安全监护系统》。\n这个项目源于日益严峻的老龄化社会背景，传统设备存在盲区大、隐私泄露风险高、且误...","image":"https://beibainian.github.io/blog/2026/04/29/%E6%99%BA%E5%85%BB%E6%95%B0%E6%8D%AE/blog/images/technology.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-04-29T07:09:39.000Z","dateModified":"2026-04-29T11:37:55.074Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/04/29/%E6%99%BA%E5%85%BB%E6%95%B0%E6%8D%AE/"}}
     </script>
   
   <!-- 关键 CSS 预加载 -->
@@ -193,7 +193,7 @@
                         <i class="fa fa-edit"></i> 
                         
                         
-                            ~2.67K
+                            ~2.68K
                         
                         字
                     </li>
@@ -208,41 +208,41 @@
             
             <hr />
             <div itemprop="articleBody"><p>这篇博客分享一个我<strong>大二、大三期间</strong>主导并深度参与的实战项目《<strong>智养舒居—基于YOLOv8-pose构建的多模态居家安全监护系统</strong>》。</p>
-<p>这个项目源于日益严峻的老龄化社会背景，传统设备存在盲区大、隐私泄露风险高、且误报率高的问题。为了解决这些痛点，我们团队从零开始，研发了一套结合 AI 视觉、环境感知与边缘计算的全闭环智慧系统。</p>
-<p>写这篇博客，主要是想对这个项目做一个阶段性的技术复盘，梳理一下我在其中应用的技术栈、攻克的难点以及最终的落地成果。</p>
-<h2 id="🛠️核心技术栈总览"><a href="#🛠️核心技术栈总览" class="headerlink" title="🛠️核心技术栈总览"></a>🛠️核心技术栈总览</h2><p>在这个项目中，我全面参与了从底层算法、硬件接入到前后端平台开发的全流程，主要技术栈涵盖：</p>
+<p>这个项目源于日益严峻的老龄化社会背景，传统设备存在盲区大、隐私泄露风险高、且误报率高的问题。为了解决这些痛点，这个项目从零开始，研发了一套结合AI视觉、环境感知与边缘计算的全闭环智慧系统。</p>
+<h2 id="🛠️核心技术栈总览"><a href="#🛠️核心技术栈总览" class="headerlink" title="🛠️核心技术栈总览"></a>🛠️核心技术栈总览</h2><p>在本项目中，我全程深度参与从算法模型训练、边缘硬件接入到后端服务、前端平台及微信小程序开发的全流程研发工作，核心技术栈与工作内容如下：</p>
 <ul>
-<li><strong>模型的训练</strong>：YOLOv8-pose( 姿态估计 )、SVM( 支持向量机 )、K-means 聚类算法、Python。</li>
-<li><strong>后端开发</strong>：Spring Boot 框架、RESTful API 架构、MySQL 数据库、Redis 缓存系统。</li>
-<li><strong>前端与跨端开发</strong>：Vue.js、Element-UI、Uni-App( 微信小程序开发 )。</li>
-<li><strong>边缘计算与硬件</strong>：Raspberry Pi( 树莓派 4B )、多源传感器网络( DHT11 温湿度、MQ-2 烟雾传感器 )、Linux 环境部署。</li>
+<li><strong>模型训练</strong>：基于Python，完成YOLOv8x-pose深度学习姿态估计模型的训练与调优，实现人体关键点精准检测；结合SVM支持向量机构建机器学习分类模型，完成姿态数据的分析与识别。</li>
+<li><strong>后端开发</strong>：基于RuoYi开源快速开发框架，采用Spring Boot框架搭建后端服务，遵循RESTful API架构实现接口标准化设计；使用MySQL数据库完成业务数据持久化存储，结合Redis缓存提升系统并发处理能力与响应效率。</li>
+<li><strong>前端开发</strong>：采用Vue.js搭配Element-UI组件库，完成Web管理平台的页面开发、功能集成与交互优化，实现系统后台的可视化管理。</li>
+<li><strong>微信小程序开发</strong>：独立完成微信小程序的全流程开发，实现移动端轻量化功能交互、数据实时展示与业务闭环落地。</li>
+<li><strong>边缘计算与硬件部署</strong>：基于Raspberry Pi（树莓派 4B）硬件平台与Linux操作系统，完成DHT11温湿度传感器、MQ-2烟雾传感器等多源传感器网络的硬件接入、数据采集与边缘端环境部署调试。</li>
 </ul>
 <p><img src="/blog/blog/zysj/architecture_overview.png" alt="系统整体架构图"></p>
 <h2 id="💡我的核心工作与难点攻克"><a href="#💡我的核心工作与难点攻克" class="headerlink" title="💡我的核心工作与难点攻克"></a>💡我的核心工作与难点攻克</h2><p>为了让系统真正在复杂居家环境中落地，我在开发过程中投入了大量精力解决实际工程问题。以下是我在项目中主导的几个核心模块：</p>
-<h3 id="1-边缘计算与硬件通信部署-Edge-Computing-Hardware"><a href="#1-边缘计算与硬件通信部署-Edge-Computing-Hardware" class="headerlink" title="1. 边缘计算与硬件通信部署 (Edge Computing &amp; Hardware)"></a>1. 边缘计算与硬件通信部署 (Edge Computing &amp; Hardware)</h3><p>为了在控制成本的前提下保证高可用性，系统的感知层完全基于边缘计算架构独立搭建。我负责了整个硬件节点的选型、环境配置、代码烧录与通信链路打通。</p>
+<h3 id="1-边缘计算与硬件通信部署"><a href="#1-边缘计算与硬件通信部署" class="headerlink" title="1.边缘计算与硬件通信部署"></a>1.边缘计算与硬件通信部署</h3><p>为了在控制成本的前提下保证高可用性，系统的感知层完全基于边缘计算架构独立搭建。我负责了整个硬件节点的选型、环境配置、代码烧录与通信链路打通。</p>
 <ul>
-<li><strong>硬件选型与装配</strong>：以树莓派 4B 为核心主控，通过 CSI 接口外挂 Camera Module V2 采集视频流，并利用 GPIO 引脚精准接入 DHT11（温湿度）与 MQ-2（烟雾）多源传感器。</li>
-<li><strong>环境部署与推流</strong>：在树莓派中配置了基于 Ubuntu 的轻量级 Linux 运行环境，编写 Python 数据采集脚本，实现传感器数据的实时读取与视频流的硬件解码。</li>
-<li><strong>数据上云</strong>：优化了数据传输协议，通过内置 Wi-Fi 模块，将预处理后的多模态数据以极低延迟稳定推流至云端服务器，打通了端到端的数据链路。</li>
+<li><strong>硬件选型与装配</strong>：以树莓派 4B为核心主控，通过CSI接口外接Camera Module V2采集视频流，并利用GPIO引脚精准接入DHT11（温湿度）与MQ-2（烟雾）多源传感器。</li>
+<li><strong>环境部署与推流</strong>：在树莓派中配置了基于Ubuntu的轻量级Linux运行环境，编写Python数据采集脚本，实现传感器数据的实时读取与视频流的硬件解码。</li>
+<li><strong>数据上云</strong>：通过内置Wi-Fi模块，将预处理后的多模态数据以极低延迟稳定推流至云端服务器，打通了端到端的数据链路。</li>
 </ul>
 <p><img src="/blog/blog/zysj/hardware_equipment.jpg" alt="硬件设备效果图"></p>
-<h3 id="2-核心算法调优与多模态数据融合-AI-Model-Data-Analysis"><a href="#2-核心算法调优与多模态数据融合-AI-Model-Data-Analysis" class="headerlink" title="2. 核心算法调优与多模态数据融合 (AI Model &amp; Data Analysis)"></a>2. 核心算法调优与多模态数据融合 (AI Model &amp; Data Analysis)</h3><p>这是整个系统最核心的“大脑”部分。为了在复杂居家环境中精准识别老人行为，我主导了深度学习模型的训练与多模态数据的融合策略。</p>
+<h3 id="2-核心算法调优与多模态数据融合"><a href="#2-核心算法调优与多模态数据融合" class="headerlink" title="2.核心算法调优与多模态数据融合"></a>2.核心算法调优与多模态数据融合</h3><p>这是整个系统最核心的“大脑”部分。为了在复杂居家环境中精准识别老人行为，我主导了深度学习模型的训练与多模态数据的融合策略。</p>
 <ul>
-<li><strong>模型训练与显存优化</strong>：放弃了算力要求过高的传统方案，转而采用 YOLOv8-pose 框架。全程主导了涵盖 4 类核心动作（站、坐、蹲、躺）的 7900 张海量数据集的采集、清洗与标注。面对训练时的显存瓶颈，我设计了分批次迁移学习策略，并通过模型集成技术，最终将行为识别准确率拉升至 96.1%。</li>
+<li><strong>模型训练与显存优化</strong>：放弃了算力要求过高的传统方案，转而采用YOLOv8-pose框架。全程主导了涵盖4类核心动作（站、坐、蹲、躺）的7900张海量数据集的采集、清洗与标注。面对训练时的显存瓶颈（个人PC），我设计了分批次迁移学习策略，并通过模型集成技术，最终将行为识别准确率提升到<strong>96.1%</strong>。</li>
 <li><strong>多模态数据融合</strong>：单一的视觉检测极易产生误报。我引入了融合算法，将视觉提取的人体 17 个关键点坐标，与传感器传回的环境温湿度、烟雾浓度进行融合特征提取。</li>
-<li><strong>SVM 风险决策</strong>：利用 Z-score 归一化处理异构数据，并基于径向基函数（RBF）构建了 SVM 风险决策模型。实现了“异常姿态 + 环境参数”的交叉验证，构建了精准的异常行为分级预警机制。</li>
+<li><strong>SVM风险决策</strong>：利用Z-score归一化处理异构数据，并基于径向基函数（RBF）构建了SVM风险决策模型。实现了“异常姿态+环境参数”的交叉验证，构建了精准的异常行为分级预警机制。</li>
 </ul>
 <p><img src="/blog/blog/zysj/yolo_v8_pre.jpg" alt="模型训练效果图"></p>
-<p><img src="/blog/blog/zysj/PosePR_curve.png" alt="模型各项指标图"></p>
-<h3 id="3-全栈架构开发与多端业务闭环-Full-Stack-Multi-Terminal"><a href="#3-全栈架构开发与多端业务闭环-Full-Stack-Multi-Terminal" class="headerlink" title="3. 全栈架构开发与多端业务闭环 (Full-Stack &amp; Multi-Terminal)"></a>3. 全栈架构开发与多端业务闭环 (Full-Stack &amp; Multi-Terminal)</h3><p>为了让底层数据真正服务于业务场景，我参与搭建了基于前后端分离的完整业务闭环，实现了从数据感知到用户干预的无缝衔接。</p>
+<p><img src="/blog/blog/zysj/PosePR_curve.png" alt="模型指标图"></p>
+<h3 id="3-全栈架构开发与多端业务闭环"><a href="#3-全栈架构开发与多端业务闭环" class="headerlink" title="3.全栈架构开发与多端业务闭环"></a>3.全栈架构开发与多端业务闭环</h3><p>为了让底层数据真正服务于业务场景，我参与且主导搭建了基于前后端分离的完整业务闭环，实现了从数据感知到用户干预的无缝衔接。</p>
 <ul>
-<li><strong>后端中枢支撑</strong>：采用 Spring Boot 框架构建高并发后端，使用 MySQL 持久化结构数据，并引入 Redis 缓存层大幅提升高频请求的响应速度。</li>
-<li><strong>Web 管理端与数据大屏</strong>：使用 Vue.js 配合可视化工具，为社区工作人员开发了直观的数据可视化大屏与实时监控后台，实现了区域养老资源的全局掌控。</li>
+<li><strong>后端中枢支撑</strong>：采用Spring Boot框架构建高并发后端，使用MySQL持久化结构数据，并引入Redis缓存层大幅提升高频请求的响应速度。</li>
+<li><strong>Web 管理端与数据大屏</strong>：使用Vue.js配合可视化工具，为社区工作人员开发了直观的数据可视化大屏与实时监控后台，实现了区域养老资源的全局掌控。</li>
 <li><strong>适老化移动端</strong>：基于 Uni-App 开发了微信小程序。内嵌腾讯云 TRTC 实现低延迟音视频通话，支持语音交互智能点餐与健康档案追踪，彻底打通了“监测-预警-响应”的最后一公里。</li>
 </ul>
 <p><img src="/blog/blog/zysj/Web_architecture.png" alt="Web端架构图"></p>
 <p><img src="/blog/blog/zysj/databig.png" alt="前端监控数据大屏"><br><em>(图注：Web 管理端的数据分析与实时监控可视化大屏)</em></p>
-<h2 id="🏆-项目完成度与阶段性成果"><a href="#🏆-项目完成度与阶段性成果" class="headerlink" title="🏆 项目完成度与阶段性成果"></a>🏆 项目完成度与阶段性成果</h2><p>目前，该系统已经完成了软硬件闭环联调，核心功能均已平稳运行，能够有效满足独居老人的全天候监护需求。</p>
+<h2 id="🏆项目完成度与阶段性成果"><a href="#🏆项目完成度与阶段性成果" class="headerlink" title="🏆项目完成度与阶段性成果"></a>🏆项目完成度与阶段性成果</h2><p>目前，该系统已经完成了软硬件闭环联调，核心功能均已平稳运行，能够有效满足独居老人的全天候监护需求。</p>
 <p>在攻克这些技术难关的过程中，我们的系统也获得了认可。从项目成立至今荣获了：</p>
 <p><em><strong>学科竞赛荣誉</strong></em></p>
 <ul>
@@ -256,15 +256,15 @@
 </ul>
 <p><em><strong>软件著作权</strong></em></p>
 <ul>
-<li><strong>基于图像识别技术的智慧养老小程序</strong>，计算机软件著作权，登记号：<strong>2025SR0893448</strong>，2025.05.29，原始取得，享有全部著作权</li>
+<li><strong>基于图像识别技术的智慧养老的小程序</strong>，计算机软件著作权，登记号：<strong>2025SR0893448</strong>，2025.05.29，原始取得，享有全部著作权</li>
 <li><strong>基于图像识别技术的智慧养老系统管理端</strong>，计算机软件著作权，登记号：<strong>2025SR2321087</strong>，2025.12.02，原始取得，享有全部著作权</li>
 </ul>
 <p><em><strong>学术论文成果</strong></em></p>
 <ul>
 <li>李亚男,董子阳,刘然,刘雨佳.基于YOLOv8-pose构建的多模态居家安全监护系统[J].河北水利电力学院学报,2025:1-6.</li>
 </ul>
-<p>这些成果是对我全栈开发能力和工程实践落地的最好证明。</p>
-<h2 id="🔗-技术专栏占位"><a href="#🔗-技术专栏占位" class="headerlink" title="🔗 技术专栏占位"></a>🔗 技术专栏占位</h2><p>为了保持这篇复盘的简洁，关于项目中涉及的底层硬核技术，我将它们拆分成了独立的系列文章。感兴趣的朋友或HR，可以点击下方链接查看我的具体实现思路：</p>
+<p>这些成果是对我开发能力和工程实践落地的最好证明。</p>
+<h2 id="🔗-技术专栏占位"><a href="#🔗-技术专栏占位" class="headerlink" title="🔗 技术专栏占位"></a>🔗 技术专栏占位</h2><p>为了保持这篇复盘的简洁，关于项目中涉及的底层硬核技术，我将它们拆分成了多个博客文章。感兴趣的朋友或HR，可以点击下方链接查看我的具体实现思路：</p>
 <ul>
 <li>👉 <a href="/blog/404.html">《YOLOv8-pose 显存受限下的分批次训练与模型集成方案》</a></li>
 <li>👉 <a href="/blog/404.html">《基于 SVM 与多源传感器数据的异常行为决策树设计》</a></li>
@@ -291,7 +291,7 @@
                     <a class="tag-none-link" href="/blog/tags/Spring-Boot/" rel="tag">Spring Boot</a>, <a class="tag-none-link" href="/blog/tags/Vue/" rel="tag">Vue</a>, <a class="tag-none-link" href="/blog/tags/YOLOv8/" rel="tag">YOLOv8</a>, <a class="tag-none-link" href="/blog/tags/%E6%A0%91%E8%8E%93%E6%B4%BE/" rel="tag">树莓派</a>
                 </div>
                 <div class="pull-date">
-                    <time datetime="2026-04-29T09:20:35.322Z" itemprop="dateModified">最后编辑：2026-04-29</time>
+                    <time datetime="2026-04-29T11:37:55.074Z" itemprop="dateModified">最后编辑：2026-04-29</time>
                 </div>
             </div>
         </footer>
