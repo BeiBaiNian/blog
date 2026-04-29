@@ -28,7 +28,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://beibainian.github.io/blog/blog/images/technology.png">
 <meta property="article:published_time" content="2026-04-29T07:09:39.000Z">
-<meta property="article:modified_time" content="2026-04-29T11:37:55.074Z">
+<meta property="article:modified_time" content="2026-04-29T12:08:02.586Z">
 <meta property="article:author" content="董子阳">
 <meta property="article:tag" content="YOLOv8">
 <meta property="article:tag" content="树莓派">
@@ -41,7 +41,7 @@
   
   
     <script type="application/ld+json">
-    {"@context":"https://schema.org","@type":"BlogPosting","headline":"智养舒居：基于YOLOv8-pose与多模态的居家安全监护系统实战","description":"这篇博客分享一个我大二、大三期间主导并深度参与的实战项目《智养舒居—基于YOLOv8-pose构建的多模态居家安全监护系统》。\n这个项目源于日益严峻的老龄化社会背景，传统设备存在盲区大、隐私泄露风险高、且误...","image":"https://beibainian.github.io/blog/2026/04/29/%E6%99%BA%E5%85%BB%E6%95%B0%E6%8D%AE/blog/images/technology.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-04-29T07:09:39.000Z","dateModified":"2026-04-29T11:37:55.074Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/04/29/%E6%99%BA%E5%85%BB%E6%95%B0%E6%8D%AE/"}}
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"智养舒居：基于YOLOv8-pose与多模态的居家安全监护系统实战","description":"这篇博客分享一个我大二、大三期间主导并深度参与的实战项目《智养舒居—基于YOLOv8-pose构建的多模态居家安全监护系统》。\n这个项目源于日益严峻的老龄化社会背景，传统设备存在盲区大、隐私泄露风险高、且误...","image":"https://beibainian.github.io/blog/2026/04/29/%E6%99%BA%E5%85%BB%E6%95%B0%E6%8D%AE/blog/images/technology.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-04-29T07:09:39.000Z","dateModified":"2026-04-29T12:08:02.586Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/04/29/%E6%99%BA%E5%85%BB%E6%95%B0%E6%8D%AE/"}}
     </script>
   
   <!-- 关键 CSS 预加载 -->
@@ -193,7 +193,7 @@
                         <i class="fa fa-edit"></i> 
                         
                         
-                            ~2.68K
+                            ~3.07K
                         
                         字
                     </li>
@@ -234,11 +234,10 @@
 </ul>
 <p><img src="/blog/blog/zysj/yolo_v8_pre.jpg" alt="模型训练效果图"></p>
 <p><img src="/blog/blog/zysj/PosePR_curve.png" alt="模型指标图"></p>
-<h3 id="3-全栈架构开发与多端业务闭环"><a href="#3-全栈架构开发与多端业务闭环" class="headerlink" title="3.全栈架构开发与多端业务闭环"></a>3.全栈架构开发与多端业务闭环</h3><p>为了让底层数据真正服务于业务场景，我参与且主导搭建了基于前后端分离的完整业务闭环，实现了从数据感知到用户干预的无缝衔接。</p>
-<ul>
-<li><strong>后端中枢支撑</strong>：采用Spring Boot框架构建高并发后端，使用MySQL持久化结构数据，并引入Redis缓存层大幅提升高频请求的响应速度。</li>
-<li><strong>Web 管理端与数据大屏</strong>：使用Vue.js配合可视化工具，为社区工作人员开发了直观的数据可视化大屏与实时监控后台，实现了区域养老资源的全局掌控。</li>
-<li><strong>适老化移动端</strong>：基于 Uni-App 开发了微信小程序。内嵌腾讯云 TRTC 实现低延迟音视频通话，支持语音交互智能点餐与健康档案追踪，彻底打通了“监测-预警-响应”的最后一公里。</li>
+<h3 id="3-全栈架构开发与多端业务闭环"><a href="#3-全栈架构开发与多端业务闭环" class="headerlink" title="3.全栈架构开发与多端业务闭环"></a>3.全栈架构开发与多端业务闭环</h3><ul>
+<li><strong>后端中枢支撑</strong>：采用Spring Boot框架组织业务逻辑，便于模块划分与功能扩展；以MySQL数据库作为数据存储核心，负责持久化各类结构化数据，包括用户信息、老人档案、监护数据、设备运行参数等，为系统稳定运行提供坚实数据支撑；引入Node.js服务器端运行环境，高效接收前端HTTP请求、处理并发任务，确保前后端数据交互顺畅；遵循标准化RESTful API接口设计规范，实现前后端高效对接，同时为后续系统集成预留拓展空间；引入Redis作为高性能内存数据库，构建专属缓存层，缓存老人实时监护数据、用户权限信息等频繁访问的数据，制定合理的缓存策略与数据更新机制，确保缓存数据与数据库数据一致性，有效减轻数据库压力，大幅提升系统整体响应速度。</li>
+<li><strong>Web 管理端与数据大屏</strong>：选用Vue框架作为前端核心，利用其组件化开发模式高效构建用户界面，借助HTML、CSS、JavaScript搭建页面基础架构；搭配Element-UI组件库美化界面、优化交互逻辑，提升社区工作人员操作体验；引入Apache ECharts和DataV可视化工具，将复杂的老人监护数据、设备运行数据、异常预警数据等，以直观的图表、仪表盘及大屏形式呈现，方便社区工作人员快速掌握区域内养老监护情况，实现全局掌控与高效管理。</li>
+<li><strong>适老化移动端</strong>：独立完成微信小程序的全流程开发，聚焦适老化设计，简化操作界面、优化交互逻辑，适配老人及家属使用习惯；实现老人实时监护状态查看、异常预警提醒、家属联动通知等核心功能，彻底打通了“监测-预警-响应”的最后一公里，让家属随时掌握老人居家安全情况，提升监护及时性与便捷性。</li>
 </ul>
 <p><img src="/blog/blog/zysj/Web_architecture.png" alt="Web端架构图"></p>
 <p><img src="/blog/blog/zysj/databig.png" alt="前端监控数据大屏"><br><em>(图注：Web 管理端的数据分析与实时监控可视化大屏)</em></p>
@@ -291,7 +290,7 @@
                     <a class="tag-none-link" href="/blog/tags/Spring-Boot/" rel="tag">Spring Boot</a>, <a class="tag-none-link" href="/blog/tags/Vue/" rel="tag">Vue</a>, <a class="tag-none-link" href="/blog/tags/YOLOv8/" rel="tag">YOLOv8</a>, <a class="tag-none-link" href="/blog/tags/%E6%A0%91%E8%8E%93%E6%B4%BE/" rel="tag">树莓派</a>
                 </div>
                 <div class="pull-date">
-                    <time datetime="2026-04-29T11:37:55.074Z" itemprop="dateModified">最后编辑：2026-04-29</time>
+                    <time datetime="2026-04-29T12:08:02.586Z" itemprop="dateModified">最后编辑：2026-04-29</time>
                 </div>
             </div>
         </footer>
