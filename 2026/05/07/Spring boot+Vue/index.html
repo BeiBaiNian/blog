@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+  <!-- 元数据 -->
+  <meta charset="utf-8">
+  
+    <link rel="icon" href="/blog/images/favicon.png">
+  
+  
+  <title>基于若依框架的智慧居家养老系统开发复盘 | 北白念</title>
+  <link rel="canonical" href="https://beibainian.github.io/blog/2026/05/07/Spring%20boot+Vue/">
+  <meta name="author" content="董子阳" />
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="robots" content="index,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="format-detection" content="telphone=no, email=no" />
+  
+    <meta name="keywords" content="Spring Boot, Vue" />
+  
+  <meta name="description" content="前言这篇博客记录了我学习若依（RuoYi）快速开发框架，从零改造实现智慧居家养老安全监护系统的全过程。从最开始对着项目源码画思维导图梳理文件结构，到一步步改造前后端、实现业务功能，既是一次完整的框架学习实践复盘，也是给自己留一份成长记录，证明这段时间的摸索与学习成果。 1. 项目背景与技术选型先简单介绍一下若依系统——它是一套完全开源的免费快速开发平台，前后端分离版本采用Vue + Element">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于若依框架的智慧居家养老系统开发复盘">
+<meta property="og:url" content="https://beibainian.github.io/blog/2026/05/07/Spring%20boot+Vue/index.html">
+<meta property="og:site_name" content="北白念">
+<meta property="og:description" content="前言这篇博客记录了我学习若依（RuoYi）快速开发框架，从零改造实现智慧居家养老安全监护系统的全过程。从最开始对着项目源码画思维导图梳理文件结构，到一步步改造前后端、实现业务功能，既是一次完整的框架学习实践复盘，也是给自己留一份成长记录，证明这段时间的摸索与学习成果。 1. 项目背景与技术选型先简单介绍一下若依系统——它是一套完全开源的免费快速开发平台，前后端分离版本采用Vue + Element">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://beibainian.github.io/blog/blog/images/technology.png">
+<meta property="article:published_time" content="2026-05-07T08:45:06.000Z">
+<meta property="article:modified_time" content="2026-05-07T12:23:26.007Z">
+<meta property="article:author" content="董子阳">
+<meta property="article:tag" content="Vue">
+<meta property="article:tag" content="Spring Boot">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://beibainian.github.io/blog/blog/images/technology.png">
+  
+  <!-- JSON-LD 结构化数据 -->
+  
+  
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"基于若依框架的智慧居家养老系统开发复盘","description":"前言这篇博客记录了我学习若依（RuoYi）快速开发框架，从零改造实现智慧居家养老安全监护系统的全过程。从最开始对着项目源码画思维导图梳理文件结构，到一步步改造...","image":"https://beibainian.github.io/blog/2026/05/07/Spring%20boot+Vue/blog/images/technology.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-05-07T08:45:06.000Z","dateModified":"2026-05-07T12:23:26.007Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/05/07/Spring%20boot+Vue/"}}
+    </script>
+  
+  <!-- 关键 CSS 预加载 -->
+  <link rel="preload" href="/blog/css/kr-core.min.css" as="style" crossorigin>
+  <link rel="preload" href="/blog/css/kr-theme/light.min.css" as="style" crossorigin>
+  <link rel="preload" href="/blog/css/kr-theme/dark.min.css" as="style" crossorigin>
+  <!-- 样式表文件 -->
+  <link rel="stylesheet" id="kratos-css" href="/blog/css/kr-core.min.css" media="all">
+  <link rel="stylesheet" id="theme-light-css" href="/blog/css/kr-theme/light.min.css" media="all">
+  <link rel="stylesheet" id="theme-dark-css" href="/blog/css/kr-theme/dark.min.css" media="(prefers-color-scheme: dark)">
+  
+    <link rel="stylesheet"  id="highlight-css" href="/blog/css/highlight/highlight.js/night-eighties.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/css/highlight/highlight.js/night-eighties.min.css"></noscript>
+  
+  <script src="/blog/js/kr-theme.min.js"></script>
+  <link rel="stylesheet"  id="fontawe-css" href="/blog/vendors/font-awesome@4.7.0/css/font-awesome.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/font-awesome@4.7.0/css/font-awesome.min.css"></noscript>
+  
+    <link rel="stylesheet"  id="nprogress-css" href="/blog/vendors/nprogress@0.2.0/nprogress.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/nprogress@0.2.0/nprogress.css"></noscript>
+  
+  
+    <link rel="stylesheet"  href="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.css"></noscript>
+  
+  <!-- 预先加载的JS文件 -->
+  
+    <script src="/blog/vendors/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  
+  <!-- 自定义站点横幅和背景 -->
+  <style>
+    
+      .kratos-cover.kratos-cover-2 {
+        background-image: url('/blog/images/light.png');
+      }
+      html[data-theme="dark"] .kratos-cover.kratos-cover-2 {
+        background-image: url('/blog/images/dark.png');
+      }
+    
+    
+      @media(min-width:768px) {
+        body.custom-background {
+          background-image: url('/blog/images/background.png');
+        }
+        html[data-theme="dark"] body.custom-background {
+          background-image: url('/blog/images/background.png');
+        }
+      }
+    
+    
+      .widget-kratos-about .photo-background {
+        background-image: url('/blog/images/light.png');
+      }
+      html[data-theme="dark"] .widget-kratos-about .photo-background {
+        background-image: url('/blog/images/dark.png');
+      }
+    
+  </style>
+
+  <!-- 额外的追加注入项 -->
+  
+</head>
+
+    <body class="custom-background">
+        <div id="kratos-wrapper">
+    <div id="kratos-page">
+        <div id="kratos-header">
+            <header id="kratos-desktop-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="nav-header">
+                        <nav id="kratos-menu-wrap">
+                            <ul id="kratos-primary-menu" class="sf-menu">
+                                
+                                    <li>
+                                        
+                                            <a href="/blog/">
+                                        
+                                            
+                                                <i class="fa fa-home"></i>
+                                            
+                                            首页
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/blog/archives/">
+                                        
+                                            
+                                                <i class="fa fa-file"></i>
+                                            
+                                            档案馆
+                                        </a>
+                                        
+                                    </li>
+                                
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <header id="kratos-mobile-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="color-logo"><a href="/blog/">北白念</a></div>
+                    <div id="kratos-nav-toggle-wrapper" class="nav-toggle">
+                        <a id="kratos-nav-toggle" class="kratos-nav-toggle">
+                            <i></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="kratos-start kratos-hero-2">
+            <!-- <div class="kratos-overlay"></div> -->
+            <div class="kratos-cover kratos-cover-2 text-center">
+                <div class="desc desc2 animate-box">
+                    <a href="/blog/">
+                        <h2>北白念</h2> <br />
+                        <span>记录个人的学习笔记和技术文章，偶尔也会分享一些生活感悟。</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="kratos-blog-post">
+            <div class="container">
+                <div id="main" class="row">
+
+
+        
+
+            
+
+            <section class="kr-main-col col-md-8">
+
+        
+
+            <article itemscope itemtype="https://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://beibainian.github.io/blog/2026/05/07/Spring%20boot+Vue/">
+    <div class="kratos-hentry kratos-page-inner clearfix">
+        <header class="kratos-page-header">
+            
+                <h1 class="kratos-page-title text-center" itemprop="name headline">基于若依框架的智慧居家养老系统开发复盘</h1>
+            
+            <ul class="kratos-page-meta text-center">
+                <li><time datetime="2026-05-07T08:45:06.000Z" itemprop="datePublished"><i class="fa fa-calendar"></i> 2026-05-07</time></li>
+                <li itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <i class="fa fa-user"></i> 作者 <span itemprop="name">董子阳</span>
+                </li>
+                
+                    <li>
+                        <i class="fa fa-edit"></i> 
+                        
+                        
+                            ~5.09K
+                        
+                        字
+                    </li>
+                
+                
+                
+            </ul>
+        </header>
+        <div class="kratos-page-content kr-post">
+            
+            
+            
+            <hr />
+            <div itemprop="articleBody"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这篇博客记录了我学习若依（RuoYi）快速开发框架，从零改造实现智慧居家养老安全监护系统的全过程。从最开始对着项目源码画思维导图梳理文件结构，到一步步改造前后端、实现业务功能，既是一次完整的框架学习实践复盘，也是给自己留一份成长记录，证明这段时间的摸索与学习成果。</p>
+<h2 id="1-项目背景与技术选型"><a href="#1-项目背景与技术选型" class="headerlink" title="1. 项目背景与技术选型"></a>1. 项目背景与技术选型</h2><p>先简单介绍一下若依系统——它是一套完全开源的免费快速开发平台，前后端分离版本采用<strong>Vue + Element UI + Spring Boot + Spring Security + Redis</strong>的技术栈，内置了用户管理、RBAC权限控制、日志管理、代码生成器等通用基础功能，无需从零搭建系统的基础能力，非常适合用来快速开发业务系统，也方便我边学习框架边实现自己的项目需求。</p>
+<p>本次实践的目标是搭建一套面向独居老人的居家养老监护系统，核心需求是：<em><strong>基于若依改造Web端管理系统，实现老人信息管理、服务管理、实时监控、数据可视化等功能</strong></em>。</p>
+<h2 id="2-个人对若依系统整体的理解和总结"><a href="#2-个人对若依系统整体的理解和总结" class="headerlink" title="2. 个人对若依系统整体的理解和总结"></a>2. 个人对若依系统整体的理解和总结</h2><h4 id="权限管理（RBAC-核心）"><a href="#权限管理（RBAC-核心）" class="headerlink" title="权限管理（RBAC 核心）"></a>权限管理（RBAC 核心）</h4><p>这是若依最核心、最基础的能力，几乎所有后台系统都离不开。</p>
+<ul>
+<li><strong>用户管理</strong>：新增&#x2F;禁用&#x2F;编辑用户，分配角色，重置密码。</li>
+<li><strong>角色管理</strong>：创建角色、分配菜单权限、分配<strong>数据权限</strong>（只能看自己&#x2F;本部门&#x2F;全部数据）。</li>
+<li><strong>菜单管理</strong>：配置系统菜单、路由、按钮权限标识（如 <code>system:user:list</code>）。</li>
+<li><strong>部门管理</strong>：树形组织架构，支持数据权限控制。</li>
+<li><strong>岗位管理</strong>：配置用户所属岗位，用于组织化管理。</li>
+</ul>
+<p><strong>用户 → 角色 → 菜单&#x2F;数据权限</strong>，标准 RBAC 模型。</p>
+<h4 id="系统管理（基础配置）"><a href="#系统管理（基础配置）" class="headerlink" title="系统管理（基础配置）"></a>系统管理（基础配置）</h4><p>所有系统通用的“配置类”功能，开箱即用。</p>
+<ul>
+<li><strong>字典管理</strong>：维护系统通用固定数据（如性别：男&#x2F;女、状态：正常&#x2F;禁用），前端直接引用，避免硬编码。</li>
+<li><strong>参数管理</strong>：动态配置系统参数（如文件上传大小、登录有效期），无需改代码重启。</li>
+<li><strong>通知公告</strong>：发布系统公告、站内信。</li>
+<li><strong>文件上传</strong>：支持本地&#x2F;云端等，统一文件管理。</li>
+</ul>
+<h4 id="日志与安全审计（企业必备）"><a href="#日志与安全审计（企业必备）" class="headerlink" title="日志与安全审计（企业必备）"></a>日志与安全审计（企业必备）</h4><p>若依内置完整日志体系，满足安全审计、故障排查需求。</p>
+<ul>
+<li><strong>操作日志</strong>：记录谁、何时、IP、做了什么操作，支持导出、查询。</li>
+<li><strong>登录日志</strong>：记录登录成功&#x2F;失败、验证码错误、锁定账号等。</li>
+<li><strong>在线用户</strong>：查看当前活跃用户，可强制下线。</li>
+<li><strong>安全机制</strong>：验证码、密码加密、接口防刷、XSS防护、SQL注入防护。</li>
+</ul>
+<h4 id="系统监控（运维能力）"><a href="#系统监控（运维能力）" class="headerlink" title="系统监控（运维能力）"></a>系统监控（运维能力）</h4><p>帮助开发者实时掌握服务器与系统运行状态。</p>
+<ul>
+<li><strong>服务监控</strong>：CPU、内存、磁盘、JVM 堆&#x2F;非堆、GC 情况。</li>
+<li><strong>缓存监控</strong>：Redis 信息、key 统计、命令监控。</li>
+<li><strong>连接池监控</strong>：Druid 连接池状态、SQL 执行分析，定位慢查询。</li>
+</ul>
+<h4 id="快速开发工具（最能提升效率）"><a href="#快速开发工具（最能提升效率）" class="headerlink" title="快速开发工具（最能提升效率）"></a>快速开发工具（最能提升效率）</h4><p>这是若依被称为“快速开发框架”的关键。</p>
+<ul>
+<li><p><strong>代码生成器（核心）</strong><br>输入数据库表 → 一键生成：</p>
+<ul>
+<li>后端：Entity、Mapper、Service、Controller</li>
+<li>前端：Vue 列表页、表单页、API</li>
+<li>数据库：SQL 脚本<br>生成即可用，<strong>节省 80% 重复 CRUD 代码</strong>。</li>
+</ul>
+</li>
+<li><p><strong>定时任务</strong>：在线添加&#x2F;修改&#x2F;删除定时任务，支持 cron 表达式、执行日志。</p>
+</li>
+<li><p><strong>在线表单构建器</strong>：拖拽生成 HTML 表单代码。</p>
+</li>
+<li><p><strong>系统接口文档</strong>：自动生成 Swagger API 文档。</p>
+</li>
+</ul>
+<h2 id="3-前期准备：用思维导图梳理若依项目结构"><a href="#3-前期准备：用思维导图梳理若依项目结构" class="headerlink" title="3. 前期准备：用思维导图梳理若依项目结构"></a>3. 前期准备：用思维导图梳理若依项目结构</h2><p>整个系统采用前后端分离架构。<br>后端基于Spring Boot框架处理业务逻辑，使用MySQL存储结构化数据，Redis作为缓存层提升响应速度；<br>前端采用Vue.js+Element UI实现界面，同时扩展了小程序端支持点餐等便捷操作。</p>
+<p>刚开始接触若依框架时，我对项目文件结构完全陌生，不知道要实现自己的业务功能该修改哪些文件，所以我对着项目源码，画了一份详细的思维导图，把每个目录、文件的作用都标注出来，同时标记了哪些是基础框架文件（无需修改）、哪些是业务开发时需要重点改造的文件，相当于自己的“项目改造地图”。</p>
+<p><img src="/blog/blog/other/xmind.jpg" alt="Xmind思维导图"></p>
+<h4 id="前端项目结构梳理"><a href="#前端项目结构梳理" class="headerlink" title="前端项目结构梳理"></a>前端项目结构梳理</h4><p>若依的前端项目基于Vue开发，核心目录结构及我的项目改造点如下：</p>
+<table>
+<thead>
+<tr>
+<th>目录&#x2F;文件</th>
+<th>作用</th>
+<th>我的项目改造点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>public/</code></td>
+<td>静态资源、公共配置</td>
+<td>替换项目logo、修改页面标题、配置favicon</td>
+</tr>
+<tr>
+<td><code>src/assets/</code></td>
+<td>静态资源（图片、样式）</td>
+<td>新增养老项目相关图标、自定义全局样式文件</td>
+</tr>
+<tr>
+<td><code>src/components/</code></td>
+<td>公共组件库</td>
+<td>新增监控画面组件、数据大屏图表组件、餐品卡片组件、预警提示组件</td>
+</tr>
+<tr>
+<td><code>src/views/</code></td>
+<td>业务页面（核心改造点）</td>
+<td>新增养老项目专属页面：客户信息管理、志愿者管理、服务管理（餐品列表&#x2F;服务信息）、实时监控、厨房与服务、数据大屏</td>
+</tr>
+<tr>
+<td><code>src/router/</code></td>
+<td>路由配置</td>
+<td>新增业务页面路由，关联菜单权限，实现动态菜单加载</td>
+</tr>
+<tr>
+<td><code>src/store/</code></td>
+<td>Vuex状态管理</td>
+<td>扩展用户信息、菜单状态，适配项目权限控制</td>
+</tr>
+<tr>
+<td><code>src/styles/</code></td>
+<td>全局样式</td>
+<td>自定义项目主题色、修改Element UI组件默认样式</td>
+</tr>
+<tr>
+<td><code>src/utils/</code></td>
+<td>工具类封装</td>
+<td>新增摄像头流处理工具、预警消息格式化工具、时间格式化工具</td>
+</tr>
+</tbody></table>
+<h4 id="后端项目结构梳理"><a href="#后端项目结构梳理" class="headerlink" title="后端项目结构梳理"></a>后端项目结构梳理</h4><p>后端基于Spring Boot开发，若依已经封装好了通用的基础模块，我只需要扩展业务相关的模块：</p>
+<ul>
+<li><code>ruoyi-system</code>：基础的用户、角色、菜单、权限管理模块，直接复用无需修改</li>
+<li><code>ruoyi-framework</code>：框架核心配置模块，包含安全认证、Redis缓存、日志配置、全局异常处理等</li>
+<li>新增业务模块：<code>ruoyi-elder</code>（老人&#x2F;客户信息管理）、<code>ruoyi-volunteer</code>（志愿者管理）、<code>ruoyi-service</code>（养老服务与餐品管理）、<code>ruoyi-monitor</code>（监控数据处理），每个模块包含controller、service、mapper、entity层，通过MyBatis操作数据库，实现业务接口。</li>
+</ul>
+<h2 id="4-基于若依框架的前后端改造与功能实现"><a href="#4-基于若依框架的前后端改造与功能实现" class="headerlink" title="4. 基于若依框架的前后端改造与功能实现"></a>4. 基于若依框架的前后端改造与功能实现</h2><p>用户可以在左侧的菜单栏来根据自己的需求使用系统功能，系统基于Vue.js框架构建，采用Element-UI组件库实现专业级交互界面，通过Axios实现与Spring Boot后端RESTful API通信，前后端解耦的架构大幅提升了系统的可维护性。</p>
+<h4 id="基础功能复用"><a href="#基础功能复用" class="headerlink" title="基础功能复用"></a>基础功能复用</h4><p>若依自带的基础功能直接满足了系统的通用需求，我没有重复开发，直接复用了这些能力：</p>
+<ul>
+<li>基于RBAC的权限管理：为管理员、普通员工等不同角色分配相应操作权限，从根源上防范数据泄露，保障数据安全</li>
+<li>日志管理：操作日志、登录日志记录，详细记录用户登录时间、IP地址及操作内容，助力故障排查与安全审计</li>
+<li>系统监控：实时采集CPU使用率、内存使用率和响应时间等性能指标，及时发现系统潜在问题</li>
+<li>代码生成器：对于老人信息、餐品列表、服务信息这类CRUD页面，直接用代码生成器一键生成前后端基础代码，再修改字段和样式，大幅提升了开发效率</li>
+</ul>
+<h4 id="前端业务功能改造实现"><a href="#前端业务功能改造实现" class="headerlink" title="前端业务功能改造实现"></a>前端业务功能改造实现</h4><p>基于之前梳理的文件结构，我在<code>src/views/</code>目录下新增了养老项目的特色业务页面，以下是核心功能的实现说明：</p>
+<h4 id="服务管理模块：餐品列表与服务信息"><a href="#服务管理模块：餐品列表与服务信息" class="headerlink" title="服务管理模块：餐品列表与服务信息"></a>服务管理模块：餐品列表与服务信息</h4><p>这是系统的核心业务模块之一，分为<strong>餐品列表</strong>和<strong>服务信息</strong>两个子页面，分别用于管理养老餐品和上门服务项目，界面如下：</p>
+<p><img src="/blog/blog/other/service-manage.jpg" alt="无法在公开网络展示"></p>
+<ul>
+<li><strong>餐品列表页面</strong>：实现了老人餐食套餐的CRUD管理，支持餐品图片预览、套餐描述、价格与剩余份数展示，管理员可通过新增&#x2F;修改&#x2F;删除操作维护餐品库，同时支持导出餐品信息。页面支持按序号、图片名称快速搜索，方便厨房人员快速定位餐品信息。<br>核心改造文件：<code>src/views/service/meal/index.vue</code>，通过修改表格列配置，新增图片预览组件、套餐描述文本域，适配餐品信息的展示需求。</li>
+<li><strong>服务信息页面</strong>：管理保洁、陪护、助行、代购等上门养老服务项目，包含服务描述、价格、可预约次数等字段，同样由代码生成器快速生成基础CRUD代码，再自定义修改样式和字段。</li>
+</ul>
+<h4 id="实时监控模块：多摄像头AI姿态监测"><a href="#实时监控模块：多摄像头AI姿态监测" class="headerlink" title="实时监控模块：多摄像头AI姿态监测"></a>实时监控模块：多摄像头AI姿态监测</h4><p>这是系统的安全核心功能，基于树莓派摄像头采集的实时画面，集成YOLOv8-pose姿态检测模型，实现多社区、多房间的老人居家行为监测，界面如下：</p>
+<p><img src="/blog/blog/other/monitor-real.png" alt="实时监控界面（展示的是测试阶段画面）"></p>
+<p>页面支持同时展示多个社区的监控画面，每个画面都叠加了YOLOv8-pose识别的人体关键点和行为标签（如<code>sit</code>、<code>up</code>）及置信度，当识别到老人跌倒、长时间静止等异常行为时，会自动生成预警日志并标红提醒。<br>核心改造点：</p>
+<ul>
+<li>新增<code>src/views/monitor/realTime/index.vue</code>页面，实现多摄像头画面的网格布局展示</li>
+<li>封装<code>src/components/monitor/VideoPlayer.vue</code>自定义组件，支持实时视频流播放和姿态检测结果渲染</li>
+<li>对接后端监控数据接口，实现预警信息的实时推送与展示，异常行为自动高亮标红</li>
+</ul>
+<h4 id="客户信息与志愿者管理模块"><a href="#客户信息与志愿者管理模块" class="headerlink" title="客户信息与志愿者管理模块"></a>客户信息与志愿者管理模块</h4><p>基于若依的基础用户管理能力扩展，实现了养老场景专属的人员管理功能。</p>
+<ul>
+<li><strong>客户信息管理</strong>：支持管理员对社区老人信息进行增删改查，维护老人基本信息、紧急联系人、健康状况等数据，确保信息的及时性与准确性。</li>
+<li><strong>志愿者管理</strong>：分为志愿活动管理和志愿服务管理两个子模块，可维护志愿者信息、活动报名记录、服务时长统计，实现养老服务人员的规范化管理。</li>
+</ul>
+<h4 id="其他特色功能：厨房与服务、数据大屏"><a href="#其他特色功能：厨房与服务、数据大屏" class="headerlink" title="其他特色功能：厨房与服务、数据大屏"></a>其他特色功能：厨房与服务、数据大屏</h4><ul>
+<li><strong>厨房与服务管理</strong>：实现了小程序端老人点餐信息的实时同步，管理端可即时展示订单详情，便于厨房与服务人员高效处理订单，打通了“用户下单-厨房制作-服务配送”的全流程链路。</li>
+<li><strong>数据大屏</strong>：以可视化图表的形式汇总展示社区老人数据、点餐统计、服务满意度、预警信息等运营数据，同时集成基于K-means算法的AI行为分析模型，自动识别老人异常行为模式（如跌倒、长时间静止）并划分风险区域，为社区管理人员提供直观的决策依据，同时支持实时接收异常预警信息，快速采取干预措施。</li>
+</ul>
+<h4 id="后端业务接口扩展"><a href="#后端业务接口扩展" class="headerlink" title="后端业务接口扩展"></a>后端业务接口扩展</h4><p>后端在若依的基础上，新增了业务相关的接口模块，主要包括：</p>
+<ol>
+<li><strong>老人&#x2F;客户信息管理接口</strong>：实现老人信息的CRUD操作，存储老人基本信息、紧急联系人信息、健康状况等数据。</li>
+<li><strong>服务与餐品管理接口</strong>：管理养老服务项目和餐品套餐信息，处理小程序端的点餐&#x2F;服务订单请求，同步订单状态至管理端，支持餐品库存与服务预约次数的更新。</li>
+<li><strong>志愿者管理接口</strong>：实现志愿者信息、志愿活动、服务记录的管理，支持服务时长统计与活动报名状态更新。</li>
+<li><strong>监控数据接口</strong>：接收树莓派上传的视频流和传感器数据，对接YOLOv8-pose模型处理结果，存储预警日志，支持前端查询历史记录与实时推送预警信息。</li>
+<li><strong>数据大屏接口</strong>：汇总老人数据、服务订单数据、预警数据，为前端可视化大屏提供数据支持，同时提供K-means行为分析结果的接口。</li>
+</ol>
+<p>同时，复用了若依的Redis缓存能力，把频繁访问的老人信息、餐品列表、服务项目缓存到Redis中，减少数据库查询压力，提升系统响应速度。</p>
+<hr>
+<h2 id="5-学习心得与总结"><a href="#5-学习心得与总结" class="headerlink" title="5. 学习心得与总结"></a>5. 学习心得与总结</h2><p>这次基于若依框架开发智慧养老系统的实践，对我来说是一次非常完整的学习过程，也真正让我体会到了“从无到有”开发项目的乐趣：</p>
+<ol>
+<li><strong>学会了如何学习开源框架</strong>：最开始对着项目源码无从下手，通过画思维导图梳理文件结构，把每个目录、每个文件的作用搞清楚，慢慢理解了若依框架的设计思路，知道了“哪些文件不用动、哪些文件是业务开发的核心”，解决了新手最容易遇到的“不知道该改哪里”的问题。</li>
+<li><strong>大幅提升了开发效率</strong>：学会了利用若依的代码生成器快速开发CRUD页面，不用从零写重复的增删改查代码，把精力放在业务逻辑和自定义功能的实现上，也理解了“快速开发框架”的真正价值。</li>
+<li><strong>深入理解了前后端分离开发模式</strong>：通过这次项目，完整实践了前后端分离的开发流程，从接口定义、数据交互到页面渲染，理解了前后端如何配合实现业务功能，也学会了如何基于现有框架扩展自定义功能。</li>
+<li><strong>形成了自己的学习方法论</strong>：这次实践让我明白，学习开源框架不能只停留在“跑通demo”，而是要深入理解其文件结构和设计思路，通过梳理结构、标记改造点、分步实现功能，才能真正掌握框架的使用方法，为后续的项目开发打下基础。</li>
+</ol>
+<p>这次实践的成果，不仅是一个可以运行的智慧养老系统，更重要的是我真正学会了如何学习和改造一个开源框架，也证明了这段时间的摸索与学习没有白费。</p>
+</div>
+        </div>
+        
+        <footer class="kratos-entry-footer clearfix">
+            
+            
+            
+                <div class="post-actions text-center clearfix" id="post-actions">
+                
+                    <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
+                
+                
+                </div>
+            
+            <div class="footer-tag clearfix">
+                <div class="pull-left">
+                <i class="fa fa-tags"></i>
+                    <a class="tag-none-link" href="/blog/tags/Spring-Boot/" rel="tag">Spring Boot</a>, <a class="tag-none-link" href="/blog/tags/Vue/" rel="tag">Vue</a>
+                </div>
+                <div class="pull-date">
+                    <time datetime="2026-05-07T12:23:26.007Z" itemprop="dateModified">最后编辑：2026-05-07</time>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+        <nav class="navigation post-navigation clearfix" role="navigation">
+            
+            <div class="nav-previous clearfix">
+                <a title=" 智链食安：基于FISCO BCOS的食品供应链全链路可信追溯系统" href="/blog/2026/05/06/智链食安/"><i class="fa fa-angle-left"></i> 上一篇</a>
+            </div>
+            
+            
+        </nav>
+    
+    
+</article>
+
+        
+
+            </section>
+
+            
+                
+
+<section id="kratos-widget-area" class="col-md-4 hidden-xs hidden-sm">
+    <!-- 文章和页面根据splitter来分割，没有的话就从头开始设置为sticky -->
+    
+    
+                <aside id="krw-about" class="widget widget-kratos-about clearfix">
+    <div class="photo-background"></div>
+    <div class="photo-wrapper clearfix">
+        <div class="photo-wrapper-tip text-center">
+            <img class="about-photo" src="/blog/images/logo.png" alt="董子阳" loading="lazy" decoding="auto" />
+        </div>
+    </div>
+    <div class="textwidget">
+        <p class="text-center">软件开发 | RISC-V | Java | 算法</p>
+    </div>
+    <div class="site-meta">
+        <a class="meta-item" href="/blog/archives/">
+            <span class="title">
+                文章
+            </span>
+            <span class="count">
+                4
+            </span>
+        </a>
+        <a class="meta-item" href="/blog/categories/">
+            <span class="title">
+                分类
+            </span>
+            <span class="count">
+                2
+            </span>
+        </a>
+        <a class="meta-item" href="/blog/tags/">
+            <span class="title">
+                标签
+            </span>
+            <span class="count">
+                9
+            </span>
+        </a>
+    </div>
+</aside>
+            
+                    <div class="sticky-area">
+                
+                
+  <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
+    <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/">项目经历</a><span class="category-list-count">2</span></li></ul>
+  </aside>
+
+
+            
+                
+  <aside id="krw-tags" class="widget widget-kratos-tags clearfix">
+    <h4 class="widget-title"><i class="fa fa-tags"></i>标签聚合</h4>
+      <div class="tag-clouds">
+        <a href="/blog/tags/FISCO-BCOS/" style="font-size: 0.6em;">FISCO BCOS</a> <a href="/blog/tags/Hexo-Kratos-Rebirth/" style="font-size: 0.6em;">Hexo & Kratos-Rebirth</a> <a href="/blog/tags/Spring-Boot/" style="font-size: 0.8em;">Spring Boot</a> <a href="/blog/tags/Vue/" style="font-size: 0.8em;">Vue</a> <a href="/blog/tags/WireGuard/" style="font-size: 0.6em;">WireGuard</a> <a href="/blog/tags/YOLOv8/" style="font-size: 0.6em;">YOLOv8</a> <a href="/blog/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" style="font-size: 0.6em;">区块链</a> <a href="/blog/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" style="font-size: 0.6em;">智能合约</a> <a href="/blog/tags/%E6%A0%91%E8%8E%93%E6%B4%BE/" style="font-size: 0.6em;">树莓派</a>
+      </div>
+  </aside>
+
+            
+                
+  <aside id="krw-posts" class="widget widget-kratos-posts">
+  <h4 class="widget-title"><i class="fa fa-file"></i>最新文章</h4>
+  <div class="tab-content">
+      <ul class="list-group">
+        
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/05/07/Spring%20boot+Vue/"><i class="fa fa-book"></i> 基于若依框架的智慧居家养老系统开发复盘</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/05/06/%E6%99%BA%E9%93%BE%E9%A3%9F%E5%AE%89/"><i class="fa fa-book"></i> 智链食安：基于FISCO BCOS的食品供应链全链路可信追溯系统</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/04/29/%E6%99%BA%E5%85%BB%E6%95%B0%E6%8D%AE/"><i class="fa fa-book"></i> 智养舒居：基于YOLOv8-pose与多模态的居家安全监护系统实战</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/04/21/Hexo+Kratos-Rebirth%E4%B8%BB%E9%A2%98%E6%90%AD%E5%BB%BA%E5%BF%83%E5%BE%97&%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/"><i class="fa fa-book"></i> Hexo + Kratos-Rebirth 主题搭建心得 & 我的第一篇博客</a>
+            
+          
+        
+      </ul>
+  </div>
+  </aside>
+
+            
+    </div>
+</section>
+            
+
+        
+
+        </div>
+</div>
+</div>
+
+<footer>
+    <div id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 footer-list text-center">
+                    <ul class="kratos-social-icons">
+                        
+                    </ul>
+                    <ul class="kratos-copyright">
+                        <div>
+                            <li>&copy; 2026 北白念 版权所有.</li>
+                            <li>本站已运行<span id="kr-since">Loading...</span></li>
+                        </div>
+                        <div>
+                            <li></li>
+                            <li>站点由<i class="fa fa-heart" style="color:#d43f57"></i>北白念<i class="fa fa-heart" style="color:#d43f57"></i> 搭建</li>
+                        </div>
+                        <!-- 额外的追加注入项 -->
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="kr-tool text-center">
+            <div class="tool">
+                <!-- 额外的追加注入项 -->
+                
+                            
+                                <div class="box search-box">
+                                    <a href="/blog/search">
+                                        <span class="fa fa-search"></span>
+                                    </a>
+                                </div>
+                                
+                                    <div class="box theme-box" id="theme-toggle">
+                                        <span class="fa fa-adjust"></span>
+                                    </div>
+            </div>
+            <div id="gotop-box" class="box gotop-box">
+                <span class="fa fa-chevron-up"></span>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</div>
+
+
+    <div id="kr-donate-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseDonateModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-bitcoin"></i>
+            </div>
+            <div class="kr-modal-title">💖 感谢支持，点击查看收款码</div>
+            <button class="kr-modal-close" onclick="krCloseDonateModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-donate-message">你的鼓励是我持续更新的动力！</div>
+            <div class="kr-donate-qr" id="kr-donate-qr">
+                
+            </div>
+            <div class="kr-donate-platforms">
+                
+                    
+                        <button class="kr-donate-platform-button" style="color: #07C160;" title="微信" onclick="krDonateModalShowPlatformQR('images/wechat.png', '#07C160')">
+                            <i class="fa fa-fa-weixin"></i>
+                        </button>
+                    
+                
+                    
+                        <button class="kr-donate-platform-button" style="color: #1677FF;" title="支付宝" onclick="krDonateModalShowPlatformQR('images/alipay.png', '#1677FF')">
+                            <i class="fa fa-fa-alipay"></i>
+                        </button>
+                    
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/blog/js/kr-modal/donate.min.js"></script>
+
+        
+
+            
+
+                        <!-- 额外的追加注入项 -->
+                        
+        <script>
+    if (!window.kr) {
+        window.kr = {};
+    }
+    window.kr.notMobile = (!(navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)));
+    window.kr.siteRoot = "/blog/";
+</script>
+
+
+  <script defer src="/blog/vendors/nprogress@0.2.0/nprogress.js"></script>
+
+
+
+  <script defer src="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.js"></script>
+
+
+<script defer src="/blog/js/kr-core.min.js"></script>
+
+
+  <script defer src="/blog/js/kr-pjax.min.js"></script>
+
+
+<!-- 额外的追加注入项 -->
+
+
+    </body>
+</html>
