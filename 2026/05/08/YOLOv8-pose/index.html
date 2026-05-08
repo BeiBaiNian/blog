@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+  <!-- 元数据 -->
+  <meta charset="utf-8">
+  
+    <link rel="icon" href="/blog/images/favicon.png">
+  
+  
+  <title>YOLOv8-pose 分批次训练与模型集成方案 | 北白念</title>
+  <link rel="canonical" href="https://beibainian.github.io/blog/2026/05/08/YOLOv8-pose/">
+  <meta name="author" content="董子阳" />
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="robots" content="index,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="format-detection" content="telphone=no, email=no" />
+  
+    <meta name="keywords" content="YOLOv8" />
+  
+  <meta name="description" content="这篇技术文章复盘了智养舒居项目中，基于YOLOv8-pose实现人体姿态识别模型训练过程中遇到的问题以及解决办法。核心解决个人PC显存不足的痛点，设计分批次训练+动态加权模型集成方案，沉淀可复用的轻量级硬件训练经验。 📌 项目背景与训练目标本项目聚焦独居老人居家安全场景，核心需求是实现人体姿态精准识别，重点监测跌倒等危险行为，兼顾居家场景中可能出现的2-4人共处情况，避免模型因场景单一导致泛化不">
+<meta property="og:type" content="article">
+<meta property="og:title" content="YOLOv8-pose 分批次训练与模型集成方案">
+<meta property="og:url" content="https://beibainian.github.io/blog/2026/05/08/YOLOv8-pose/index.html">
+<meta property="og:site_name" content="北白念">
+<meta property="og:description" content="这篇技术文章复盘了智养舒居项目中，基于YOLOv8-pose实现人体姿态识别模型训练过程中遇到的问题以及解决办法。核心解决个人PC显存不足的痛点，设计分批次训练+动态加权模型集成方案，沉淀可复用的轻量级硬件训练经验。 📌 项目背景与训练目标本项目聚焦独居老人居家安全场景，核心需求是实现人体姿态精准识别，重点监测跌倒等危险行为，兼顾居家场景中可能出现的2-4人共处情况，避免模型因场景单一导致泛化不">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://beibainian.github.io/blog/blog/images/technology.png">
+<meta property="article:published_time" content="2026-05-08T02:23:56.000Z">
+<meta property="article:modified_time" content="2026-05-08T12:56:26.960Z">
+<meta property="article:author" content="董子阳">
+<meta property="article:tag" content="YOLOv8">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://beibainian.github.io/blog/blog/images/technology.png">
+  
+  <!-- JSON-LD 结构化数据 -->
+  
+  
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"YOLOv8-pose 分批次训练与模型集成方案","description":"这篇技术文章复盘了智养舒居项目中，基于YOLOv8-pose实现人体姿态识别模型训练过程中遇到的问题以及解决办法。核心解决个人PC显存不足的痛点，设计分批次训练+动态加权模型集成方案，沉淀可复用的轻量级硬件训练经验。\n","image":"https://beibainian.github.io/blog/2026/05/08/YOLOv8-pose/blog/images/technology.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-05-08T02:23:56.000Z","dateModified":"2026-05-08T12:56:26.960Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/05/08/YOLOv8-pose/"}}
+    </script>
+  
+  <!-- 关键 CSS 预加载 -->
+  <link rel="preload" href="/blog/css/kr-core.min.css" as="style" crossorigin>
+  <link rel="preload" href="/blog/css/kr-theme/light.min.css" as="style" crossorigin>
+  <link rel="preload" href="/blog/css/kr-theme/dark.min.css" as="style" crossorigin>
+  <!-- 样式表文件 -->
+  <link rel="stylesheet" id="kratos-css" href="/blog/css/kr-core.min.css" media="all">
+  <link rel="stylesheet" id="theme-light-css" href="/blog/css/kr-theme/light.min.css" media="all">
+  <link rel="stylesheet" id="theme-dark-css" href="/blog/css/kr-theme/dark.min.css" media="(prefers-color-scheme: dark)">
+  
+    <link rel="stylesheet"  id="highlight-css" href="/blog/css/highlight/highlight.js/night-eighties.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/css/highlight/highlight.js/night-eighties.min.css"></noscript>
+  
+  <script src="/blog/js/kr-theme.min.js"></script>
+  <link rel="stylesheet"  id="fontawe-css" href="/blog/vendors/font-awesome@4.7.0/css/font-awesome.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/font-awesome@4.7.0/css/font-awesome.min.css"></noscript>
+  
+    <link rel="stylesheet"  id="nprogress-css" href="/blog/vendors/nprogress@0.2.0/nprogress.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/nprogress@0.2.0/nprogress.css"></noscript>
+  
+  
+    <link rel="stylesheet"  href="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.css"></noscript>
+  
+  <!-- 预先加载的JS文件 -->
+  
+    <script src="/blog/vendors/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  
+  <!-- 自定义站点横幅和背景 -->
+  <style>
+    
+      .kratos-cover.kratos-cover-2 {
+        background-image: url('/blog/images/light.png');
+      }
+      html[data-theme="dark"] .kratos-cover.kratos-cover-2 {
+        background-image: url('/blog/images/dark.png');
+      }
+    
+    
+      @media(min-width:768px) {
+        body.custom-background {
+          background-image: url('/blog/images/background.png');
+        }
+        html[data-theme="dark"] body.custom-background {
+          background-image: url('/blog/images/background.png');
+        }
+      }
+    
+    
+      .widget-kratos-about .photo-background {
+        background-image: url('/blog/images/light.png');
+      }
+      html[data-theme="dark"] .widget-kratos-about .photo-background {
+        background-image: url('/blog/images/dark.png');
+      }
+    
+  </style>
+
+  <!-- 额外的追加注入项 -->
+  
+</head>
+
+    <body class="custom-background">
+        <div id="kratos-wrapper">
+    <div id="kratos-page">
+        <div id="kratos-header">
+            <header id="kratos-desktop-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="nav-header">
+                        <nav id="kratos-menu-wrap">
+                            <ul id="kratos-primary-menu" class="sf-menu">
+                                
+                                    <li>
+                                        
+                                            <a href="/blog/">
+                                        
+                                            
+                                                <i class="fa fa-home"></i>
+                                            
+                                            首页
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/blog/archives/">
+                                        
+                                            
+                                                <i class="fa fa-file"></i>
+                                            
+                                            档案馆
+                                        </a>
+                                        
+                                    </li>
+                                
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <header id="kratos-mobile-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="color-logo"><a href="/blog/">北白念</a></div>
+                    <div id="kratos-nav-toggle-wrapper" class="nav-toggle">
+                        <a id="kratos-nav-toggle" class="kratos-nav-toggle">
+                            <i></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="kratos-start kratos-hero-2">
+            <!-- <div class="kratos-overlay"></div> -->
+            <div class="kratos-cover kratos-cover-2 text-center">
+                <div class="desc desc2 animate-box">
+                    <a href="/blog/">
+                        <h2>北白念</h2> <br />
+                        <span>记录个人的学习笔记和技术文章，偶尔也会分享一些生活感悟。</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="kratos-blog-post">
+            <div class="container">
+                <div id="main" class="row">
+
+
+        
+
+            
+
+            <section class="kr-main-col col-md-8">
+
+        
+
+            <article itemscope itemtype="https://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://beibainian.github.io/blog/2026/05/08/YOLOv8-pose/">
+    <div class="kratos-hentry kratos-page-inner clearfix">
+        <header class="kratos-page-header">
+            
+                <h1 class="kratos-page-title text-center" itemprop="name headline">YOLOv8-pose 分批次训练与模型集成方案</h1>
+            
+            <ul class="kratos-page-meta text-center">
+                <li><time datetime="2026-05-08T02:23:56.000Z" itemprop="datePublished"><i class="fa fa-calendar"></i> 2026-05-08</time></li>
+                <li itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <i class="fa fa-user"></i> 作者 <span itemprop="name">董子阳</span>
+                </li>
+                
+                    <li>
+                        <i class="fa fa-edit"></i> 
+                        
+                        
+                            ~3.93K
+                        
+                        字
+                    </li>
+                
+                
+                
+            </ul>
+        </header>
+        <div class="kratos-page-content kr-post">
+            
+            
+            
+            <hr />
+            <div itemprop="articleBody"><p>这篇技术文章复盘了智养舒居项目中，基于YOLOv8-pose实现人体姿态识别模型训练过程中遇到的问题以及解决办法。核心解决<em><strong>个人PC显存不足的痛点</strong></em>，设计分批次训练+动态加权模型集成方案，沉淀可复用的轻量级硬件训练经验。</p>
+<h2 id="📌-项目背景与训练目标"><a href="#📌-项目背景与训练目标" class="headerlink" title="📌 项目背景与训练目标"></a>📌 项目背景与训练目标</h2><p>本项目聚焦独居老人居家安全场景，核心需求是实现人体姿态精准识别，重点监测跌倒等危险行为，兼顾居家场景中可能出现的2-4人共处情况，避免模型因场景单一导致泛化不足、误判漏判，为智慧养老安全守护系统提供核心算法支撑。</p>
+<h4 id="训练目标"><a href="#训练目标" class="headerlink" title="训练目标"></a>训练目标</h4><ol>
+<li>精准识别站立（Up）、坐下（Sit）、蹲姿（Down）、跌倒躺卧（Lie）4类核心姿态；</li>
+<li>人体17个关键点位检测准确率达标，跌倒行为识别准确率≥95%；</li>
+<li>适配个人PC硬件条件，解决显存不足问题，实现模型高效训练与落地；</li>
+<li>模型适配边缘端部署，保证实时推理流畅性，满足居家实时监控需求。</li>
+</ol>
+<h2 id="📊-数据集全流程构建"><a href="#📊-数据集全流程构建" class="headerlink" title="📊 数据集全流程构建"></a>📊 数据集全流程构建</h2><p>数据集是模型性能的核心基础，我们独立完成从采集到划分的全流程处理，为后续训练奠定基础。</p>
+<h4 id="场景化数据采集"><a href="#场景化数据采集" class="headerlink" title="场景化数据采集"></a>场景化数据采集</h4><p>本次训练共采集7900张居家场景行为图像，核心围绕“真实场景、均衡覆盖”两大核心设计，规避模型泛化缺陷：</p>
+<ol>
+<li>视角还原：模拟居家安防摄像头固定视角，覆盖客厅、卧室、卫生间等核心区域，纳入不同光照、不同时段样本，贴合真实居家环境；</li>
+<li>人物覆盖：以单人居家样本为主体，补充2-4人多人场景样本，避免多人共处时出现关键点混淆、识别失效问题；</li>
+<li>姿态覆盖：均衡覆盖4类核心动作，确保各类别样本分布均匀，为模型精准分类提供数据支撑。<br><img src="/blog/blog/other/data_collection.png" alt="居家场景数据采集示意图"></li>
+</ol>
+<h4 id="规范化关键点标注"><a href="#规范化关键点标注" class="headerlink" title="规范化关键点标注"></a>规范化关键点标注</h4><p>采用Labelme工具完成标注，制定严格规范，避免标注混乱导致训练失效：</p>
+<ol>
+<li>关键点标注：严格按照COCO数据集标准，手动标注人体17个关键点位，确保标注顺序、序号完全统一，这是姿态识别的核心前提；</li>
+<li>标签标注：同步标注4类姿态标签，与关键点信息绑定，生成结构化JSON文件，包含坐标、标签、图像尺寸等核心信息。</li>
+</ol>
+<h4 id="标注格式转换（JSON转TXT）"><a href="#标注格式转换（JSON转TXT）" class="headerlink" title="标注格式转换（JSON转TXT）"></a>标注格式转换（JSON转TXT）</h4><p>YOLOv8-pose训练需与图片同名的TXT格式标签（归一化坐标），因此自主编写Python脚本，批量完成格式转换，核心功能：</p>
+<ol>
+<li>批量读取JSON文件中的关键点坐标、姿态标签、图像宽高；</li>
+<li>将绝对像素坐标转换为0-1范围内的归一化相对坐标；</li>
+<li>按YOLOv8-pose格式规范，生成TXT文件，确保图像与标签一一对应。</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#json文件转化成txt文件的函数部分</span></span><br><span class="line">def coco_json_to_yolo_txt(json_file_path, output_txt_dir):</span><br><span class="line">    <span class="comment"># 创建输出目录</span></span><br><span class="line">    os.makedirs(output_txt_dir, exist_ok=True)</span><br><span class="line">    <span class="comment"># 读取 COCO JSON 文件</span></span><br><span class="line">    with open(json_file_path, <span class="string">&#x27;r&#x27;</span>) as f:</span><br><span class="line">        coco_data = json.load(f)</span><br><span class="line">    <span class="comment"># 遍历每个图像</span></span><br><span class="line">    <span class="keyword">for</span> image_info <span class="keyword">in</span> coco_data[<span class="string">&#x27;images&#x27;</span>]:</span><br><span class="line">        image_id = image_info[<span class="string">&#x27;id&#x27;</span>]</span><br><span class="line">        image_width = image_info[<span class="string">&#x27;width&#x27;</span>]</span><br><span class="line">        image_height = image_info[<span class="string">&#x27;height&#x27;</span>]</span><br><span class="line">        image_name = image_info[<span class="string">&#x27;file_name&#x27;</span>]</span><br><span class="line">        <span class="comment"># 找到对应的标注信息</span></span><br><span class="line">        annotations = [ann <span class="keyword">for</span> ann <span class="keyword">in</span> coco_data[<span class="string">&#x27;annotations&#x27;</span>] <span class="keyword">if</span> ann[<span class="string">&#x27;image_id&#x27;</span>] == image_id]</span><br><span class="line">        <span class="comment"># 构建输出 TXT 文件路径</span></span><br><span class="line">        txt_file_name = os.path.splitext(image_name)[0] + <span class="string">&#x27;.txt&#x27;</span></span><br><span class="line">        output_txt_path = os.path.join(output_txt_dir, txt_file_name)</span><br><span class="line">        <span class="comment"># 写入 TXT 文件</span></span><br><span class="line">        with open(output_txt_path, <span class="string">&#x27;w&#x27;</span>) as f:</span><br><span class="line">**此后代码省略......**</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="训练环境配置"><a href="#训练环境配置" class="headerlink" title="训练环境配置"></a>训练环境配置</h4><p>基于个人PC完成训练，软硬件配置贴合普通开发者场景，无需高端硬件：</p>
+<ol>
+<li>硬件：NVIDIA RTX 3060（8GB显存）、16GB运行内存；</li>
+<li>软件：Anaconda（Python 3.11）、PyTorch 2.0、Ultralytics YOLOv8官方库；</li>
+<li>预训练权重：Ultralytics官方开源的YOLOv8x-pose权重（基于COCO人体姿态数据集训练）。</li>
+</ol>
+<h2 id="📈-分批次训练方案"><a href="#📈-分批次训练方案" class="headerlink" title="📈 分批次训练方案"></a>📈 分批次训练方案</h2><p>环境搭建后，直接使用全量7790张训练集训练时，出现致命问题：8GB显存无法支撑全量训练，即使将batch-size调至1，仍出现CUDA out of memory报错，训练无法推进。<br>尝试缩小图像分辨率、降低数据增强强度等方案，均导致模型收敛缓慢、特征学习不充分，精度大幅下降，无法满足项目需求。为此，设计*<strong>分批次训练+动态加权模型集成</strong>方案，在不升级硬件的前提下，完成全量数据集训练。</p>
+<h4 id="训练集批次划分"><a href="#训练集批次划分" class="headerlink" title="训练集批次划分"></a>训练集批次划分</h4><p>将7790张训练集均匀划分为10个独立子批次，每批次约550张样本，核心要求：</p>
+<ol>
+<li>样本均衡：每个子批次中，4类姿态、单人&#x2F;多人场景样本分布与总训练集一致，避免数据倾斜；</li>
+<li>独立验证：每个子批次配套独立验证集切片（从总验证集中均匀分配），用于单批次训练效果评估与早停触发。</li>
+</ol>
+<h4 id="两阶段迁移学习训练流程"><a href="#两阶段迁移学习训练流程" class="headerlink" title="两阶段迁移学习训练流程"></a>两阶段迁移学习训练流程</h4><p>每个子批次采用统一的两阶段训练流程，最大化利用预训练权重，降低显存占用，避免过拟合：</p>
+<ol>
+<li>预训练权重加载与网络层冻结：加载YOLOv8x-pose预训练权重，冻结骨干网络（Backbone）前80%（250层中的200层），保留低层级特征提取能力，仅更新检测头（Head）及未冻结层参数，大幅降低训练参数量与显存占用；</li>
+<li>冻结训练（第一阶段）：固定学习率1e-3，对解冻层迭代100轮，让模型快速适配居家老人姿态数据分布，全程监控验证集损失，规避过拟合；</li>
+<li>全解冻微调（第二阶段）：解冻全部网络层，采用余弦退火学习率（初始1e-4，最小1e-6），结合Mosaic数据增强，优化姿态估计损失函数与多尺度检测能力，每批次迭代150轮；加入早停机制，连续10轮验证集损失无下降则终止训练，避免单批次过拟合。<br>每个子批次训练完成后，生成该批次最优的best.pt权重文件，10个批次全部完成后，得到10个独立子模型权重。</li>
+</ol>
+<p><img src="/blog/blog/other/batch_training_flow.jpg" alt="分批次训练流程图"></p>
+<h2 id="🧩-动态加权模型集成策略"><a href="#🧩-动态加权模型集成策略" class="headerlink" title="🧩 动态加权模型集成策略"></a>🧩 动态加权模型集成策略</h2><p>通过动态加权集成，整合各子模型优势，提升整体性能与场景稳定性，核心分为3个步骤：</p>
+<h4 id="子模型性能量化评估"><a href="#子模型性能量化评估" class="headerlink" title="子模型性能量化评估"></a>子模型性能量化评估</h4><p>使用统一独立验证集，对10个子模型进行全面评估，核心指标为测试集准确率，同时参考识别召回率，量化每个子模型的泛化能力，为权重分配提供数据支撑。</p>
+<h4 id="动态权重分配策略"><a href="#动态权重分配策略" class="headerlink" title="动态权重分配策略"></a>动态权重分配策略</h4><p>区别于简单平均集成，采用性能加权分配，核心规则：</p>
+<ol>
+<li>子模型测试集准确率越高，预测效果越好，分配权重越大；</li>
+<li>子模型测试集准确率越低，权重越小；</li>
+<li>所有权重之和为1，保证集成模型输出逻辑稳定，强化优质子模型主导性，弱化劣质子模型影响。</li>
+</ol>
+<h4 id="集成模型生成与优化"><a href="#集成模型生成与优化" class="headerlink" title="集成模型生成与优化"></a>集成模型生成与优化</h4><p>基于分配好的动态权重，对10个子模型参数进行加权融合，生成最终集成模型。同时进行轻量化优化，在不损失核心精度的前提下，压缩模型体积、优化推理耗时，确保在RTX 3060上推理速度达48FPS，满足居家实时监控需求。</p>
+<p><img src="/blog/blog/other/model_integration_flow.jpg" alt="模型集成流程示意图"></p>
+<h2 id="✅-模型性能验证与效果"><a href="#✅-模型性能验证与效果" class="headerlink" title="✅ 模型性能验证与效果"></a>✅ 模型性能验证与效果</h2><p>从横向对比、分类精度、场景适配三个维度，验证模型性能，确保满足项目需求。</p>
+<h4 id="横向对比核心性能指标"><a href="#横向对比核心性能指标" class="headerlink" title="横向对比核心性能指标"></a>横向对比核心性能指标</h4><p>基于自制7900张数据集，采用相同训练、预处理、增强策略，对比OpenPose、YOLOv5-pose、YOLOv7-pose模型，验证本方案优越性，结果如下：</p>
+<p><img src="/blog/blog/other/normalized_confusion_matrix.png" alt="归一化混淆矩阵"><br><img src="/blog/blog/other/Unnormalized_confusion_matrix.png" alt="未归一化混淆矩阵"></p>
+<h2 id="📝-落地应用与复盘总结"><a href="#📝-落地应用与复盘总结" class="headerlink" title="📝 落地应用与复盘总结"></a>📝 落地应用与复盘总结</h2><h4 id="项目落地成果"><a href="#项目落地成果" class="headerlink" title="项目落地成果"></a>项目落地成果</h4><p>训练完成的集成模型，完整集成到智养舒居系统，核心支撑四大功能模块：</p>
+<ol>
+<li>老人状态汇报：基于模型识别结果，每小时汇总姿态信息，生成常态化报告；</li>
+<li>跌倒紧急告警：检测到Lie姿态（跌倒）时，立即触发警报，同步推送至家属、社区工作人员；</li>
+<li>老人信息管理：记录老人基础资料、历史姿态数据，形成完整健康监测档案；</li>
+<li>实时监控可视化：结合视频流，实时渲染人体关键点与姿态标签，实现可视化监测。</li>
+</ol>
+<p><img src="/blog/blog/other/val_pre_0.jpg" alt="模型测试集检测图片"></p>
+<h4 id="全流程复盘总结"><a href="#全流程复盘总结" class="headerlink" title="全流程复盘总结"></a>全流程复盘总结</h4><p>结合整个训练过程，沉淀4点核心心得，供同类项目参考：</p>
+<ol>
+<li>数据集场景覆盖决定泛化上限：补充的多人场景样本，有效解决多人识别失效问题，收益远大于后期调参；</li>
+<li>标注规范是姿态识别前提：17个关键点标注顺序必须统一，否则直接导致训练失效，前期需做好标注培训与校验；</li>
+<li>分批次训练适配轻量级硬件：无需升级高显存显卡，通过分批次+集成方案，可在个人PC完成万级样本训练，同时提升泛化能力；</li>
+<li>动态加权集成优于单模型：整合各子批次优势，复杂场景下表现更稳定，误判率更低，适合居家这类多场景需求。</li>
+</ol>
+<p>本方案聚焦YOLOv8-pose分批次训练与集成的核心流程，精简冗余表述，保留关键技术细节与解决方案，若你也遇到显存不足、模型泛化差等问题，可参考本方案落地实践。</p>
+</div>
+        </div>
+        
+        <footer class="kratos-entry-footer clearfix">
+            
+            
+            
+                <div class="post-actions text-center clearfix" id="post-actions">
+                
+                    <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
+                
+                
+                </div>
+            
+            <div class="footer-tag clearfix">
+                <div class="pull-left">
+                <i class="fa fa-tags"></i>
+                    <a class="tag-none-link" href="/blog/tags/YOLOv8/" rel="tag">YOLOv8</a>
+                </div>
+                <div class="pull-date">
+                    <time datetime="2026-05-08T12:56:26.960Z" itemprop="dateModified">最后编辑：2026-05-08</time>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+        <nav class="navigation post-navigation clearfix" role="navigation">
+            
+            <div class="nav-previous clearfix">
+                <a title=" 基于若依框架的智慧居家养老系统开发复盘" href="/blog/2026/05/07/Spring boot+Vue/"><i class="fa fa-angle-left"></i> 上一篇</a>
+            </div>
+            
+            
+        </nav>
+    
+    
+</article>
+
+        
+
+            </section>
+
+            
+                
+
+<section id="kratos-widget-area" class="col-md-4 hidden-xs hidden-sm">
+    <!-- 文章和页面根据splitter来分割，没有的话就从头开始设置为sticky -->
+    
+    
+                <aside id="krw-about" class="widget widget-kratos-about clearfix">
+    <div class="photo-background"></div>
+    <div class="photo-wrapper clearfix">
+        <div class="photo-wrapper-tip text-center">
+            <img class="about-photo" src="/blog/images/logo.png" alt="董子阳" loading="lazy" decoding="auto" />
+        </div>
+    </div>
+    <div class="textwidget">
+        <p class="text-center">软件开发 | RISC-V | Java | 算法</p>
+    </div>
+    <div class="site-meta">
+        <a class="meta-item" href="/blog/archives/">
+            <span class="title">
+                文章
+            </span>
+            <span class="count">
+                5
+            </span>
+        </a>
+        <a class="meta-item" href="/blog/categories/">
+            <span class="title">
+                分类
+            </span>
+            <span class="count">
+                3
+            </span>
+        </a>
+        <a class="meta-item" href="/blog/tags/">
+            <span class="title">
+                标签
+            </span>
+            <span class="count">
+                9
+            </span>
+        </a>
+    </div>
+</aside>
+            
+                    <div class="sticky-area">
+                
+                
+  <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
+    <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/">项目经历</a><span class="category-list-count">2</span></li></ul>
+  </aside>
+
+
+            
+                
+  <aside id="krw-tags" class="widget widget-kratos-tags clearfix">
+    <h4 class="widget-title"><i class="fa fa-tags"></i>标签聚合</h4>
+      <div class="tag-clouds">
+        <a href="/blog/tags/FISCO-BCOS/" style="font-size: 0.6em;">FISCO BCOS</a> <a href="/blog/tags/Hexo-Kratos-Rebirth/" style="font-size: 0.6em;">Hexo & Kratos-Rebirth</a> <a href="/blog/tags/Spring-Boot/" style="font-size: 0.8em;">Spring Boot</a> <a href="/blog/tags/Vue/" style="font-size: 0.8em;">Vue</a> <a href="/blog/tags/WireGuard/" style="font-size: 0.6em;">WireGuard</a> <a href="/blog/tags/YOLOv8/" style="font-size: 0.8em;">YOLOv8</a> <a href="/blog/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" style="font-size: 0.6em;">区块链</a> <a href="/blog/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" style="font-size: 0.6em;">智能合约</a> <a href="/blog/tags/%E6%A0%91%E8%8E%93%E6%B4%BE/" style="font-size: 0.6em;">树莓派</a>
+      </div>
+  </aside>
+
+            
+                
+  <aside id="krw-posts" class="widget widget-kratos-posts">
+  <h4 class="widget-title"><i class="fa fa-file"></i>最新文章</h4>
+  <div class="tab-content">
+      <ul class="list-group">
+        
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/05/08/YOLOv8-pose/"><i class="fa fa-book"></i> YOLOv8-pose 分批次训练与模型集成方案</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/05/07/Spring%20boot+Vue/"><i class="fa fa-book"></i> 基于若依框架的智慧居家养老系统开发复盘</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/05/06/%E6%99%BA%E9%93%BE%E9%A3%9F%E5%AE%89/"><i class="fa fa-book"></i> 智链食安：基于FISCO BCOS的食品供应链全链路可信追溯系统</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/04/29/%E6%99%BA%E5%85%BB%E6%95%B0%E6%8D%AE/"><i class="fa fa-book"></i> 智养舒居：基于YOLOv8-pose与多模态的居家安全监护系统实战</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/04/21/Hexo+Kratos-Rebirth%E4%B8%BB%E9%A2%98%E6%90%AD%E5%BB%BA%E5%BF%83%E5%BE%97&%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/"><i class="fa fa-book"></i> Hexo + Kratos-Rebirth 主题搭建心得 & 我的第一篇博客</a>
+            
+          
+        
+      </ul>
+  </div>
+  </aside>
+
+            
+    </div>
+</section>
+            
+
+        
+
+        </div>
+</div>
+</div>
+
+<footer>
+    <div id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 footer-list text-center">
+                    <ul class="kratos-social-icons">
+                        
+                    </ul>
+                    <ul class="kratos-copyright">
+                        <div>
+                            <li>&copy; 2026 北白念 版权所有.</li>
+                            <li>本站已运行<span id="kr-since">Loading...</span></li>
+                        </div>
+                        <div>
+                            <li></li>
+                            <li>站点由<i class="fa fa-heart" style="color:#d43f57"></i>北白念<i class="fa fa-heart" style="color:#d43f57"></i> 搭建</li>
+                        </div>
+                        <!-- 额外的追加注入项 -->
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="kr-tool text-center">
+            <div class="tool">
+                <!-- 额外的追加注入项 -->
+                
+                            
+                                <div class="box search-box">
+                                    <a href="/blog/search">
+                                        <span class="fa fa-search"></span>
+                                    </a>
+                                </div>
+                                
+                                    <div class="box theme-box" id="theme-toggle">
+                                        <span class="fa fa-adjust"></span>
+                                    </div>
+            </div>
+            <div id="gotop-box" class="box gotop-box">
+                <span class="fa fa-chevron-up"></span>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</div>
+
+
+    <div id="kr-donate-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseDonateModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-bitcoin"></i>
+            </div>
+            <div class="kr-modal-title">💖 感谢支持，点击查看收款码</div>
+            <button class="kr-modal-close" onclick="krCloseDonateModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-donate-message">你的鼓励是我持续更新的动力！</div>
+            <div class="kr-donate-qr" id="kr-donate-qr">
+                
+            </div>
+            <div class="kr-donate-platforms">
+                
+                    
+                        <button class="kr-donate-platform-button" style="color: #07C160;" title="微信" onclick="krDonateModalShowPlatformQR('images/wechat.png', '#07C160')">
+                            <i class="fa fa-fa-weixin"></i>
+                        </button>
+                    
+                
+                    
+                        <button class="kr-donate-platform-button" style="color: #1677FF;" title="支付宝" onclick="krDonateModalShowPlatformQR('images/alipay.png', '#1677FF')">
+                            <i class="fa fa-fa-alipay"></i>
+                        </button>
+                    
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/blog/js/kr-modal/donate.min.js"></script>
+
+        
+
+            
+
+                        <!-- 额外的追加注入项 -->
+                        
+        <script>
+    if (!window.kr) {
+        window.kr = {};
+    }
+    window.kr.notMobile = (!(navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)));
+    window.kr.siteRoot = "/blog/";
+</script>
+
+
+  <script defer src="/blog/vendors/nprogress@0.2.0/nprogress.js"></script>
+
+
+
+  <script defer src="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.js"></script>
+
+
+<script defer src="/blog/js/kr-core.min.js"></script>
+
+
+  <script defer src="/blog/js/kr-pjax.min.js"></script>
+
+
+<!-- 额外的追加注入项 -->
+
+
+    </body>
+</html>
