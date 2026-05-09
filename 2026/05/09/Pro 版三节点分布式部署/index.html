@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+  <!-- 元数据 -->
+  <meta charset="utf-8">
+  
+    <link rel="icon" href="/blog/images/favicon.png">
+  
+  
+  <title>FISCO BCOS 3.0 Pro版三节点分布式部署实战 | 北白念</title>
+  <link rel="canonical" href="https://beibainian.github.io/blog/2026/05/09/Pro%20%E7%89%88%E4%B8%89%E8%8A%82%E7%82%B9%E5%88%86%E5%B8%83%E5%BC%8F%E9%83%A8%E7%BD%B2/">
+  <meta name="author" content="董子阳" />
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="robots" content="index,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="format-detection" content="telphone=no, email=no" />
+  
+    <meta name="keywords" content="FISCO BCOS, WireGuard, 区块链" />
+  
+  <meta name="description" content="本篇博客文档详细记录了基于FISCO BCOS 3.8.0 Pro版本的三节点分布式联盟链部署全过程，重点剖析了Tars服务配置异常、节点加密不一致导致共识失败、局域网外无法通信等核心问题的排查与解决方案。 📋 部署环境与前期准备 硬件与系统环境 节点数量：3台独立物理机 节点IP：10.8.0.2（生产节点）、10.8.0.3（仓储节点）、10.8.0.4（检测节点） 操作系统：Ubutnu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FISCO BCOS 3.0 Pro版三节点分布式部署实战">
+<meta property="og:url" content="https://beibainian.github.io/blog/2026/05/09/Pro%20%E7%89%88%E4%B8%89%E8%8A%82%E7%82%B9%E5%88%86%E5%B8%83%E5%BC%8F%E9%83%A8%E7%BD%B2/index.html">
+<meta property="og:site_name" content="北白念">
+<meta property="og:description" content="本篇博客文档详细记录了基于FISCO BCOS 3.8.0 Pro版本的三节点分布式联盟链部署全过程，重点剖析了Tars服务配置异常、节点加密不一致导致共识失败、局域网外无法通信等核心问题的排查与解决方案。 📋 部署环境与前期准备 硬件与系统环境 节点数量：3台独立物理机 节点IP：10.8.0.2（生产节点）、10.8.0.3（仓储节点）、10.8.0.4（检测节点） 操作系统：Ubutnu">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://beibainian.github.io/blog/blog/images/technology.png">
+<meta property="article:published_time" content="2026-05-09T08:03:28.000Z">
+<meta property="article:modified_time" content="2026-05-09T10:53:16.242Z">
+<meta property="article:author" content="董子阳">
+<meta property="article:tag" content="FISCO BCOS">
+<meta property="article:tag" content="区块链">
+<meta property="article:tag" content="WireGuard">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://beibainian.github.io/blog/blog/images/technology.png">
+  
+  <!-- JSON-LD 结构化数据 -->
+  
+  
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"FISCO BCOS 3.0 Pro版三节点分布式部署实战","description":"本篇博客文档详细记录了基于FISCO BCOS 3.8.0 Pro版本的三节点分布式联盟链部署全过程，重点剖析了Tars服务配置异常、节点加密不一致导致共识失败、局域网外无法通信等核心问题的排查与解决方案。\n","image":"https://beibainian.github.io/blog/2026/05/09/Pro%20%E7%89%88%E4%B8%89%E8%8A%82%E7%82%B9%E5%88%86%E5%B8%83%E5%BC%8F%E9%83%A8%E7%BD%B2/blog/images/technology.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-05-09T08:03:28.000Z","dateModified":"2026-05-09T10:53:16.242Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/05/09/Pro%20%E7%89%88%E4%B8%89%E8%8A%82%E7%82%B9%E5%88%86%E5%B8%83%E5%BC%8F%E9%83%A8%E7%BD%B2/"}}
+    </script>
+  
+  <!-- 关键 CSS 预加载 -->
+  <link rel="preload" href="/blog/css/kr-core.min.css" as="style" crossorigin>
+  <link rel="preload" href="/blog/css/kr-theme/light.min.css" as="style" crossorigin>
+  <link rel="preload" href="/blog/css/kr-theme/dark.min.css" as="style" crossorigin>
+  <!-- 样式表文件 -->
+  <link rel="stylesheet" id="kratos-css" href="/blog/css/kr-core.min.css" media="all">
+  <link rel="stylesheet" id="theme-light-css" href="/blog/css/kr-theme/light.min.css" media="all">
+  <link rel="stylesheet" id="theme-dark-css" href="/blog/css/kr-theme/dark.min.css" media="(prefers-color-scheme: dark)">
+  
+    <link rel="stylesheet"  id="highlight-css" href="/blog/css/highlight/highlight.js/night-eighties.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/css/highlight/highlight.js/night-eighties.min.css"></noscript>
+  
+  <script src="/blog/js/kr-theme.min.js"></script>
+  <link rel="stylesheet"  id="fontawe-css" href="/blog/vendors/font-awesome@4.7.0/css/font-awesome.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/font-awesome@4.7.0/css/font-awesome.min.css"></noscript>
+  
+    <link rel="stylesheet"  id="nprogress-css" href="/blog/vendors/nprogress@0.2.0/nprogress.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/nprogress@0.2.0/nprogress.css"></noscript>
+  
+  
+    <link rel="stylesheet"  href="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.css"></noscript>
+  
+  <!-- 预先加载的JS文件 -->
+  
+    <script src="/blog/vendors/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  
+  <!-- 自定义站点横幅和背景 -->
+  <style>
+    
+      .kratos-cover.kratos-cover-2 {
+        background-image: url('/blog/images/light.png');
+      }
+      html[data-theme="dark"] .kratos-cover.kratos-cover-2 {
+        background-image: url('/blog/images/dark.png');
+      }
+    
+    
+      @media(min-width:768px) {
+        body.custom-background {
+          background-image: url('/blog/images/background.png');
+        }
+        html[data-theme="dark"] body.custom-background {
+          background-image: url('/blog/images/background.png');
+        }
+      }
+    
+    
+      .widget-kratos-about .photo-background {
+        background-image: url('/blog/images/light.png');
+      }
+      html[data-theme="dark"] .widget-kratos-about .photo-background {
+        background-image: url('/blog/images/dark.png');
+      }
+    
+  </style>
+
+  <!-- 额外的追加注入项 -->
+  
+</head>
+
+    <body class="custom-background">
+        <div id="kratos-wrapper">
+    <div id="kratos-page">
+        <div id="kratos-header">
+            <header id="kratos-desktop-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="nav-header">
+                        <nav id="kratos-menu-wrap">
+                            <ul id="kratos-primary-menu" class="sf-menu">
+                                
+                                    <li>
+                                        
+                                            <a href="/blog/">
+                                        
+                                            
+                                                <i class="fa fa-home"></i>
+                                            
+                                            首页
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/blog/archives/">
+                                        
+                                            
+                                                <i class="fa fa-file"></i>
+                                            
+                                            档案馆
+                                        </a>
+                                        
+                                    </li>
+                                
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <header id="kratos-mobile-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="color-logo"><a href="/blog/">北白念</a></div>
+                    <div id="kratos-nav-toggle-wrapper" class="nav-toggle">
+                        <a id="kratos-nav-toggle" class="kratos-nav-toggle">
+                            <i></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="kratos-start kratos-hero-2">
+            <!-- <div class="kratos-overlay"></div> -->
+            <div class="kratos-cover kratos-cover-2 text-center">
+                <div class="desc desc2 animate-box">
+                    <a href="/blog/">
+                        <h2>北白念</h2> <br />
+                        <span>记录个人的学习笔记和技术文章，偶尔也会分享一些生活感悟。</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="kratos-blog-post">
+            <div class="container">
+                <div id="main" class="row">
+
+
+        
+
+            
+
+            <section class="kr-main-col col-md-8">
+
+        
+
+            <article itemscope itemtype="https://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://beibainian.github.io/blog/2026/05/09/Pro%20%E7%89%88%E4%B8%89%E8%8A%82%E7%82%B9%E5%88%86%E5%B8%83%E5%BC%8F%E9%83%A8%E7%BD%B2/">
+    <div class="kratos-hentry kratos-page-inner clearfix">
+        <header class="kratos-page-header">
+            
+                <h1 class="kratos-page-title text-center" itemprop="name headline">FISCO BCOS 3.0 Pro版三节点分布式部署实战</h1>
+            
+            <ul class="kratos-page-meta text-center">
+                <li><time datetime="2026-05-09T08:03:28.000Z" itemprop="datePublished"><i class="fa fa-calendar"></i> 2026-05-09</time></li>
+                <li itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <i class="fa fa-user"></i> 作者 <span itemprop="name">董子阳</span>
+                </li>
+                
+                    <li>
+                        <i class="fa fa-edit"></i> 
+                        
+                        
+                            ~2.68K
+                        
+                        字
+                    </li>
+                
+                
+                
+            </ul>
+        </header>
+        <div class="kratos-page-content kr-post">
+            
+            
+            
+            <hr />
+            <div itemprop="articleBody"><p>本篇博客文档详细记录了基于<strong>FISCO BCOS 3.8.0 Pro版本</strong>的三节点分布式联盟链部署全过程，重点剖析了Tars服务配置异常、节点加密不一致导致共识失败、局域网外无法通信等核心问题的排查与解决方案。</p>
+<h2 id="📋-部署环境与前期准备"><a href="#📋-部署环境与前期准备" class="headerlink" title="📋 部署环境与前期准备"></a>📋 部署环境与前期准备</h2><p><img src="/blog/blog/other/network_topology.jpg" alt="部署环境拓扑图"></p>
+<h4 id="硬件与系统环境"><a href="#硬件与系统环境" class="headerlink" title="硬件与系统环境"></a>硬件与系统环境</h4><ul>
+<li><strong>节点数量</strong>：3台独立物理机</li>
+<li><strong>节点IP</strong>：10.8.0.2（生产节点）、10.8.0.3（仓储节点）、10.8.0.4（检测节点）</li>
+<li><strong>操作系统</strong>：Ubutnu 20.04 LTS x86_64</li>
+<li><strong>硬件配置</strong>：4核8G内存、50G SSD存储</li>
+<li><strong>网络环境</strong>：初始为局域网环境，后续通过WireGuard实现跨地域组网</li>
+</ul>
+<h4 id="核心依赖软件"><a href="#核心依赖软件" class="headerlink" title="核心依赖软件"></a>核心依赖软件</h4><ul>
+<li><strong>FISCO BCOS版本</strong>：v3.8.0 Pro</li>
+<li><strong>部署工具</strong>：BcosBuilder v3.8.0</li>
+<li><strong>微服务框架</strong>：Tars v2.4.10</li>
+</ul>
+<h2 id="🛠️-BcosBuilder工具下载与初始化"><a href="#🛠️-BcosBuilder工具下载与初始化" class="headerlink" title="🛠️ BcosBuilder工具下载与初始化"></a>🛠️ BcosBuilder工具下载与初始化</h2><h4 id="下载官方部署工具"><a href="#下载官方部署工具" class="headerlink" title="下载官方部署工具"></a>下载官方部署工具</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 挑选主要内容阐述</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 克隆BcosBuilder仓库</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/FISCO-BCOS/BcosBuilder.git</span><br><span class="line"><span class="comment"># 切换到对应版本分支</span></span><br><span class="line">git checkout v3.8.0</span><br><span class="line"></span><br><span class="line"><span class="comment"># 编辑配置文件，设置节点信息</span></span><br><span class="line">vim config-deploy.toml</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#toml配置文件</span></span><br><span class="line">[chain]</span><br><span class="line">chain_id=1</span><br><span class="line">sm_crypto=<span class="literal">true</span>  <span class="comment"># 启用国密算法</span></span><br><span class="line"></span><br><span class="line">[group]</span><br><span class="line">group_id=1</span><br><span class="line">nodes=[<span class="string">&quot;10.8.0.2&quot;</span>, <span class="string">&quot;10.8.0.3&quot;</span>, <span class="string">&quot;10.8.0.4&quot;</span>]</span><br><span class="line"></span><br><span class="line">[tars]</span><br><span class="line">tars_enable=<span class="literal">true</span></span><br><span class="line">tars_web_host=<span class="string">&quot;10.8.0.2&quot;</span></span><br><span class="line">tars_web_port=3000</span><br></pre></td></tr></table></figure>
+
+<h2 id="⚠️-Tars服务配置问题排查与修复"><a href="#⚠️-Tars服务配置问题排查与修复" class="headerlink" title="⚠️ Tars服务配置问题排查与修复"></a>⚠️ Tars服务配置问题排查与修复</h2><h4 id="问题现象"><a href="#问题现象" class="headerlink" title="问题现象"></a>问题现象</h4><p>执行<code>bash deploy.sh tars</code>命令时，出现以下错误：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Error: /usr/local/tars/cpp/bin/tarsnode is not a directory</span><br></pre></td></tr></table></figure>
+
+<h4 id="问题根源"><a href="#问题根源" class="headerlink" title="问题根源"></a>问题根源</h4><p>官方文档中描述<code>/tars/cpp/bin/tarsnode</code>为文件夹路径，但实际安装后该路径是一个二进制可执行文件，导致脚本中的目录检查逻辑失败。</p>
+<h4 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h4><p>修改BcosBuilder脚本文件，移除错误的目录检查：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 编辑tars部署脚本</span></span><br><span class="line">vim /usr/local/tars/scripts/deploy_tars.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># 找到以下代码段</span></span><br><span class="line"><span class="keyword">if</span> [ ! -d <span class="string">&quot;<span class="variable">$TARS_NODE_BIN</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Error: <span class="variable">$TARS_NODE_BIN</span> is not a directory&quot;</span></span><br><span class="line">    <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改为：跳过目录检查，直接验证文件是否存在</span></span><br><span class="line"><span class="keyword">if</span> [ ! -f <span class="string">&quot;<span class="variable">$TARS_NODE_BIN</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Error: <span class="variable">$TARS_NODE_BIN</span> does not exist&quot;</span></span><br><span class="line">    <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<h2 id="🚀-节点配置生成与分布式部署"><a href="#🚀-节点配置生成与分布式部署" class="headerlink" title="🚀 节点配置生成与分布式部署"></a>🚀 节点配置生成与分布式部署</h2><h4 id="生成节点配置文件"><a href="#生成节点配置文件" class="headerlink" title="生成节点配置文件"></a>生成节点配置文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成所有节点的配置</span></span><br><span class="line">bash deploy.sh genconfig</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看生成的配置文件</span></span><br><span class="line"><span class="built_in">ls</span> -l output/</span><br><span class="line"><span class="comment"># 输出：10.8.0.2/ 10.8.0.3/ 10.8.0.4/  cert/  config.ini</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="分发配置到各节点"><a href="#分发配置到各节点" class="headerlink" title="分发配置到各节点"></a>分发配置到各节点</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 分发到10.8.0.3节点</span></span><br><span class="line">scp -r output/10.8.0.3/* user@10.8.0.3:~/fisco/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 分发到10.8.0.4节点</span></span><br><span class="line">scp -r output/10.8.0.4/* user@10.8.0.4:~/fisco/</span><br></pre></td></tr></table></figure>
+
+<p><img src="/blog/blog/zlsa/start_node.png" alt="某节点启动界面"></p>
+<h2 id="🔒-节点加密不一致导致共识失败问题解决"><a href="#🔒-节点加密不一致导致共识失败问题解决" class="headerlink" title="🔒 节点加密不一致导致共识失败问题解决"></a>🔒 节点加密不一致导致共识失败问题解决</h2><h4 id="问题现象-1"><a href="#问题现象-1" class="headerlink" title="问题现象"></a>问题现象</h4><p>所有节点启动成功，但无法形成共识，节点日志中出现以下错误：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Handshake failed: encryption mode mismatch</span><br><span class="line">Peer node uses encrypted communication, local node uses plaintext</span><br></pre></td></tr></table></figure>
+
+<h4 id="问题根源-1"><a href="#问题根源-1" class="headerlink" title="问题根源"></a>问题根源</h4><p>在配置文件分发过程中，部分节点的<code>config.ini</code>文件中<code>sm_crypto</code>参数默认采用不加密，导致节点间国密模式不一致，三次握手协议失败。</p>
+<h4 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h4><p>统一所有节点的加密配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在每个节点上编辑config.ini</span></span><br><span class="line">vim ~/fisco/config.ini</span><br><span class="line"></span><br><span class="line"><span class="comment"># 确保以下配置项完全一致</span></span><br><span class="line">[network]</span><br><span class="line">sm_crypto=<span class="literal">true</span></span><br><span class="line">ssl_cert_path=./cert/</span><br><span class="line">ssl_key_path=./cert/</span><br><span class="line"></span><br><span class="line">[consensus]</span><br><span class="line">consensus_type=pbft</span><br></pre></td></tr></table></figure>
+
+<h4 id="重启所有节点服务"><a href="#重启所有节点服务" class="headerlink" title="重启所有节点服务"></a>重启所有节点服务</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在每个节点上执行</span></span><br><span class="line">bash stop.sh</span><br><span class="line">bash start.sh</span><br></pre></td></tr></table></figure>
+
+<h2 id="🖥️-控制台连接与节点状态验证"><a href="#🖥️-控制台连接与节点状态验证" class="headerlink" title="🖥️ 控制台连接与节点状态验证"></a>🖥️ 控制台连接与节点状态验证</h2><h4 id="下载并启动控制台"><a href="#下载并启动控制台" class="headerlink" title="下载并启动控制台"></a>下载并启动控制台</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在任意节点上下载控制台</span></span><br><span class="line"><span class="built_in">cd</span> ~/fisco</span><br><span class="line">bash &lt;(curl -s https://raw.githubusercontent.com/FISCO-BCOS/console/master/tools/download_console.sh)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 复制节点证书到控制台目录</span></span><br><span class="line"><span class="built_in">cp</span> -r nodes/10.8.0.2/sdk/* console/conf/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动控制台</span></span><br><span class="line"><span class="built_in">cd</span> ~/fisco/console &amp;&amp; bash start.sh</span><br></pre></td></tr></table></figure>
+
+<h4 id="验证节点状态"><a href="#验证节点状态" class="headerlink" title="验证节点状态"></a>验证节点状态</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看节点列表</span></span><br><span class="line">[group:0]&gt; getNodeList</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看节点共识状态</span></span><br><span class="line">[group:0]&gt; getConsensusStatus</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看区块高度</span></span><br><span class="line">[group:0]&gt; getBlockNumber</span><br></pre></td></tr></table></figure>
+
+<p>正常输出应显示3个节点均处于运行状态，且区块高度一致。</p>
+<p><img src="/blog/blog/zlsa/webase-node-monitor.png" alt="WeBASE平台节点监控与区块状态"></p>
+<h2 id="🌐-跨地域通信问题与WireGuard解决方案"><a href="#🌐-跨地域通信问题与WireGuard解决方案" class="headerlink" title="🌐 跨地域通信问题与WireGuard解决方案"></a>🌐 跨地域通信问题与WireGuard解决方案</h2><h4 id="问题现象-2"><a href="#问题现象-2" class="headerlink" title="问题现象"></a>问题现象</h4><p>在局域网环境下节点通信正常，但当节点部署在不同地域的网络中时，无法建立P2P连接，数据无法上链。</p>
+<h4 id="问题根源-2"><a href="#问题根源-2" class="headerlink" title="问题根源"></a>问题根源</h4><p>不同地域的节点位于NAT网络之后，没有公网IP，无法直接进行P2P通信。</p>
+<h4 id="解决方案-2"><a href="#解决方案-2" class="headerlink" title="解决方案"></a>解决方案</h4><p>采用WireGuard虚拟局域网技术，为所有节点分配统一的虚拟IP地址，实现跨地域的安全加密通信。</p>
+<p><img src="/blog/blog/other/network_topology_wireguard.jpg" alt="WireGuard跨地域组网架构图"></p>
+</div>
+        </div>
+        
+        <footer class="kratos-entry-footer clearfix">
+            
+            
+            
+                <div class="post-actions text-center clearfix" id="post-actions">
+                
+                    <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
+                
+                
+                    <a class="share" href="javascript:;" onclick="krOpenShareModal()"><i class="fa fa-share-alt"></i> 分享</a>
+                
+                </div>
+            
+            <div class="footer-tag clearfix">
+                <div class="pull-left">
+                <i class="fa fa-tags"></i>
+                    <a class="tag-none-link" href="/blog/tags/FISCO-BCOS/" rel="tag">FISCO BCOS</a>, <a class="tag-none-link" href="/blog/tags/WireGuard/" rel="tag">WireGuard</a>, <a class="tag-none-link" href="/blog/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="tag">区块链</a>
+                </div>
+                <div class="pull-date">
+                    <time datetime="2026-05-09T10:53:16.242Z" itemprop="dateModified">最后编辑：2026-05-09</time>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+        <nav class="navigation post-navigation clearfix" role="navigation">
+            
+            <div class="nav-previous clearfix">
+                <a title=" YOLOv8-pose 分批次训练与模型集成方案" href="/blog/2026/05/08/YOLOv8-pose/"><i class="fa fa-angle-left"></i> 上一篇</a>
+            </div>
+            
+            
+        </nav>
+    
+    
+</article>
+
+        
+
+            </section>
+
+            
+                
+
+<section id="kratos-widget-area" class="col-md-4 hidden-xs hidden-sm">
+    <!-- 文章和页面根据splitter来分割，没有的话就从头开始设置为sticky -->
+    
+    
+                <aside id="krw-about" class="widget widget-kratos-about clearfix">
+    <div class="photo-background"></div>
+    <div class="photo-wrapper clearfix">
+        <div class="photo-wrapper-tip text-center">
+            <img class="about-photo" src="/blog/images/logo.png" alt="董子阳" loading="lazy" decoding="auto" />
+        </div>
+    </div>
+    <div class="textwidget">
+        <p class="text-center">软件开发 | RISC-V | Java | 算法</p>
+    </div>
+    <div class="site-meta">
+        <a class="meta-item" href="/blog/archives/">
+            <span class="title">
+                文章
+            </span>
+            <span class="count">
+                6
+            </span>
+        </a>
+        <a class="meta-item" href="/blog/categories/">
+            <span class="title">
+                分类
+            </span>
+            <span class="count">
+                3
+            </span>
+        </a>
+        <a class="meta-item" href="/blog/tags/">
+            <span class="title">
+                标签
+            </span>
+            <span class="count">
+                9
+            </span>
+        </a>
+    </div>
+</aside>
+            
+                    <div class="sticky-area">
+                
+                
+  <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
+    <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/">项目经历</a><span class="category-list-count">2</span></li></ul>
+  </aside>
+
+
+            
+                
+  <aside id="krw-tags" class="widget widget-kratos-tags clearfix">
+    <h4 class="widget-title"><i class="fa fa-tags"></i>标签聚合</h4>
+      <div class="tag-clouds">
+        <a href="/blog/tags/FISCO-BCOS/" style="font-size: 0.8em;">FISCO BCOS</a> <a href="/blog/tags/Hexo-Kratos-Rebirth/" style="font-size: 0.6em;">Hexo & Kratos-Rebirth</a> <a href="/blog/tags/Spring-Boot/" style="font-size: 0.8em;">Spring Boot</a> <a href="/blog/tags/Vue/" style="font-size: 0.8em;">Vue</a> <a href="/blog/tags/WireGuard/" style="font-size: 0.8em;">WireGuard</a> <a href="/blog/tags/YOLOv8/" style="font-size: 0.8em;">YOLOv8</a> <a href="/blog/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" style="font-size: 0.8em;">区块链</a> <a href="/blog/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" style="font-size: 0.6em;">智能合约</a> <a href="/blog/tags/%E6%A0%91%E8%8E%93%E6%B4%BE/" style="font-size: 0.6em;">树莓派</a>
+      </div>
+  </aside>
+
+            
+                
+  <aside id="krw-posts" class="widget widget-kratos-posts">
+  <h4 class="widget-title"><i class="fa fa-file"></i>最新文章</h4>
+  <div class="tab-content">
+      <ul class="list-group">
+        
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/05/09/Pro%20%E7%89%88%E4%B8%89%E8%8A%82%E7%82%B9%E5%88%86%E5%B8%83%E5%BC%8F%E9%83%A8%E7%BD%B2/"><i class="fa fa-book"></i> FISCO BCOS 3.0 Pro版三节点分布式部署实战</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/05/08/YOLOv8-pose/"><i class="fa fa-book"></i> YOLOv8-pose 分批次训练与模型集成方案</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/05/07/Spring%20boot+Vue/"><i class="fa fa-book"></i> 基于若依框架的智慧居家养老系统开发复盘</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/05/06/%E6%99%BA%E9%93%BE%E9%A3%9F%E5%AE%89/"><i class="fa fa-book"></i> 智链食安：基于FISCO BCOS的食品供应链全链路可信追溯系统</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/04/29/%E6%99%BA%E5%85%BB%E6%95%B0%E6%8D%AE/"><i class="fa fa-book"></i> 智养舒居：基于YOLOv8-pose与多模态的居家安全监护系统实战</a>
+            
+          
+        
+          
+            
+      </ul>
+  </div>
+  </aside>
+
+            
+    </div>
+</section>
+            
+
+        
+
+        </div>
+</div>
+</div>
+
+<footer>
+    <div id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 footer-list text-center">
+                    <ul class="kratos-social-icons">
+                        
+                    </ul>
+                    <ul class="kratos-copyright">
+                        <div>
+                            <li>&copy; 2026 北白念 版权所有.</li>
+                            <li>本站已运行<span id="kr-since">Loading...</span></li>
+                        </div>
+                        <div>
+                            <li></li>
+                            <li>站点由<i class="fa fa-heart" style="color:#d43f57"></i>北白念<i class="fa fa-heart" style="color:#d43f57"></i> 搭建</li>
+                        </div>
+                        <!-- 额外的追加注入项 -->
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="kr-tool text-center">
+            <div class="tool">
+                <!-- 额外的追加注入项 -->
+                
+                            
+                                <div class="box search-box">
+                                    <a href="/blog/search">
+                                        <span class="fa fa-search"></span>
+                                    </a>
+                                </div>
+                                
+                                    <div class="box theme-box" id="theme-toggle">
+                                        <span class="fa fa-adjust"></span>
+                                    </div>
+            </div>
+            <div id="gotop-box" class="box gotop-box">
+                <span class="fa fa-chevron-up"></span>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</div>
+
+
+    <div id="kr-donate-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseDonateModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-bitcoin"></i>
+            </div>
+            <div class="kr-modal-title">💖 感谢支持，点击查看收款码</div>
+            <button class="kr-modal-close" onclick="krCloseDonateModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-donate-message">你的鼓励是我持续更新的动力！</div>
+            <div class="kr-donate-qr" id="kr-donate-qr">
+                
+            </div>
+            <div class="kr-donate-platforms">
+                
+                    
+                        <button class="kr-donate-platform-button" style="color: #07C160;" title="微信" onclick="krDonateModalShowPlatformQR('wxp://f2f0U-8OUlrs0izTyZ-5lVarqsgP8EKsPgzaLP85BiSn9fcO3ZVKct1SLLVbeitwIZHi', '#07C160')">
+                            <i class="fa fa-fa-weixin"></i>
+                        </button>
+                    
+                
+                    
+                        <button class="kr-donate-platform-button" style="color: #1677FF;" title="支付宝" onclick="krDonateModalShowPlatformQR('https://qr.alipay.com/fkx18296ibecsgq8leryn49', '#1677FF')">
+                            <i class="fa fa-fa-alipay"></i>
+                        </button>
+                    
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/blog/js/kr-modal/donate.min.js"></script>
+
+        
+
+            
+                <div id="kr-share-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseShareModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-share-alt"></i>
+            </div>
+            <div class="kr-modal-title">分享</div>
+            <button class="kr-modal-close" onclick="krCloseShareModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-share-message">扫码查看github网址，按钮查看个人网站</div>
+            <div class="kr-share-qr" id="kr-share-qr"></div>
+            <div class="kr-share-platforms">
+                
+                    <button class="kr-share-platform-button" style="color: #62b6e7;" title="北白念" onclick="krShareModalOpenPlatform('http://hweb.fun/blog')">
+                        <svg fill="currentColor" width="18" height="18" viewBox="0 0 329 388"><path d="M0,36.226c0,-19.993 16.233,-36.226 36.226,-36.226c13.788,0 25.787,7.719 31.908,19.068l188.366,229.845l0,-111.259c-6.356,5.508 -14.645,8.843 -23.707,8.843c-19.994,0 -36.226,-16.232 -36.226,-36.226c-0,-8.551 2.968,-16.413 7.93,-22.613l-0.015,-0.013l56.614,-69.08c6.2,-11.073 18.047,-18.565 31.63,-18.565c19.994,0 36.227,16.233 36.227,36.226l-0,314.644c-0,19.994 -16.233,36.226 -36.227,36.226c-13.166,0 -24.701,-7.039 -31.044,-17.555l-189.229,-230.899l-0,212.228c-0,19.994 -16.233,36.226 -36.227,36.226c-19.993,0 -36.226,-16.232 -36.226,-36.226l0,-314.644Z" /></svg>
+                    </button>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/blog/js/kr-modal/share.min.js"></script>
+
+                    
+
+                        <!-- 额外的追加注入项 -->
+                        
+        <script>
+    if (!window.kr) {
+        window.kr = {};
+    }
+    window.kr.notMobile = (!(navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)));
+    window.kr.siteRoot = "/blog/";
+</script>
+
+
+  <script defer src="/blog/vendors/nprogress@0.2.0/nprogress.js"></script>
+
+
+
+  <script defer src="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.js"></script>
+
+
+<script defer src="/blog/js/kr-core.min.js"></script>
+
+
+  <script defer src="/blog/js/kr-pjax.min.js"></script>
+
+
+<!-- 额外的追加注入项 -->
+
+
+    </body>
+</html>
