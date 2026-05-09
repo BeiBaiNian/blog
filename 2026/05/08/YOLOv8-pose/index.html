@@ -28,7 +28,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://beibainian.github.io/blog/blog/images/technology.png">
 <meta property="article:published_time" content="2026-05-08T02:23:56.000Z">
-<meta property="article:modified_time" content="2026-05-08T12:56:26.960Z">
+<meta property="article:modified_time" content="2026-05-08T12:57:13.830Z">
 <meta property="article:author" content="董子阳">
 <meta property="article:tag" content="YOLOv8">
 <meta name="twitter:card" content="summary">
@@ -38,7 +38,7 @@
   
   
     <script type="application/ld+json">
-    {"@context":"https://schema.org","@type":"BlogPosting","headline":"YOLOv8-pose 分批次训练与模型集成方案","description":"这篇技术文章复盘了智养舒居项目中，基于YOLOv8-pose实现人体姿态识别模型训练过程中遇到的问题以及解决办法。核心解决个人PC显存不足的痛点，设计分批次训练+动态加权模型集成方案，沉淀可复用的轻量级硬件训练经验。\n","image":"https://beibainian.github.io/blog/2026/05/08/YOLOv8-pose/blog/images/technology.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-05-08T02:23:56.000Z","dateModified":"2026-05-08T12:56:26.960Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/05/08/YOLOv8-pose/"}}
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"YOLOv8-pose 分批次训练与模型集成方案","description":"这篇技术文章复盘了智养舒居项目中，基于YOLOv8-pose实现人体姿态识别模型训练过程中遇到的问题以及解决办法。核心解决个人PC显存不足的痛点，设计分批次训练+动态加权模型集成方案，沉淀可复用的轻量级硬件训练经验。\n","image":"https://beibainian.github.io/blog/2026/05/08/YOLOv8-pose/blog/images/technology.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-05-08T02:23:56.000Z","dateModified":"2026-05-08T12:57:13.830Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/05/08/YOLOv8-pose/"}}
     </script>
   
   <!-- 关键 CSS 预加载 -->
@@ -292,6 +292,8 @@
                     <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
                 
                 
+                    <a class="share" href="javascript:;" onclick="krOpenShareModal()"><i class="fa fa-share-alt"></i> 分享</a>
+                
                 </div>
             
             <div class="footer-tag clearfix">
@@ -300,7 +302,7 @@
                     <a class="tag-none-link" href="/blog/tags/YOLOv8/" rel="tag">YOLOv8</a>
                 </div>
                 <div class="pull-date">
-                    <time datetime="2026-05-08T12:56:26.960Z" itemprop="dateModified">最后编辑：2026-05-08</time>
+                    <time datetime="2026-05-08T12:57:13.830Z" itemprop="dateModified">最后编辑：2026-05-08</time>
                 </div>
             </div>
         </footer>
@@ -506,13 +508,13 @@
             <div class="kr-donate-platforms">
                 
                     
-                        <button class="kr-donate-platform-button" style="color: #07C160;" title="微信" onclick="krDonateModalShowPlatformQR('images/wechat.png', '#07C160')">
+                        <button class="kr-donate-platform-button" style="color: #07C160;" title="微信" onclick="krDonateModalShowPlatformQR('wxp://f2f0U-8OUlrs0izTyZ-5lVarqsgP8EKsPgzaLP85BiSn9fcO3ZVKct1SLLVbeitwIZHi', '#07C160')">
                             <i class="fa fa-fa-weixin"></i>
                         </button>
                     
                 
                     
-                        <button class="kr-donate-platform-button" style="color: #1677FF;" title="支付宝" onclick="krDonateModalShowPlatformQR('images/alipay.png', '#1677FF')">
+                        <button class="kr-donate-platform-button" style="color: #1677FF;" title="支付宝" onclick="krDonateModalShowPlatformQR('https://qr.alipay.com/fkx18296ibecsgq8leryn49', '#1677FF')">
                             <i class="fa fa-fa-alipay"></i>
                         </button>
                     
@@ -526,6 +528,34 @@
         
 
             
+                <div id="kr-share-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseShareModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-share-alt"></i>
+            </div>
+            <div class="kr-modal-title">分享</div>
+            <button class="kr-modal-close" onclick="krCloseShareModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-share-message">扫码查看github网址，按钮查看个人网站</div>
+            <div class="kr-share-qr" id="kr-share-qr"></div>
+            <div class="kr-share-platforms">
+                
+                    <button class="kr-share-platform-button" style="color: #62b6e7;" title="北白念" onclick="krShareModalOpenPlatform('http://hweb.fun/blog')">
+                        <svg fill="currentColor" width="18" height="18" viewBox="0 0 329 388"><path d="M0,36.226c0,-19.993 16.233,-36.226 36.226,-36.226c13.788,0 25.787,7.719 31.908,19.068l188.366,229.845l0,-111.259c-6.356,5.508 -14.645,8.843 -23.707,8.843c-19.994,0 -36.226,-16.232 -36.226,-36.226c-0,-8.551 2.968,-16.413 7.93,-22.613l-0.015,-0.013l56.614,-69.08c6.2,-11.073 18.047,-18.565 31.63,-18.565c19.994,0 36.227,16.233 36.227,36.226l-0,314.644c-0,19.994 -16.233,36.226 -36.227,36.226c-13.166,0 -24.701,-7.039 -31.044,-17.555l-189.229,-230.899l-0,212.228c-0,19.994 -16.233,36.226 -36.227,36.226c-19.993,0 -36.226,-16.232 -36.226,-36.226l0,-314.644Z" /></svg>
+                    </button>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/blog/js/kr-modal/share.min.js"></script>
+
+                    
 
                         <!-- 额外的追加注入项 -->
                         
