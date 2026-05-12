@@ -26,19 +26,19 @@
 <meta property="og:site_name" content="北白念">
 <meta property="og:description" content="这篇技术文章复盘了智养舒居项目中，基于YOLOv8-pose实现人体姿态识别模型训练过程中遇到的问题以及解决办法。核心解决个人PC显存不足的痛点，设计分批次训练+动态加权模型集成方案，沉淀可复用的轻量级硬件训练经验。 📌 项目背景与训练目标本项目聚焦独居老人居家安全场景，核心需求是实现人体姿态精准识别，重点监测跌倒等危险行为，兼顾居家场景中可能出现的2-4人共处情况，避免模型因场景单一导致泛化不">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://beibainian.github.io/blog/blog/images/technology.png">
+<meta property="og:image" content="https://beibainian.github.io/blog/blog/other/model_integration_flow.jpg">
 <meta property="article:published_time" content="2026-05-08T02:23:56.000Z">
-<meta property="article:modified_time" content="2026-05-08T12:57:13.830Z">
+<meta property="article:modified_time" content="2026-05-12T05:52:52.930Z">
 <meta property="article:author" content="董子阳">
 <meta property="article:tag" content="YOLOv8">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://beibainian.github.io/blog/blog/images/technology.png">
+<meta name="twitter:image" content="https://beibainian.github.io/blog/blog/other/model_integration_flow.jpg">
   
   <!-- JSON-LD 结构化数据 -->
   
   
     <script type="application/ld+json">
-    {"@context":"https://schema.org","@type":"BlogPosting","headline":"YOLOv8-pose 分批次训练与模型集成方案","description":"这篇技术文章复盘了智养舒居项目中，基于YOLOv8-pose实现人体姿态识别模型训练过程中遇到的问题以及解决办法。核心解决个人PC显存不足的痛点，设计分批次训练+动态加权模型集成方案，沉淀可复用的轻量级硬件训练经验。\n","image":"https://beibainian.github.io/blog/2026/05/08/YOLOv8-pose/blog/images/technology.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-05-08T02:23:56.000Z","dateModified":"2026-05-08T12:57:13.830Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/05/08/YOLOv8-pose/"}}
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"YOLOv8-pose 分批次训练与模型集成方案","description":"这篇技术文章复盘了智养舒居项目中，基于YOLOv8-pose实现人体姿态识别模型训练过程中遇到的问题以及解决办法。核心解决个人PC显存不足的痛点，设计分批次训练+动态加权模型集成方案，沉淀可复用的轻量级硬件训练经验。\n","image":"https://beibainian.github.io/blog/2026/05/08/YOLOv8-pose/blog/other/model_integration_flow.jpg","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-05-08T02:23:56.000Z","dateModified":"2026-05-12T05:52:52.930Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/05/08/YOLOv8-pose/"}}
     </script>
   
   <!-- 关键 CSS 预加载 -->
@@ -302,7 +302,7 @@
                     <a class="tag-none-link" href="/blog/tags/YOLOv8/" rel="tag">YOLOv8</a>
                 </div>
                 <div class="pull-date">
-                    <time datetime="2026-05-08T12:57:13.830Z" itemprop="dateModified">最后编辑：2026-05-08</time>
+                    <time datetime="2026-05-12T05:52:52.930Z" itemprop="dateModified">最后编辑：2026-05-12</time>
                 </div>
             </div>
         </footer>
