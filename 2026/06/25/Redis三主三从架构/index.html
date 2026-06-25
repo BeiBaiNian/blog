@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+  <!-- 元数据 -->
+  <meta charset="utf-8">
+  
+    <link rel="icon" href="/blog/images/favicon.png">
+  
+  
+  <title>高并发架构演进：Redis 三主三从 Cluster 集群搭建与底层机制解析 | 北白念</title>
+  <link rel="canonical" href="https://beibainian.github.io/blog/2026/06/25/Redis%E4%B8%89%E4%B8%BB%E4%B8%89%E4%BB%8E%E6%9E%B6%E6%9E%84/">
+  <meta name="author" content="董子阳" />
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="robots" content="index,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="format-detection" content="telphone=no, email=no" />
+  
+    <meta name="keywords" content="Cluster集群, Redis, 分布式缓存, 故障转移, 高并发" />
+  
+  <meta name="description" content="这篇博客分享一下 Redis 分布式高可用架构的核心实战：搭建 Redis 三主三从 Cluster 集群。 在写这个博客之前，我已经完成了“一主一从”和“一主三从”架构的部署，实现了读写分离。但面对海量数据和短时间内极高的并发写入请求，单台 Master 节点的 CPU、网络带宽和内存都会成为严重瓶颈。 为此，我进一步探索了 Redis Cluster（分片集群）模式，通过划分 16384 个哈">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高并发架构演进：Redis 三主三从 Cluster 集群搭建与底层机制解析">
+<meta property="og:url" content="https://beibainian.github.io/blog/2026/06/25/Redis%E4%B8%89%E4%B8%BB%E4%B8%89%E4%BB%8E%E6%9E%B6%E6%9E%84/index.html">
+<meta property="og:site_name" content="北白念">
+<meta property="og:description" content="这篇博客分享一下 Redis 分布式高可用架构的核心实战：搭建 Redis 三主三从 Cluster 集群。 在写这个博客之前，我已经完成了“一主一从”和“一主三从”架构的部署，实现了读写分离。但面对海量数据和短时间内极高的并发写入请求，单台 Master 节点的 CPU、网络带宽和内存都会成为严重瓶颈。 为此，我进一步探索了 Redis Cluster（分片集群）模式，通过划分 16384 个哈">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://beibainian.github.io/blog/blog/images/redis_cluster.png">
+<meta property="article:published_time" content="2026-06-25T02:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-25T14:34:42.949Z">
+<meta property="article:author" content="董子阳">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="分布式缓存">
+<meta property="article:tag" content="高并发">
+<meta property="article:tag" content="Cluster集群">
+<meta property="article:tag" content="故障转移">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://beibainian.github.io/blog/blog/images/redis_cluster.png">
+  
+  <!-- JSON-LD 结构化数据 -->
+  
+  
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"高并发架构演进：Redis 三主三从 Cluster 集群搭建与底层机制解析","description":"这篇博客分享一下 Redis 分布式高可用架构的核心实战：搭建 Redis 三主三从 Cluster 集群。\n在写这个博客之前，我已经完成了“一主一从”和“一主三从”架构的部署，实现了读写分离。但面对海量数据和短时间内极高的并发写入请求，单...","image":"https://beibainian.github.io/blog/2026/06/25/Redis%E4%B8%89%E4%B8%BB%E4%B8%89%E4%BB%8E%E6%9E%B6%E6%9E%84/blog/images/redis_cluster.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-06-25T02:00:00.000Z","dateModified":"2026-06-25T14:34:42.949Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/06/25/Redis%E4%B8%89%E4%B8%BB%E4%B8%89%E4%BB%8E%E6%9E%B6%E6%9E%84/"}}
+    </script>
+  
+  <!-- 关键 CSS 预加载 -->
+  <link rel="preload" href="/blog/css/kr-core.min.css" as="style" crossorigin>
+  <link rel="preload" href="/blog/css/kr-theme/light.min.css" as="style" crossorigin>
+  <link rel="preload" href="/blog/css/kr-theme/dark.min.css" as="style" crossorigin>
+  <!-- 样式表文件 -->
+  <link rel="stylesheet" id="kratos-css" href="/blog/css/kr-core.min.css" media="all">
+  <link rel="stylesheet" id="theme-light-css" href="/blog/css/kr-theme/light.min.css" media="all">
+  <link rel="stylesheet" id="theme-dark-css" href="/blog/css/kr-theme/dark.min.css" media="(prefers-color-scheme: dark)">
+  
+    <link rel="stylesheet"  id="highlight-css" href="/blog/css/highlight/highlight.js/night-eighties.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/css/highlight/highlight.js/night-eighties.min.css"></noscript>
+  
+  <script src="/blog/js/kr-theme.min.js"></script>
+  <link rel="stylesheet"  id="fontawe-css" href="/blog/vendors/font-awesome@4.7.0/css/font-awesome.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/font-awesome@4.7.0/css/font-awesome.min.css"></noscript>
+  
+    <link rel="stylesheet"  id="nprogress-css" href="/blog/vendors/nprogress@0.2.0/nprogress.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/nprogress@0.2.0/nprogress.css"></noscript>
+  
+  
+    <link rel="stylesheet"  href="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.css"></noscript>
+  
+  <!-- 预先加载的JS文件 -->
+  
+    <script src="/blog/vendors/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  
+  <!-- 自定义站点横幅和背景 -->
+  <style>
+    
+      .kratos-cover.kratos-cover-2 {
+        background-image: url('/blog/images/light.png');
+      }
+      html[data-theme="dark"] .kratos-cover.kratos-cover-2 {
+        background-image: url('/blog/images/dark.png');
+      }
+    
+    
+      @media(min-width:768px) {
+        body.custom-background {
+          background-image: url('/blog/images/background.png');
+        }
+        html[data-theme="dark"] body.custom-background {
+          background-image: url('/blog/images/background.png');
+        }
+      }
+    
+    
+      .widget-kratos-about .photo-background {
+        background-image: url('/blog/images/light.png');
+      }
+      html[data-theme="dark"] .widget-kratos-about .photo-background {
+        background-image: url('/blog/images/dark.png');
+      }
+    
+  </style>
+
+  <!-- 额外的追加注入项 -->
+  
+</head>
+
+    <body class="custom-background">
+        <div id="kratos-wrapper">
+    <div id="kratos-page">
+        <div id="kratos-header">
+            <header id="kratos-desktop-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="nav-header">
+                        <nav id="kratos-menu-wrap">
+                            <ul id="kratos-primary-menu" class="sf-menu">
+                                
+                                    <li>
+                                        
+                                            <a href="/blog/">
+                                        
+                                            
+                                                <i class="fa fa-home"></i>
+                                            
+                                            首页
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/blog/archives/">
+                                        
+                                            
+                                                <i class="fa fa-file"></i>
+                                            
+                                            档案馆
+                                        </a>
+                                        
+                                    </li>
+                                
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <header id="kratos-mobile-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="color-logo"><a href="/blog/">北白念</a></div>
+                    <div id="kratos-nav-toggle-wrapper" class="nav-toggle">
+                        <a id="kratos-nav-toggle" class="kratos-nav-toggle">
+                            <i></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="kratos-start kratos-hero-2">
+            <!-- <div class="kratos-overlay"></div> -->
+            <div class="kratos-cover kratos-cover-2 text-center">
+                <div class="desc desc2 animate-box">
+                    <a href="/blog/">
+                        <h2>北白念</h2> <br />
+                        <span>记录个人的学习笔记和技术文章，偶尔也会分享一些生活感悟。</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="kratos-blog-post">
+            <div class="container">
+                <div id="main" class="row">
+
+
+        
+
+            
+
+            <section class="kr-main-col col-md-8">
+
+        
+
+            <article itemscope itemtype="https://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://beibainian.github.io/blog/2026/06/25/Redis%E4%B8%89%E4%B8%BB%E4%B8%89%E4%BB%8E%E6%9E%B6%E6%9E%84/">
+    <div class="kratos-hentry kratos-page-inner clearfix">
+        <header class="kratos-page-header">
+            
+                <h1 class="kratos-page-title text-center" itemprop="name headline">高并发架构演进：Redis 三主三从 Cluster 集群搭建与底层机制解析</h1>
+            
+            <ul class="kratos-page-meta text-center">
+                <li><time datetime="2026-06-25T02:00:00.000Z" itemprop="datePublished"><i class="fa fa-calendar"></i> 2026-06-25</time></li>
+                <li itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <i class="fa fa-user"></i> 作者 <span itemprop="name">董子阳</span>
+                </li>
+                
+                    <li>
+                        <i class="fa fa-edit"></i> 
+                        
+                        
+                            ~4.53K
+                        
+                        字
+                    </li>
+                
+                
+                
+            </ul>
+        </header>
+        <div class="kratos-page-content kr-post">
+            
+            
+            
+            <hr />
+            <div itemprop="articleBody"><p>这篇博客分享一下 Redis 分布式高可用架构的核心实战：<strong>搭建 Redis 三主三从 Cluster 集群</strong>。</p>
+<p>在写这个博客之前，我已经完成了“一主一从”和“一主三从”架构的部署，实现了读写分离。但面对海量数据和短时间内极高的并发写入请求，单台 Master 节点的 CPU、网络带宽和内存都会成为严重瓶颈。</p>
+<p>为此，我进一步探索了 Redis Cluster（分片集群）模式，通过划分 16384 个哈希槽实现了数据的水平分片与多主节点的负载均衡。</p>
+<p>本篇侧重于<strong>技术原理解析与本地集群搭建实操</strong>，并在文末补充了将此架构推向企业级生产环境所需的改造指南。</p>
+<h2 id="🧱-核心技术栈总览"><a href="#🧱-核心技术栈总览" class="headerlink" title="🧱 核心技术栈总览"></a>🧱 核心技术栈总览</h2><ul>
+<li><strong>操作系统与环境</strong>：CentOS 7 64位、MobaXterm</li>
+<li><strong>核心组件</strong>：Redis 6.x&#x2F;7.x、Redis-cli Cluster 管理工具</li>
+<li><strong>架构机制</strong>：Hash Slots分片算法、Gossip 节点通信协议、故障自动转移</li>
+</ul>
+<h2 id="💡-核心工作与落地实现"><a href="#💡-核心工作与落地实现" class="headerlink" title="💡 核心工作与落地实现"></a>💡 核心工作与落地实现</h2><h3 id="1-集群架构规划与目录准备"><a href="#1-集群架构规划与目录准备" class="headerlink" title="1. 集群架构规划与目录准备"></a>1. 集群架构规划与目录准备</h3><p>为了在单机上模拟真实的三主三从集群，我规划了 6 个独立的 Redis 节点。</p>
+<ul>
+<li><strong>节点端口分配</strong>：<code>7001</code>、<code>7002</code>、<code>7003</code> 为主节点（Master）；<code>7004</code>、<code>7005</code>、<code>7006</code> 为从节点（Slave）。</li>
+<li><strong>目录构建</strong>：在 <code>/test</code> 目录下分别创建这 6 个节点的独立数据与配置文件夹，保持环境隔离。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p /test/&#123;7001,7002,7003,7004,7005,7006&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-Cluster-核心配置文件修改"><a href="#2-Cluster-核心配置文件修改" class="headerlink" title="2. Cluster 核心配置文件修改"></a>2. Cluster 核心配置文件修改</h3><p>与 <code>replicaof</code> 主从复制不的指令同，Cluster 模式需要开启专用的集群参数。我将模板 <code>redis.conf</code> 拷贝至 6 个目录中，并进行了核心参数的修改（以 7001 为例，其他节点同理替换端口）：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下述代码仅仅作为展示使用</span></span><br><span class="line"><span class="comment"># ==================== 网络 ====================</span></span><br><span class="line"><span class="attr">bind</span> <span class="string">0.0.0.0</span></span><br><span class="line"><span class="attr">port</span> <span class="string">7001</span></span><br><span class="line"><span class="attr">protected-mode</span> <span class="string">no</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># ==================== 通用 ====================</span></span><br><span class="line"><span class="attr">daemonize</span> <span class="string">yes</span></span><br><span class="line"><span class="attr">pidfile</span> <span class="string">/var/run/redis_7001.pid</span></span><br><span class="line"><span class="attr">logfile</span> <span class="string">&quot;/test/7001/redis.log&quot;</span></span><br><span class="line"><span class="attr">dir</span> <span class="string">/test/7001</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># ==================== 集群核心 ====================</span></span><br><span class="line"><span class="attr">cluster-enabled</span> <span class="string">yes</span></span><br><span class="line"><span class="attr">cluster-config-file</span> <span class="string">nodes-7001.conf</span></span><br><span class="line"><span class="attr">cluster-node-timeout</span> <span class="string">5000</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># ==================== 持久化 ====================</span></span><br><span class="line"><span class="attr">appendonly</span> <span class="string">yes</span></span><br><span class="line"><span class="attr">appendfilename</span> <span class="string">&quot;appendonly-7001.aof&quot;</span></span><br><span class="line"><span class="attr">save</span> <span class="string">900 1</span></span><br><span class="line"><span class="comment">#save 300 10</span></span><br><span class="line"><span class="comment">#save 60 10000</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># ==================== 安全 ====================</span></span><br><span class="line"><span class="comment"># requirepass your_password</span></span><br><span class="line"><span class="comment"># masterauth your_password</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># ==================== 内存管理 ====================</span></span><br><span class="line"><span class="comment"># maxmemory 4gb</span></span><br><span class="line"><span class="comment"># maxmemory-policy volatile-lru</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># ==================== 慢日志与延迟监控 ====================</span></span><br><span class="line"><span class="attr">slowlog-log-slower-than</span> <span class="string">10000</span></span><br><span class="line"><span class="attr">slowlog-max-len</span> <span class="string">128</span></span><br><span class="line"><span class="attr">latency-monitor-threshold</span> <span class="string">100</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>注意</strong>：在 Cluster 模式初始化前，<strong>不要</strong>在配置文件里写死主从关系，主从关系的绑定将由集群创建命令自动分配。</p>
+</blockquote>
+<h3 id="3-一键启动节点与集群网络构建"><a href="#3-一键启动节点与集群网络构建" class="headerlink" title="3. 一键启动节点与集群网络构建"></a>3. 一键启动节点与集群网络构建</h3><p>编写 <code>test.sh</code>脚本或依次启动 6 个 Redis 实例后，通过 <code>ps -ef | grep redis</code> 确认进程全部正常运行，且进程名后带有 <code>[cluster]</code> 标识。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">redis-server /test/7001/redis.conf</span><br><span class="line">redis-server /test/7002/redis.conf</span><br><span class="line">redis-server /test/7003/redis.conf</span><br><span class="line">redis-server /test/7004/redis.conf</span><br><span class="line">redis-server /test/7005/redis.conf</span><br><span class="line">redis-server /test/7006/redis.conf</span><br></pre></td></tr></table></figure>
+
+<p><img src="/blog/blog/other/redis_test.png" alt="test.sh脚本运行后结果"><br>接下来，使用 <code>redis-cli</code> 工具正式构建集群并分配插槽与主从关系：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#测试使用IP</span></span><br><span class="line">redis-cli --cluster create \</span><br><span class="line"> 127.0.0.1:7001 \</span><br><span class="line"> 127.0.0.1:7002 \</span><br><span class="line"> 127.0.0.1:7003 \</span><br><span class="line"> 127.0.0.1:7004 \</span><br><span class="line"> 127.0.0.1:7005 \</span><br><span class="line"> 127.0.0.1:7006 \</span><br><span class="line"> --cluster-replicas 1</span><br></pre></td></tr></table></figure>
+<p><img src="/blog/blog/other/redis_allocation.png" alt="主从节点分配"></p>
+<ul>
+<li><strong>原理解析</strong>：<code>--cluster-replicas 1</code> 代表为每个 Master 分配 1 个 Slave。Redis 底层算法会自动打散主从关系（例如 7001 的从节点不会和 7001 在同一台物理机上，尽管本次是单机模拟，但机制依然保留）。执行后，系统会分配 0-16383 的哈希槽给三个主节点。</li>
+</ul>
+<h3 id="4-哈希槽路由机制验证与读写测试"><a href="#4-哈希槽路由机制验证与读写测试" class="headerlink" title="4. 哈希槽路由机制验证与读写测试"></a>4. 哈希槽路由机制验证与读写测试</h3><p>集群建立后，数据的读写不再固定于某一台机器，而是通过 <code>CRC16(key) % 16384</code> 算法计算出哈希槽，然后路由到对应的 Master 节点。</p>
+<p>测试时，<strong>必须带上 <code>-c</code> 参数</strong>开启集群路由模式，否则遇到跨节点的数据会报错 <code>MOVED</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@centos <span class="built_in">test</span>]# redis-cli -p 7001 -c</span><br><span class="line">127.0.0.1:7001&gt; <span class="built_in">set</span> username <span class="string">&quot;beibainian&quot;</span></span><br><span class="line">-&gt; Redirected to slot [14315] located at 127.0.0.1:7003</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
+
+<p>测试结果表明，当在 7001 节点写入属于 7003 节点哈希槽的数据时，客户端自动完成了重定向（Redirected），数据成功落盘并同步至 7003 的从节点，集群分片路由功能完美生效。</p>
+<h3 id="5-核心原理解析：Cluster-的内建高可用与自动故障转移"><a href="#5-核心原理解析：Cluster-的内建高可用与自动故障转移" class="headerlink" title="5. 核心原理解析：Cluster 的内建高可用与自动故障转移"></a>5. 核心原理解析：Cluster 的内建高可用与自动故障转移</h3><p>很多人在接触集群时会有一个疑问：<strong>主节点挂了，谁来负责把它踢掉并提拔从节点？还需要额外部署哨兵（Sentinel）集群吗？</strong></p>
+<p>答案是：<strong>不需要</strong>。Redis Cluster 将哨兵的故障监控和选举机制直接内建到了集群节点中。它的“自动补位”流程如下：</p>
+<ol>
+<li><strong>Gossip 协议“查岗”</strong>：集群内的所有节点会通过一个独立的高端口（服务端口 + 10000，例如 17001）不断互相发送 Ping&#x2F;Pong 消息，交换彼此的运行状态。</li>
+<li><strong>疑似下线（PFAIL）</strong>：如果主节点 7001 宕机，主节点 7002 在配置文件设定的 <code>cluster-node-timeout</code>（我们设了 5000 毫秒）内没有收到 7001 的 Pong 回应，就会在内部将 7001 标记为 <code>PFAIL</code>（主观下线）。</li>
+<li><strong>确定下线（FAIL）</strong>：7002 会把这个消息通过 Gossip 协议广播给全网。当集群中<strong>超过半数的主节点</strong>都确认联系不上 7001 时，7001 就会被正式升级标记为 <code>FAIL</code>（客观下线）。</li>
+<li><strong>从节点上位（Failover）</strong>：7001 的从节点（如 7004）察觉到自己的 Master 已经被判死刑后，会立刻向集群中幸存的其他主节点（7002、7003）拉票。获得半数以上选票后，7004 就会自动执行内部转换，升级为新的 Master，接管原有的哈希槽，整个业务层面几乎无感知。</li>
+</ol>
+<h2 id="🔧-技术难点与踩坑记录"><a href="#🔧-技术难点与踩坑记录" class="headerlink" title="🔧 技术难点与踩坑记录"></a>🔧 技术难点与踩坑记录</h2><ol>
+<li><strong>节点握手失败与 MOVED 报错</strong></li>
+</ol>
+<ul>
+<li><strong>现象</strong>：不带 <code>-c</code> 参数登录客户端执行 <code>set</code> 操作时，直接抛出 <code>(error) MOVED 14315 192.168.68.104:7003</code> 错误。</li>
+<li><strong>攻克</strong>：Cluster 架构下的客户端必须是“集群感知（Cluster-aware）”的。加上 <code>-c</code> 参数后，客户端就能解析 <code>MOVED</code> 响应并自动跳转到目标节点完成操作。</li>
+</ul>
+<ol start="2">
+<li><strong>集群总线端口（Gossip协议）阻塞</strong></li>
+</ol>
+<ul>
+<li><strong>现象</strong>：集群创建时一直卡在 <code>Waiting for the cluster to join...</code>。</li>
+<li><strong>攻克</strong>：正是因为上文提到的 Gossip 协议，Redis 集群除了服务端口（如 7001），还会默认开启一个<strong>总线端口</strong>（17001）。排查发现是防火墙拦截了 17000+ 频段的端口。放行端口后集群瞬间握手成功。</li>
+</ul>
+<h2 id="🚀-进阶：向企业级生产环境靠拢需要修改什么？"><a href="#🚀-进阶：向企业级生产环境靠拢需要修改什么？" class="headerlink" title="🚀 进阶：向企业级生产环境靠拢需要修改什么？"></a>🚀 进阶：向企业级生产环境靠拢需要修改什么？</h2><p>以上配置属于技术实验性质，侧重于理解分片与路由机制。如果要把这套三主三从架构搬到真正的企业级生产环境，还需要做以下核心维度的改造：</p>
+<h3 id="1-物理拓扑的容灾隔离"><a href="#1-物理拓扑的容灾隔离" class="headerlink" title="1. 物理拓扑的容灾隔离"></a>1. 物理拓扑的容灾隔离</h3><ul>
+<li><strong>现状</strong>：6 个节点全部跑在同一台 CentOS 服务器上。服务器一旦宕机，整个缓存集群直接挂掉。</li>
+<li><strong>改造</strong>：必须跨物理机部署。企业中通常会分配至少 3 台物理服务器&#x2F;虚拟机。集群算法会自动保证 <strong>Master 和它的 Slave 绝不会落在同一台物理机上</strong>。这样任何一台物理机断电，集群都能通过其他机器上的从节点自动选举，完成 Failover。</li>
+</ul>
+<h3 id="2-安全与权限的红线配置"><a href="#2-安全与权限的红线配置" class="headerlink" title="2. 安全与权限的红线配置"></a>2. 安全与权限的红线配置</h3><ul>
+<li><strong>现状</strong>：无密码裸奔，任意内网 IP 皆可连接并执行 <code>FLUSHALL</code> 操作。</li>
+<li><strong>改造</strong>：</li>
+<li>必须在 <code>redis.conf</code> 中配置 <code>requirepass</code>（客户端连接密码）和 <code>masterauth</code>（主从同步鉴权密码）。</li>
+<li>企业中后期普遍会升级 Redis 6.0+ 的 <strong>ACL（访问控制列表）</strong>，为不同的微服务分配专属账号。例如：订单服务只能操作 <code>order:*</code> 开头的 key，数据分析服务仅分配只读权限。</li>
+</ul>
+<h3 id="3-内存管理与数据淘汰策略"><a href="#3-内存管理与数据淘汰策略" class="headerlink" title="3. 内存管理与数据淘汰策略"></a>3. 内存管理与数据淘汰策略</h3><ul>
+<li><strong>现状</strong>：使用系统默认配置，无限吃内存。</li>
+<li><strong>改造</strong>：生产环境服务器内存寸土寸金，必须设置最大内存上限和淘汰策略：</li>
+</ul>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">maxmemory</span> <span class="string">4gb</span></span><br><span class="line"><span class="attr">maxmemory-policy</span> <span class="string">volatile-lru  # 优先淘汰设置了过期时间且最少使用的 key</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="📊-自我评价"><a href="#📊-自我评价" class="headerlink" title="📊 自我评价"></a>📊 自我评价</h2><p>这个三主三从架构，其实很早就想做了 奈何与没有更多时间来完成，接下来我还需要继续学习和完善三主三从架构，还会自己写脚本攻击自己Redis集群（自己攻击自己，挺抽象…..）</p>
+<p>Redis系列还会继续做，还会增加更多博客文档。</p>
+</div>
+        </div>
+        
+        <footer class="kratos-entry-footer clearfix">
+            
+            
+            
+                <div class="post-actions text-center clearfix" id="post-actions">
+                
+                    <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
+                
+                
+                    <a class="share" href="javascript:;" onclick="krOpenShareModal()"><i class="fa fa-share-alt"></i> 分享</a>
+                
+                </div>
+            
+            <div class="footer-tag clearfix">
+                <div class="pull-left">
+                <i class="fa fa-tags"></i>
+                    <a class="tag-none-link" href="/blog/tags/Cluster%E9%9B%86%E7%BE%A4/" rel="tag">Cluster集群</a>, <a class="tag-none-link" href="/blog/tags/Redis/" rel="tag">Redis</a>, <a class="tag-none-link" href="/blog/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%BC%93%E5%AD%98/" rel="tag">分布式缓存</a>, <a class="tag-none-link" href="/blog/tags/%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB/" rel="tag">故障转移</a>, <a class="tag-none-link" href="/blog/tags/%E9%AB%98%E5%B9%B6%E5%8F%91/" rel="tag">高并发</a>
+                </div>
+                <div class="pull-date">
+                    <time datetime="2026-06-25T14:34:42.949Z" itemprop="dateModified">最后编辑：2026-06-25</time>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+        <nav class="navigation post-navigation clearfix" role="navigation">
+            
+            <div class="nav-previous clearfix">
+                <a title=" WireGuard跨地域联盟链节点组网实战" href="/blog/2026/05/12/WireGuard组网/"><i class="fa fa-angle-left"></i> 上一篇</a>
+            </div>
+            
+            
+        </nav>
+    
+    
+</article>
+
+        
+
+            </section>
+
+            
+                
+
+<section id="kratos-widget-area" class="col-md-4 hidden-xs hidden-sm">
+    <!-- 文章和页面根据splitter来分割，没有的话就从头开始设置为sticky -->
+    
+    
+                <aside id="krw-about" class="widget widget-kratos-about clearfix">
+    <div class="photo-background"></div>
+    <div class="photo-wrapper clearfix">
+        <div class="photo-wrapper-tip text-center">
+            <img class="about-photo" src="/blog/images/logo.png" alt="董子阳" loading="lazy" decoding="auto" />
+        </div>
+    </div>
+    <div class="textwidget">
+        <p class="text-center">软件开发 | RISC-V | Java | 算法</p>
+    </div>
+    <div class="site-meta">
+        <a class="meta-item" href="/blog/archives/">
+            <span class="title">
+                文章
+            </span>
+            <span class="count">
+                8
+            </span>
+        </a>
+        <a class="meta-item" href="/blog/categories/">
+            <span class="title">
+                分类
+            </span>
+            <span class="count">
+                4
+            </span>
+        </a>
+        <a class="meta-item" href="/blog/tags/">
+            <span class="title">
+                标签
+            </span>
+            <span class="count">
+                14
+            </span>
+        </a>
+    </div>
+</aside>
+            
+                    <div class="sticky-area">
+                
+                
+  <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
+    <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E5%90%8E%E7%AB%AF%E6%9E%B6%E6%9E%84/">后端架构</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/">项目经历</a><span class="category-list-count">2</span></li></ul>
+  </aside>
+
+
+            
+                
+  <aside id="krw-tags" class="widget widget-kratos-tags clearfix">
+    <h4 class="widget-title"><i class="fa fa-tags"></i>标签聚合</h4>
+      <div class="tag-clouds">
+        <a href="/blog/tags/Cluster%E9%9B%86%E7%BE%A4/" style="font-size: 0.6em;">Cluster集群</a> <a href="/blog/tags/FISCO-BCOS/" style="font-size: 0.8em;">FISCO BCOS</a> <a href="/blog/tags/Hexo-Kratos-Rebirth/" style="font-size: 0.6em;">Hexo & Kratos-Rebirth</a> <a href="/blog/tags/Redis/" style="font-size: 0.6em;">Redis</a> <a href="/blog/tags/Spring-Boot/" style="font-size: 0.7em;">Spring Boot</a> <a href="/blog/tags/Vue/" style="font-size: 0.7em;">Vue</a> <a href="/blog/tags/WireGuard/" style="font-size: 0.8em;">WireGuard</a> <a href="/blog/tags/YOLOv8/" style="font-size: 0.7em;">YOLOv8</a> <a href="/blog/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%BC%93%E5%AD%98/" style="font-size: 0.6em;">分布式缓存</a> <a href="/blog/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" style="font-size: 0.8em;">区块链</a> <a href="/blog/tags/%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB/" style="font-size: 0.6em;">故障转移</a> <a href="/blog/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" style="font-size: 0.6em;">智能合约</a> <a href="/blog/tags/%E6%A0%91%E8%8E%93%E6%B4%BE/" style="font-size: 0.6em;">树莓派</a> <a href="/blog/tags/%E9%AB%98%E5%B9%B6%E5%8F%91/" style="font-size: 0.6em;">高并发</a>
+      </div>
+  </aside>
+
+            
+                
+  <aside id="krw-posts" class="widget widget-kratos-posts">
+  <h4 class="widget-title"><i class="fa fa-file"></i>最新文章</h4>
+  <div class="tab-content">
+      <ul class="list-group">
+        
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/06/25/Redis%E4%B8%89%E4%B8%BB%E4%B8%89%E4%BB%8E%E6%9E%B6%E6%9E%84/"><i class="fa fa-book"></i> 高并发架构演进：Redis 三主三从 Cluster 集群搭建与底层机制解析</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/05/12/WireGuard%E7%BB%84%E7%BD%91/"><i class="fa fa-book"></i> WireGuard跨地域联盟链节点组网实战</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/05/09/Pro%20%E7%89%88%E4%B8%89%E8%8A%82%E7%82%B9%E5%88%86%E5%B8%83%E5%BC%8F%E9%83%A8%E7%BD%B2/"><i class="fa fa-book"></i> FISCO BCOS 3.0 Pro版三节点分布式部署实战</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/05/08/YOLOv8-pose/"><i class="fa fa-book"></i> YOLOv8-pose 分批次训练与模型集成方案</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/05/07/Spring%20boot+Vue/"><i class="fa fa-book"></i> 基于若依框架的智慧居家养老系统开发复盘</a>
+            
+          
+        
+          
+            
+          
+            
+          
+            
+      </ul>
+  </div>
+  </aside>
+
+            
+    </div>
+</section>
+            
+
+        
+
+        </div>
+</div>
+</div>
+
+<footer>
+    <div id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 footer-list text-center">
+                    <ul class="kratos-social-icons">
+                        
+                    </ul>
+                    <ul class="kratos-copyright">
+                        <div>
+                            <li>&copy; 2026 北白念 版权所有.</li>
+                            <li>本站已运行<span id="kr-since">Loading...</span></li>
+                        </div>
+                        <div>
+                            <li></li>
+                            <li>站点由<i class="fa fa-heart" style="color:#d43f57"></i>北白念<i class="fa fa-heart" style="color:#d43f57"></i> 搭建</li>
+                        </div>
+                        <!-- 额外的追加注入项 -->
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="kr-tool text-center">
+            <div class="tool">
+                <!-- 额外的追加注入项 -->
+                
+                            
+                                <div class="box search-box">
+                                    <a href="/blog/search">
+                                        <span class="fa fa-search"></span>
+                                    </a>
+                                </div>
+                                
+                                    <div class="box theme-box" id="theme-toggle">
+                                        <span class="fa fa-adjust"></span>
+                                    </div>
+            </div>
+            <div id="gotop-box" class="box gotop-box">
+                <span class="fa fa-chevron-up"></span>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</div>
+
+
+    <div id="kr-donate-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseDonateModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-bitcoin"></i>
+            </div>
+            <div class="kr-modal-title">💖 感谢支持，点击查看收款码</div>
+            <button class="kr-modal-close" onclick="krCloseDonateModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-donate-message">你的鼓励是我持续更新的动力！</div>
+            <div class="kr-donate-qr" id="kr-donate-qr">
+                
+            </div>
+            <div class="kr-donate-platforms">
+                
+                    
+                        <button class="kr-donate-platform-button" style="color: #07C160;" title="微信" onclick="krDonateModalShowPlatformQR('wxp://f2f0U-8OUlrs0izTyZ-5lVarqsgP8EKsPgzaLP85BiSn9fcO3ZVKct1SLLVbeitwIZHi', '#07C160')">
+                            <i class="fa fa-fa-weixin"></i>
+                        </button>
+                    
+                
+                    
+                        <button class="kr-donate-platform-button" style="color: #1677FF;" title="支付宝" onclick="krDonateModalShowPlatformQR('https://qr.alipay.com/fkx18296ibecsgq8leryn49', '#1677FF')">
+                            <i class="fa fa-fa-alipay"></i>
+                        </button>
+                    
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/blog/js/kr-modal/donate.min.js"></script>
+
+        
+
+            
+                <div id="kr-share-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseShareModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-share-alt"></i>
+            </div>
+            <div class="kr-modal-title">分享</div>
+            <button class="kr-modal-close" onclick="krCloseShareModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-share-message">扫码查看github网址，按钮查看个人网站</div>
+            <div class="kr-share-qr" id="kr-share-qr"></div>
+            <div class="kr-share-platforms">
+                
+                    <button class="kr-share-platform-button" style="color: #62b6e7;" title="北白念" onclick="krShareModalOpenPlatform('http://hweb.fun/blog')">
+                        <svg fill="currentColor" width="18" height="18" viewBox="0 0 329 388"><path d="M0,36.226c0,-19.993 16.233,-36.226 36.226,-36.226c13.788,0 25.787,7.719 31.908,19.068l188.366,229.845l0,-111.259c-6.356,5.508 -14.645,8.843 -23.707,8.843c-19.994,0 -36.226,-16.232 -36.226,-36.226c-0,-8.551 2.968,-16.413 7.93,-22.613l-0.015,-0.013l56.614,-69.08c6.2,-11.073 18.047,-18.565 31.63,-18.565c19.994,0 36.227,16.233 36.227,36.226l-0,314.644c-0,19.994 -16.233,36.226 -36.227,36.226c-13.166,0 -24.701,-7.039 -31.044,-17.555l-189.229,-230.899l-0,212.228c-0,19.994 -16.233,36.226 -36.227,36.226c-19.993,0 -36.226,-16.232 -36.226,-36.226l0,-314.644Z" /></svg>
+                    </button>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/blog/js/kr-modal/share.min.js"></script>
+
+                    
+
+                        <!-- 额外的追加注入项 -->
+                        
+        <script>
+    if (!window.kr) {
+        window.kr = {};
+    }
+    window.kr.notMobile = (!(navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)));
+    window.kr.siteRoot = "/blog/";
+</script>
+
+
+  <script defer src="/blog/vendors/nprogress@0.2.0/nprogress.js"></script>
+
+
+
+  <script defer src="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.js"></script>
+
+
+<script defer src="/blog/js/kr-core.min.js"></script>
+
+
+  <script defer src="/blog/js/kr-pjax.min.js"></script>
+
+
+<!-- 额外的追加注入项 -->
+
+
+    </body>
+</html>
