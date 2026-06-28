@@ -28,12 +28,12 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://beibainian.github.io/blog/blog/images/redis_cluster.png">
 <meta property="article:published_time" content="2026-06-25T02:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-25T14:34:42.949Z">
+<meta property="article:modified_time" content="2026-06-28T03:51:32.066Z">
 <meta property="article:author" content="董子阳">
 <meta property="article:tag" content="Redis">
 <meta property="article:tag" content="分布式缓存">
-<meta property="article:tag" content="高并发">
 <meta property="article:tag" content="Cluster集群">
+<meta property="article:tag" content="高并发">
 <meta property="article:tag" content="故障转移">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://beibainian.github.io/blog/blog/images/redis_cluster.png">
@@ -42,7 +42,7 @@
   
   
     <script type="application/ld+json">
-    {"@context":"https://schema.org","@type":"BlogPosting","headline":"高并发架构演进：Redis 三主三从 Cluster 集群搭建与底层机制解析","description":"这篇博客分享一下 Redis 分布式高可用架构的核心实战：搭建 Redis 三主三从 Cluster 集群。\n在写这个博客之前，我已经完成了“一主一从”和“一主三从”架构的部署，实现了读写分离。但面对海量数据和短时间内极高的并发写入请求，单...","image":"https://beibainian.github.io/blog/2026/06/25/Redis%E4%B8%89%E4%B8%BB%E4%B8%89%E4%BB%8E%E6%9E%B6%E6%9E%84/blog/images/redis_cluster.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-06-25T02:00:00.000Z","dateModified":"2026-06-25T14:34:42.949Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/06/25/Redis%E4%B8%89%E4%B8%BB%E4%B8%89%E4%BB%8E%E6%9E%B6%E6%9E%84/"}}
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"高并发架构演进：Redis 三主三从 Cluster 集群搭建与底层机制解析","description":"这篇博客分享一下 Redis 分布式高可用架构的核心实战：搭建 Redis 三主三从 Cluster 集群。\n在写这个博客之前，我已经完成了“一主一从”和“一主三从”架构的部署，实现了读写分离。但面对海量数据和短时间内极高的并发写入请求，单...","image":"https://beibainian.github.io/blog/2026/06/25/Redis%E4%B8%89%E4%B8%BB%E4%B8%89%E4%BB%8E%E6%9E%B6%E6%9E%84/blog/images/redis_cluster.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-06-25T02:00:00.000Z","dateModified":"2026-06-28T03:51:32.066Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/06/25/Redis%E4%B8%89%E4%B8%BB%E4%B8%89%E4%BB%8E%E6%9E%B6%E6%9E%84/"}}
     </script>
   
   <!-- 关键 CSS 预加载 -->
@@ -194,7 +194,7 @@
                         <i class="fa fa-edit"></i> 
                         
                         
-                            ~4.53K
+                            ~4.54K
                         
                         字
                     </li>
@@ -230,10 +230,10 @@
 <blockquote>
 <p><strong>注意</strong>：在 Cluster 模式初始化前，<strong>不要</strong>在配置文件里写死主从关系，主从关系的绑定将由集群创建命令自动分配。</p>
 </blockquote>
-<h3 id="3-一键启动节点与集群网络构建"><a href="#3-一键启动节点与集群网络构建" class="headerlink" title="3. 一键启动节点与集群网络构建"></a>3. 一键启动节点与集群网络构建</h3><p>编写 <code>test.sh</code>脚本或依次启动 6 个 Redis 实例后，通过 <code>ps -ef | grep redis</code> 确认进程全部正常运行，且进程名后带有 <code>[cluster]</code> 标识。</p>
+<h3 id="3-一键启动节点与集群网络构建"><a href="#3-一键启动节点与集群网络构建" class="headerlink" title="3. 一键启动节点与集群网络构建"></a>3. 一键启动节点与集群网络构建</h3><p>编写 <code>start_redis_cluster.sh</code>脚本或依次启动 6 个 Redis 实例后，通过 <code>ps -ef | grep redis</code> 确认进程全部正常运行，且进程名后带有 <code>[cluster]</code> 标识。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">redis-server /test/7001/redis.conf</span><br><span class="line">redis-server /test/7002/redis.conf</span><br><span class="line">redis-server /test/7003/redis.conf</span><br><span class="line">redis-server /test/7004/redis.conf</span><br><span class="line">redis-server /test/7005/redis.conf</span><br><span class="line">redis-server /test/7006/redis.conf</span><br></pre></td></tr></table></figure>
 
-<p><img src="/blog/blog/other/redis_test.png" alt="test.sh脚本运行后结果"><br>接下来，使用 <code>redis-cli</code> 工具正式构建集群并分配插槽与主从关系：</p>
+<p><img src="/blog/blog/other/redis_start_cluster.png" alt="start_redis_cluster.sh脚本运行后结果"><br>接下来，使用 <code>redis-cli</code> 工具正式构建集群并分配插槽与主从关系：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#测试使用IP</span></span><br><span class="line">redis-cli --cluster create \</span><br><span class="line"> 127.0.0.1:7001 \</span><br><span class="line"> 127.0.0.1:7002 \</span><br><span class="line"> 127.0.0.1:7003 \</span><br><span class="line"> 127.0.0.1:7004 \</span><br><span class="line"> 127.0.0.1:7005 \</span><br><span class="line"> 127.0.0.1:7006 \</span><br><span class="line"> --cluster-replicas 1</span><br></pre></td></tr></table></figure>
 <p><img src="/blog/blog/other/redis_allocation.png" alt="主从节点分配"></p>
 <ul>
@@ -248,7 +248,7 @@
 <p>答案是：<strong>不需要</strong>。Redis Cluster 将哨兵的故障监控和选举机制直接内建到了集群节点中。它的“自动补位”流程如下：</p>
 <ol>
 <li><strong>Gossip 协议“查岗”</strong>：集群内的所有节点会通过一个独立的高端口（服务端口 + 10000，例如 17001）不断互相发送 Ping&#x2F;Pong 消息，交换彼此的运行状态。</li>
-<li><strong>疑似下线（PFAIL）</strong>：如果主节点 7001 宕机，主节点 7002 在配置文件设定的 <code>cluster-node-timeout</code>（我们设了 5000 毫秒）内没有收到 7001 的 Pong 回应，就会在内部将 7001 标记为 <code>PFAIL</code>（主观下线）。</li>
+<li><strong>疑似下线（PFAIL）</strong>：如果主节点 7001 宕机，主节点 7002 在配置文件设定的 <code>cluster-node-timeout</code>（我设了 5000 毫秒）内没有收到 7001 的 Pong 回应，就会在内部将 7001 标记为 <code>PFAIL</code>（主观下线）。</li>
 <li><strong>确定下线（FAIL）</strong>：7002 会把这个消息通过 Gossip 协议广播给全网。当集群中<strong>超过半数的主节点</strong>都确认联系不上 7001 时，7001 就会被正式升级标记为 <code>FAIL</code>（客观下线）。</li>
 <li><strong>从节点上位（Failover）</strong>：7001 的从节点（如 7004）察觉到自己的 Master 已经被判死刑后，会立刻向集群中幸存的其他主节点（7002、7003）拉票。获得半数以上选票后，7004 就会自动执行内部转换，升级为新的 Master，接管原有的哈希槽，整个业务层面几乎无感知。</li>
 </ol>
@@ -283,8 +283,10 @@
 </ul>
 <figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">maxmemory</span> <span class="string">4gb</span></span><br><span class="line"><span class="attr">maxmemory-policy</span> <span class="string">volatile-lru  # 优先淘汰设置了过期时间且最少使用的 key</span></span><br></pre></td></tr></table></figure>
 
-<h2 id="📊-自我评价"><a href="#📊-自我评价" class="headerlink" title="📊 自我评价"></a>📊 自我评价</h2><p>这个三主三从架构，其实很早就想做了 奈何与没有更多时间来完成，接下来我还需要继续学习和完善三主三从架构，还会自己写脚本攻击自己Redis集群（自己攻击自己，挺抽象…..）</p>
-<p>Redis系列还会继续做，还会增加更多博客文档。</p>
+<h2 id="📊-自我评价"><a href="#📊-自我评价" class="headerlink" title="📊 自我评价"></a>📊 自我评价</h2><p>这个三主三从架构，其实很早就想做了 奈何与没有更多时间来完成，接下来我还需要继续学习和完善三主三从架构。Redis系列还会继续做，还会增加更多博客文档。</p>
+<ul>
+<li>👉 <a href="blog/2026/06/28/Redis%20Cluster%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95%E4%B8%8E%E5%88%A8%E6%9E%90/">《Redis 三主三从 Cluster 极限压测与性能瓶颈剖析》</a></li>
+</ul>
 </div>
         </div>
         
@@ -307,7 +309,7 @@
                     <a class="tag-none-link" href="/blog/tags/Cluster%E9%9B%86%E7%BE%A4/" rel="tag">Cluster集群</a>, <a class="tag-none-link" href="/blog/tags/Redis/" rel="tag">Redis</a>, <a class="tag-none-link" href="/blog/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%BC%93%E5%AD%98/" rel="tag">分布式缓存</a>, <a class="tag-none-link" href="/blog/tags/%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB/" rel="tag">故障转移</a>, <a class="tag-none-link" href="/blog/tags/%E9%AB%98%E5%B9%B6%E5%8F%91/" rel="tag">高并发</a>
                 </div>
                 <div class="pull-date">
-                    <time datetime="2026-06-25T14:34:42.949Z" itemprop="dateModified">最后编辑：2026-06-25</time>
+                    <time datetime="2026-06-28T03:51:32.066Z" itemprop="dateModified">最后编辑：2026-06-28</time>
                 </div>
             </div>
         </footer>
@@ -319,6 +321,10 @@
                 <a title=" WireGuard跨地域联盟链节点组网实战" href="/blog/2026/05/12/WireGuard组网/"><i class="fa fa-angle-left"></i> 上一篇</a>
             </div>
             
+            
+            <div class="nav-next clearfix">
+                <a title=" 高并发架构演进：Redis 三主三从 Cluster 极限压测与性能瓶颈剖析" href="/blog/2026/06/28/Redis Cluster压力测试与刨析/">下一篇 <i class="fa fa-angle-right"></i></a>
+            </div>
             
         </nav>
     
@@ -352,7 +358,7 @@
                 文章
             </span>
             <span class="count">
-                8
+                9
             </span>
         </a>
         <a class="meta-item" href="/blog/categories/">
@@ -360,7 +366,7 @@
                 分类
             </span>
             <span class="count">
-                4
+                6
             </span>
         </a>
         <a class="meta-item" href="/blog/tags/">
@@ -368,7 +374,7 @@
                 标签
             </span>
             <span class="count">
-                14
+                16
             </span>
         </a>
     </div>
@@ -379,7 +385,7 @@
                 
   <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
     <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E5%90%8E%E7%AB%AF%E6%9E%B6%E6%9E%84/">后端架构</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/">项目经历</a><span class="category-list-count">2</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/Redis/">Redis</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/%E6%99%BA%E5%85%BB%E8%88%92%E5%B1%85/">智养舒居</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/%E6%99%BA%E9%93%BE%E9%A3%9F%E5%AE%89/">智链食安</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/">项目经历</a><span class="category-list-count">2</span></li></ul>
   </aside>
 
 
@@ -388,7 +394,7 @@
   <aside id="krw-tags" class="widget widget-kratos-tags clearfix">
     <h4 class="widget-title"><i class="fa fa-tags"></i>标签聚合</h4>
       <div class="tag-clouds">
-        <a href="/blog/tags/Cluster%E9%9B%86%E7%BE%A4/" style="font-size: 0.6em;">Cluster集群</a> <a href="/blog/tags/FISCO-BCOS/" style="font-size: 0.8em;">FISCO BCOS</a> <a href="/blog/tags/Hexo-Kratos-Rebirth/" style="font-size: 0.6em;">Hexo & Kratos-Rebirth</a> <a href="/blog/tags/Redis/" style="font-size: 0.6em;">Redis</a> <a href="/blog/tags/Spring-Boot/" style="font-size: 0.7em;">Spring Boot</a> <a href="/blog/tags/Vue/" style="font-size: 0.7em;">Vue</a> <a href="/blog/tags/WireGuard/" style="font-size: 0.8em;">WireGuard</a> <a href="/blog/tags/YOLOv8/" style="font-size: 0.7em;">YOLOv8</a> <a href="/blog/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%BC%93%E5%AD%98/" style="font-size: 0.6em;">分布式缓存</a> <a href="/blog/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" style="font-size: 0.8em;">区块链</a> <a href="/blog/tags/%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB/" style="font-size: 0.6em;">故障转移</a> <a href="/blog/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" style="font-size: 0.6em;">智能合约</a> <a href="/blog/tags/%E6%A0%91%E8%8E%93%E6%B4%BE/" style="font-size: 0.6em;">树莓派</a> <a href="/blog/tags/%E9%AB%98%E5%B9%B6%E5%8F%91/" style="font-size: 0.6em;">高并发</a>
+        <a href="/blog/tags/Cluster%E9%9B%86%E7%BE%A4/" style="font-size: 0.7em;">Cluster集群</a> <a href="/blog/tags/FISCO-BCOS/" style="font-size: 0.8em;">FISCO BCOS</a> <a href="/blog/tags/Hexo-Kratos-Rebirth/" style="font-size: 0.6em;">Hexo & Kratos-Rebirth</a> <a href="/blog/tags/Redis/" style="font-size: 0.7em;">Redis</a> <a href="/blog/tags/Spring-Boot/" style="font-size: 0.7em;">Spring Boot</a> <a href="/blog/tags/Vue/" style="font-size: 0.7em;">Vue</a> <a href="/blog/tags/WireGuard/" style="font-size: 0.8em;">WireGuard</a> <a href="/blog/tags/YOLOv8/" style="font-size: 0.7em;">YOLOv8</a> <a href="/blog/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%BC%93%E5%AD%98/" style="font-size: 0.7em;">分布式缓存</a> <a href="/blog/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" style="font-size: 0.8em;">区块链</a> <a href="/blog/tags/%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95/" style="font-size: 0.6em;">压力测试</a> <a href="/blog/tags/%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98/" style="font-size: 0.6em;">性能调优</a> <a href="/blog/tags/%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB/" style="font-size: 0.6em;">故障转移</a> <a href="/blog/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" style="font-size: 0.6em;">智能合约</a> <a href="/blog/tags/%E6%A0%91%E8%8E%93%E6%B4%BE/" style="font-size: 0.6em;">树莓派</a> <a href="/blog/tags/%E9%AB%98%E5%B9%B6%E5%8F%91/" style="font-size: 0.6em;">高并发</a>
       </div>
   </aside>
 
@@ -399,6 +405,12 @@
   <div class="tab-content">
       <ul class="list-group">
         
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/06/28/Redis%20Cluster%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95%E4%B8%8E%E5%88%A8%E6%9E%90/"><i class="fa fa-book"></i> 高并发架构演进：Redis 三主三从 Cluster 极限压测与性能瓶颈剖析</a>
+            
+          
         
           
           
@@ -425,11 +437,7 @@
           
         
           
-          
-            <a class="list-group-item" href="/blog/2026/05/07/Spring%20boot+Vue/"><i class="fa fa-book"></i> 基于若依框架的智慧居家养老系统开发复盘</a>
             
-          
-        
           
             
           

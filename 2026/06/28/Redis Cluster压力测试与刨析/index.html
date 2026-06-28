@@ -7,8 +7,8 @@
     <link rel="icon" href="/blog/images/favicon.png">
   
   
-  <title>标签: 智能合约 | 北白念</title>
-  <link rel="canonical" href="https://beibainian.github.io/blog/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/index.html">
+  <title>高并发架构演进：Redis 三主三从 Cluster 极限压测与性能瓶颈剖析 | 北白念</title>
+  <link rel="canonical" href="https://beibainian.github.io/blog/2026/06/28/Redis%20Cluster%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95%E4%B8%8E%E5%88%A8%E6%9E%90/">
   <meta name="author" content="董子阳" />
   <meta http-equiv="Cache-Control" content="no-transform" />
   <meta http-equiv="Cache-Control" content="no-siteapp" />
@@ -17,23 +17,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <meta name="format-detection" content="telphone=no, email=no" />
   
-    <meta name="keywords" content="博客,技术,学习,IT" />
+    <meta name="keywords" content="Cluster集群, Redis, 分布式缓存, 压力测试, 性能调优" />
   
-  <meta name="description" content="软件开发 | RISC-V | Java | 算法">
-<meta property="og:type" content="website">
-<meta property="og:title" content="标签: 智能合约">
-<meta property="og:url" content="https://beibainian.github.io/blog/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/index.html">
+  <meta name="description" content="继上一篇完成了 Redis 三主三从 Cluster 集群 的本地搭建与核心机制解析后，这套架构已经具备了理论上的高可用与数据分片能力。但纸上得来终觉浅，真正的架构必须要在高并发的炮火中去检验。 这期博客，我将直接进入实战：对这套三主三从集群进行千万级请求的极限压力测试，并借助可视化工具深度“解剖”集群在面对超高并发时的物理特征与性能瓶颈。 🚀 集群启动与状态检查首先，我依然使用之前编写好的脚本">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高并发架构演进：Redis 三主三从 Cluster 极限压测与性能瓶颈剖析">
+<meta property="og:url" content="https://beibainian.github.io/blog/2026/06/28/Redis%20Cluster%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95%E4%B8%8E%E5%88%A8%E6%9E%90/index.html">
 <meta property="og:site_name" content="北白念">
-<meta property="og:description" content="软件开发 | RISC-V | Java | 算法">
+<meta property="og:description" content="继上一篇完成了 Redis 三主三从 Cluster 集群 的本地搭建与核心机制解析后，这套架构已经具备了理论上的高可用与数据分片能力。但纸上得来终觉浅，真正的架构必须要在高并发的炮火中去检验。 这期博客，我将直接进入实战：对这套三主三从集群进行千万级请求的极限压力测试，并借助可视化工具深度“解剖”集群在面对超高并发时的物理特征与性能瓶颈。 🚀 集群启动与状态检查首先，我依然使用之前编写好的脚本">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://beibainian.github.io/blog/blog/images/favicon.png">
+<meta property="og:image" content="https://beibainian.github.io/blog/blog/images/redis_cluster_benchmark.png">
+<meta property="article:published_time" content="2026-06-28T01:31:20.000Z">
+<meta property="article:modified_time" content="2026-06-28T03:51:21.725Z">
 <meta property="article:author" content="董子阳">
-<meta property="article:tag" content="博客,技术,学习,IT">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="分布式缓存">
+<meta property="article:tag" content="压力测试">
+<meta property="article:tag" content="Cluster集群">
+<meta property="article:tag" content="性能调优">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://beibainian.github.io/blog/blog/images/favicon.png">
+<meta name="twitter:image" content="https://beibainian.github.io/blog/blog/images/redis_cluster_benchmark.png">
   
   <!-- JSON-LD 结构化数据 -->
   
+  
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"高并发架构演进：Redis 三主三从 Cluster 极限压测与性能瓶颈剖析","description":"继上一篇完成了 Redis 三主三从 Cluster 集群 的本地搭建与核心机制解析后，这套架构已经具备了理论上的高可用与数据分片能力。但纸上得来终觉浅，真正的架构必须要在高并发的炮火中去检验。\n这期博客，我将直接进入实战：...","image":"https://beibainian.github.io/blog/2026/06/28/Redis%20Cluster%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95%E4%B8%8E%E5%88%A8%E6%9E%90/blog/images/redis_cluster_benchmark.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-06-28T01:31:20.000Z","dateModified":"2026-06-28T03:51:21.725Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/06/28/Redis%20Cluster%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95%E4%B8%8E%E5%88%A8%E6%9E%90/"}}
+    </script>
   
   <!-- 关键 CSS 预加载 -->
   <link rel="preload" href="/blog/css/kr-core.min.css" as="style" crossorigin>
@@ -167,90 +177,130 @@
 
         
 
-            <!-- Breadcrumb for tag & category page -->
-
-    <article class="kratos-hentry kratos-entry-border clearfix">
-    <div class="kratos-breadcrumb">
-        <a href="/blog/">
-            <i class="fa fa-home"></i>
-        </a>
-        <i class="fa fa-angle-right"></i>
-        
-            <a href="/blog/tags/">
-                标签
-            </a>
-            <i class="fa fa-angle-right"></i>
-            <a href="/blog/tags/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/index.html">
-                智能合约
-            </a>
-        
-        
-    </div>
-</article>
-
-        
-
+            <article itemscope itemtype="https://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://beibainian.github.io/blog/2026/06/28/Redis%20Cluster%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95%E4%B8%8E%E5%88%A8%E6%9E%90/">
+    <div class="kratos-hentry kratos-page-inner clearfix">
+        <header class="kratos-page-header">
             
+                <h1 class="kratos-page-title text-center" itemprop="name headline">高并发架构演进：Redis 三主三从 Cluster 极限压测与性能瓶颈剖析</h1>
+            
+            <ul class="kratos-page-meta text-center">
+                <li><time datetime="2026-06-28T01:31:20.000Z" itemprop="datePublished"><i class="fa fa-calendar"></i> 2026-06-28</time></li>
+                <li itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <i class="fa fa-user"></i> 作者 <span itemprop="name">董子阳</span>
+                </li>
                 
-                    
-                                <article class="kratos-hentry clearfix" itemscope itemtype="https://schema.org/Article">
-    <div class="kratos-entry-border clearfix">
-        
-            <div class="pin-top wrapper">
-                <div class="pin-top inner"></div>
-            </div>
-        
-        <div class="kratos-entry-post-main">
-            
-            
-                <div class="kratos-entry-thumb">
-                    <a href="/blog/2026/05/06/%E6%99%BA%E9%93%BE%E9%A3%9F%E5%AE%89/">
-                        <img class="kratos-entry-thumb-img" src="/blog/blog/images/zlsa.png" alt="智链食安：基于FISCO BCOS的食品供应链全链路可信追溯系统">
-                    </a>
-                </div>
-            
-            <div class="kratos-entry-post-inner">
-                <header class="kratos-entry-header">
-                        <a class="label-link" href="/blog/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/">项目经历</a>
-                    <h2 class="kratos-entry-title"><a href="/blog/2026/05/06/%E6%99%BA%E9%93%BE%E9%A3%9F%E5%AE%89/" itemprop="mainEntityOfPage"><span itemprop="name headline">智链食安：基于FISCO BCOS的食品供应链全链路可信追溯系统</span></a>
-                </header>
-                <div class="kratos-entry-content">
-                    <p itemProp="description">
+                    <li>
+                        <i class="fa fa-edit"></i> 
                         
-                            这篇博客分享一个我大三参与且主导核心底层开发的实战项目《智链食安-基于FISCO BCOS联盟链的食品供应链全链路可信追溯系统》。
-这个项目针对食品供应链行业信息不透明、物流追踪效率低、检疫报告造假三大核心痛点，以FISCO BCOS...
                         
-                    </p>
-                </div>
-            </div>
+                            ~2.12K
+                        
+                        字
+                    </li>
+                
+                
+                
+            </ul>
+        </header>
+        <div class="kratos-page-content kr-post">
+            
+            
+            
+            <hr />
+            <div itemprop="articleBody"><p>继上一篇完成了 <strong>Redis 三主三从 Cluster 集群</strong> 的本地搭建与核心机制解析后，这套架构已经具备了理论上的高可用与数据分片能力。但纸上得来终觉浅，真正的架构必须要在高并发的炮火中去检验。</p>
+<p>这期博客，我将直接进入实战：<strong>对这套三主三从集群进行千万级请求的极限压力测试</strong>，并借助可视化工具深度“解剖”集群在面对超高并发时的物理特征与性能瓶颈。</p>
+<h2 id="🚀-集群启动与状态检查"><a href="#🚀-集群启动与状态检查" class="headerlink" title="🚀 集群启动与状态检查"></a>🚀 集群启动与状态检查</h2><p>首先，我依然使用之前编写好的脚本，一键拉起所有 6 个 Redis 实例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash start_redis_cluster.sh </span><br></pre></td></tr></table></figure>
+
+<p>启动完成后，需要确认集群的健康状态以及哈希槽的分配情况。使用以下命令查看主从关系和 Slot 分布：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli -p 7001 cluster nodes</span><br></pre></td></tr></table></figure>
+
+<p><img src="/blog/blog/other/redis_start_check.png" alt="集群启动和状态检查"></p>
+<p>确认无误后，真正的考验开始了。</p>
+<h2 id="💥-极限压测：1000-并发轰炸"><a href="#💥-极限压测：1000-并发轰炸" class="headerlink" title="💥 极限压测：1000 并发轰炸"></a>💥 极限压测：1000 并发轰炸</h2><p>为了模拟真实企业级微服务场景下的大流量洪峰，我准备使用 Redis 自带的压测工具 <code>redis-benchmark</code> 对集群发起高强度的读写测试。</p>
+<p>执行以下疯狂写入的压测命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-benchmark -h 192.168.121.140 -p 7001 -c 1000 -n 2000000 --cluster</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>参数解析</strong>：</li>
+<li><code>-c 1000</code>：模拟 1000 个并发连接。</li>
+<li><code>-n 2000000</code>：总共发送 200 万次请求。</li>
+<li><code>--cluster</code>：开启集群模式路由支持。</li>
+</ul>
+<p><img src="/blog/blog/other/redis_pressure_test.png" alt="压力测试命令"></p>
+<p><img src="/blog/blog/other/redis_top.png" alt="top命令数据"></p>
+<h2 id="📊-深度解剖：压测数据对比与现象分析"><a href="#📊-深度解剖：压测数据对比与现象分析" class="headerlink" title="📊 深度解剖：压测数据对比与现象分析"></a>📊 深度解剖：压测数据对比与现象分析</h2><p>压测期间，我使用 <strong>Redis Insight</strong> 实时连接到了集群，抓取了测试前与测试峰值时期的数据看板。</p>
+<p><img src="/blog/blog/other/redis_pressure_test_before.png" alt="Redis Insight 压测前数据面板"></p>
+<p><img src="/blog/blog/other/redis_pressure_test_ing.png" alt="Redis Insight 压测时数据对比面板"></p>
+<p>通过把并发连接数拉升到 1000，这套 Redis 集群展现出了与平稳期完全不同的物理特征。我们来深度“解剖”一下这张图里隐藏的技术细节，里面有几个非常经典的现象：</p>
+<h3 id="1-完美的连接负载均衡"><a href="#1-完美的连接负载均衡" class="headerlink" title="1. 完美的连接负载均衡"></a>1. 完美的连接负载均衡</h3><ul>
+<li><strong>看图说话</strong>：看压测时的数据面板最右侧的 Clients 列，三个主节点的连接数分别是 <strong>334, 335, 334</strong>。</li>
+<li><strong>原理解析</strong>：它们加起来正好是 1003（包含了 1000 个压测并发 + 3 个后台监控连接）。这完美地证明了 <code>--cluster</code> 参数在高效工作，它像一个公平的发牌员，把 1000 个高并发长连接均匀地分摊给了三台机器，没有任何一个节点被“偏袒”或“撑爆”。在企业生产环境中，这正是我们梦寐以求的健康状态。</li>
+</ul>
+<h3 id="2-内存激增的“铁证”（TCP-Buffer-消耗）"><a href="#2-内存激增的“铁证”（TCP-Buffer-消耗）" class="headerlink" title="2. 内存激增的“铁证”（TCP Buffer 消耗）"></a>2. 内存激增的“铁证”（TCP Buffer 消耗）</h3><ul>
+<li><strong>看图说话</strong>：注意看压测时面板左侧的 Memory 圆环，总内存达到了 <strong>67.328 MB</strong>（每个节点平均约 22.4 MB）。而在压测前的平稳状态下，集群的总内存仅有 <strong>7.817 MB</strong>（每个节点约 2.6 MB）。</li>
+<li><strong>原理解析</strong>：这就是非常典型的“基础内存占用”。虽然业务 Key 的数量总共只有 12 个（几乎不占空间），但为了维持这多出来的 1000 个并发连接，Redis 必须在 CentOS 的内存里为每一个连接开辟专属的<strong>输入&#x2F;输出缓冲区（Buffer）</strong>。在生产环境中排查内存泄漏或内存不足时，千万不要忘了算这笔昂贵的“连接费”。</li>
+</ul>
+<h3 id="3-最核心的发现：QPS-遇到了“天花板”"><a href="#3-最核心的发现：QPS-遇到了“天花板”" class="headerlink" title="3. 最核心的发现：QPS 遇到了“天花板”"></a>3. 最核心的发现：QPS 遇到了“天花板”</h3><p>这是一个极其宝贵的性能拐点现象！</p>
+<ul>
+<li><strong>看图说话</strong>：在 1000 并发下，顶部的数据看板显示总请求频率（Commands&#x2F;s）定格在了 <strong>27,361 QPS</strong>。</li>
+<li><strong>原理解析</strong>：回忆一下，在 100 并发的时候，测试跑出的 QPS 大概在 34,000 左右。现在并发量翻了 10 倍，为什么处理速度不仅没有成倍增长，反而还出现了一定程度的下降？</li>
+<li><strong>答案是：CPU 的上下文切换（Context Switch）瓶颈。</strong> 虚拟机的 CPU 现在太忙了，它要在 1000 个不同的网络 Socket 之间疯狂切换来读取数据。这种底层切换消耗的算力，甚至超过了 Redis 真正执行 <code>SET/GET</code> 命令的算力。虚拟机的性能极限，在这个配置下，大概就是 3 万 QPS 左右。</li>
+</ul>
+<h2 id="🎯-总结与下一步进阶"><a href="#🎯-总结与下一步进阶" class="headerlink" title="🎯 总结与下一步进阶"></a>🎯 总结与下一步进阶</h2><p>这是一个非常中规中矩且极具代表性的场景。在真实的微服务业务中，1000 个并发连接是非常常见的。目前的测试表明，集群表现非常稳定（没有崩溃，内存分配均匀，路由精准），但同时也彻底暴露出了当前虚拟机 CPU 处理网络 I&#x2F;O 的极限。</p>
+<p><strong>接下来的思考与架构演进：</strong></p>
+<p>既然我们已经看清了本地环境在高并发下的物理天花板(我的个人PC)，与其继续在 QPS 的吞吐量上死磕，不如回到分布式架构中最核心、最惊心动魄的命题——<strong>集群的高可用与容灾自愈（Failover）</strong>。</p>
+<p>在真实的生产环境中，高并发往往伴随着机器宕机的风险。如果这三个主节点中的某一个突然“掉线”，整个集群将会迎来怎样的考验？</p>
+<p>下一期博客，我将直接切断节点网络，深度探究以下三个核心问题：</p>
+<ol>
+<li><strong>假设某个主节点挂机，节点之间是如何通信并发现故障的？</strong></li>
+<li><strong>判断主节点挂机之后，新的主节点是如何被选举出来的？</strong></li>
+<li><strong>某主节点挂机后恢复，原主节点恢复后是复辟还是降级？</strong></li>
+</ol>
+<hr>
+<ul>
+<li>👉 <a href="blog/2026/06/25/Redis%E4%B8%89%E4%B8%BB%E4%B8%89%E4%BB%8E%E6%9E%B6%E6%9E%84/">《高并发架构演进：Redis 三主三从 Cluster 集群搭建与底层机制解析》</a></li>
+</ul>
+</div>
         </div>
-        <footer class="kratos-entry-post-meta">
-            <span class="pull-left">
-                <time datetime="2026-05-06T12:00:00.000Z" itemprop="datePublished">
-                    <a><i class="fa fa-calendar"></i> 2026-05-06</a>
-                </time>
-                <a>
-                    
-                        <i class="fa fa-tags"></i>
-                        <a class="tag-none-link" href="/blog/tags/FISCO-BCOS/" rel="tag">FISCO BCOS</a>, <a class="tag-none-link" href="/blog/tags/WireGuard/" rel="tag">WireGuard</a>, <a class="tag-none-link" href="/blog/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="tag">区块链</a>
-                    
-                </a>
+        
+        <footer class="kratos-entry-footer clearfix">
+            
+            
+            
+                <div class="post-actions text-center clearfix" id="post-actions">
+                
+                    <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
                 
                 
-            </span>
-            <span class="pull-right">
-                <a class="read-more" href="/blog/2026/05/06/%E6%99%BA%E9%93%BE%E9%A3%9F%E5%AE%89/" title="阅读全文">阅读全文<i class="fa fa-chevron-circle-right"></i></a>
-            </span>
+                    <a class="share" href="javascript:;" onclick="krOpenShareModal()"><i class="fa fa-share-alt"></i> 分享</a>
+                
+                </div>
+            
+            <div class="footer-tag clearfix">
+                <div class="pull-left">
+                <i class="fa fa-tags"></i>
+                    <a class="tag-none-link" href="/blog/tags/Cluster%E9%9B%86%E7%BE%A4/" rel="tag">Cluster集群</a>, <a class="tag-none-link" href="/blog/tags/Redis/" rel="tag">Redis</a>, <a class="tag-none-link" href="/blog/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%BC%93%E5%AD%98/" rel="tag">分布式缓存</a>, <a class="tag-none-link" href="/blog/tags/%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95/" rel="tag">压力测试</a>, <a class="tag-none-link" href="/blog/tags/%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98/" rel="tag">性能调优</a>
+                </div>
+                <div class="pull-date">
+                    <time datetime="2026-06-28T03:51:21.725Z" itemprop="dateModified">最后编辑：2026-06-28</time>
+                </div>
+            </div>
         </footer>
     </div>
+    
+        <nav class="navigation post-navigation clearfix" role="navigation">
+            
+            <div class="nav-previous clearfix">
+                <a title=" 高并发架构演进：Redis 三主三从 Cluster 集群搭建与底层机制解析" href="/blog/2026/06/25/Redis三主三从架构/"><i class="fa fa-angle-left"></i> 上一篇</a>
+            </div>
+            
+            
+        </nav>
+    
+    
 </article>
-                                    
-                                        
-
-                                            
-
-
-                                                    
 
         
 
@@ -261,8 +311,6 @@
 
 <section id="kratos-widget-area" class="col-md-4 hidden-xs hidden-sm">
     <!-- 文章和页面根据splitter来分割，没有的话就从头开始设置为sticky -->
-    
-        <div class="sticky-area">
     
     
                 <aside id="krw-about" class="widget widget-kratos-about clearfix">
@@ -303,6 +351,8 @@
     </div>
 </aside>
             
+                    <div class="sticky-area">
+                
                 
   <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
     <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
