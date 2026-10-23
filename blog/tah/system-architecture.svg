@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200" data-generator="fireworks-tech-graph" data-quality-profile="showcase" role="img" aria-labelledby="title description">
+<title id="title">TrustedAgentHub · 系统架构</title>
+<desc id="description">围绕具体版本，组织扫描、审核与安装</desc>
+<style>text{font-family:"Helvetica Neue",Helvetica,Arial,"PingFang SC","Microsoft YaHei","Microsoft JhengHei",SimHei,sans-serif}</style>
+<defs>
+<marker id="arrow-blue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto" markerUnits="strokeWidth"><polygon points="0 0,10 3.5,0 7" fill="#2563eb"/></marker>
+<marker id="arrow-purple" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto" markerUnits="strokeWidth"><polygon points="0 0,10 3.5,0 7" fill="#9333ea"/></marker>
+<marker id="arrow-red" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto" markerUnits="strokeWidth"><polygon points="0 0,10 3.5,0 7" fill="#dc2626"/></marker>
+</defs>
+<rect width="800" height="1200" fill="#ffffff" data-graph-role="background"/>
+<rect x="32" y="36" width="6" height="32" rx="3" fill="#2563eb" data-graph-role="decoration"/>
+<text x="52" y="62" fill="#111827" font-size="28" font-weight="600" text-anchor="start" data-graph-role="label" data-graph-bounds="52.0 34.0 446.2 68.2">TrustedAgentHub · 系统架构</text>
+<text x="32" y="104" fill="#6b7280" font-size="22" font-weight="400" text-anchor="start" data-graph-role="label" data-graph-bounds="32.0 82.0 406.0 108.8">围绕具体版本，组织扫描、审核与安装</text>
+<path id="web-api" data-edge-id="web-api" data-graph-role="edge" data-source="web" data-target="api" d="M 192,292 L 192,336 L 340,336 L 340,392" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<path id="cli-api" data-edge-id="cli-api" data-graph-role="edge" data-source="cli" data-target="api" d="M 608,292 L 608,336 L 460,336 L 460,392" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<path id="api-scanner" data-edge-id="api-scanner" data-graph-role="edge" data-source="api" data-target="scanner" d="M 224,544 L 224,608 L 192,608 L 192,664" fill="none" stroke="#9333ea" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-purple)" stroke-dasharray="9 7"/>
+<path id="scanner-score" data-edge-id="scanner-score" data-graph-role="edge" data-source="scanner" data-target="score" d="M 352,752 L 448,752" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<path id="score-api" data-edge-id="score-api" data-graph-role="edge" data-source="score" data-target="api" d="M 608,664 L 608,608 L 576,608 L 576,544" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<g id="node-web" data-node-id="web" data-graph-role="node" data-graph-bounds="32 148 352 292">
+<rect x="32" y="148" width="320" height="144" rx="8" fill="#ffffff" stroke="#d1d5db" stroke-width="1.5"/>
+<circle cx="56" cy="170" r="4" fill="#93c5fd" data-graph-role="decoration"/>
+<circle cx="72" cy="170" r="4" fill="#c4b5fd" data-graph-role="decoration"/>
+<circle cx="88" cy="170" r="4" fill="#a7f3d0" data-graph-role="decoration"/>
+<text x="192.0" y="200.0" fill="#111827" font-size="28" font-weight="600" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="132.6 172.0 251.4 206.2">Web 平台</text>
+<text x="192.0" y="234.0" fill="#6b7280" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="99.6 212.0 284.4 238.8">Next.js · React</text>
+<text x="192.0" y="268.0" fill="#6b7280" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="89.0 246.0 295.0 272.8">浏览 / 提交 / 审核</text>
+</g>
+<g id="node-cli" data-node-id="cli" data-graph-role="node" data-graph-bounds="448 148 768 292">
+<rect x="448" y="148" width="320" height="144" rx="8" fill="#111827" stroke="#374151" stroke-width="1.5"/>
+<circle cx="472" cy="170" r="4" fill="#93c5fd" data-graph-role="decoration"/>
+<circle cx="488" cy="170" r="4" fill="#c4b5fd" data-graph-role="decoration"/>
+<circle cx="504" cy="170" r="4" fill="#a7f3d0" data-graph-role="decoration"/>
+<text x="608.0" y="200.0" fill="#ffffff" font-size="28" font-weight="600" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="553.1 172.0 662.9 206.2">tah CLI</text>
+<text x="608.0" y="234.0" fill="#d1d5db" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="484.8 212.0 731.2 238.8">Node.js · TypeScript</text>
+<text x="608.0" y="268.0" fill="#d1d5db" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="505.0 246.0 711.0 272.8">安装 / 更新 / 校验</text>
+</g>
+<g id="node-api" data-node-id="api" data-graph-role="node" data-graph-bounds="96 392 704 544">
+<polygon points="136,392 664,392 704,468.0 664,544 136,544 96,468.0" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+<text x="400.0" y="448.0" fill="#111827" font-size="28" font-weight="600" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="298.6 420.0 501.4 454.2">API 与任务编排</text>
+<text x="400.0" y="482.0" fill="#6b7280" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="234.6 460.0 565.4 486.8">认证 · 版本 · 任务 · 审核发布</text>
+<text x="400.0" y="516.0" fill="#6b7280" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="270.6 494.0 529.4 520.8">FastAPI · Python 3.12</text>
+</g>
+<g id="node-scanner" data-node-id="scanner" data-graph-role="node" data-graph-bounds="32 664 352 840">
+<rect x="32" y="664" width="320" height="176" rx="8" fill="#ffffff" stroke="#d1d5db" stroke-width="1.5"/>
+<text x="192.0" y="732.0" fill="#111827" font-size="28" font-weight="600" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="122.0 704.0 262.0 738.2">风险扫描器</text>
+<text x="192.0" y="766.0" fill="#6b7280" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="111.0 744.0 273.0 770.8">静态规则 / OSV</text>
+<text x="192.0" y="800.0" fill="#6b7280" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="117.2 778.0 266.8 804.8">可选 LLM 复核</text>
+</g>
+<g id="node-score" data-node-id="score" data-graph-role="node" data-graph-bounds="448 664 768 840">
+<rect x="448" y="664" width="320" height="176" rx="8" fill="#ffffff" stroke="#d1d5db" stroke-width="1.5"/>
+<text x="608.0" y="732.0" fill="#111827" font-size="28" font-weight="600" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="552.0 704.0 664.0 738.2">评分引擎</text>
+<text x="608.0" y="766.0" fill="#6b7280" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="542.0 744.0 674.0 770.8">评估安全风险</text>
+<text x="608.0" y="800.0" fill="#6b7280" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="520.0 778.0 696.0 804.8">独立评估证据质量</text>
+</g>
+<text x="266" y="322" fill="#2563eb" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="label" data-graph-bounds="203.5 300.0 328.5 326.8">提交 / 审核</text>
+<text x="534" y="322" fill="#2563eb" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="label" data-graph-bounds="471.5 300.0 596.5 326.8">查询 / 安装</text>
+<text x="64" y="632" fill="#9333ea" font-size="22" font-weight="400" text-anchor="start" data-graph-role="label" data-graph-bounds="64.0 610.0 152.0 636.8">扫描任务</text>
+<text x="400" y="738" fill="#2563eb" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="label" data-graph-bounds="378.0 716.0 422.0 742.8">证据</text>
+<text x="636" y="632" fill="#2563eb" font-size="22" font-weight="400" text-anchor="start" data-graph-role="label" data-graph-bounds="636.0 610.0 724.0 636.8">评分结果</text>
+<g data-graph-role="legend">
+<path d="M 32,888 L 76,888" fill="none" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
+<text x="92" y="895" fill="#6b7280" font-size="22" font-weight="400" text-anchor="start" data-graph-role="decoration" data-graph-bounds="92.0 873.0 217.0 899.8">请求 / 数据</text>
+<path d="M 432,888 L 476,888" fill="none" stroke="#9333ea" stroke-width="2.5" marker-end="url(#arrow-purple)" stroke-dasharray="9 7"/>
+<text x="492" y="895" fill="#6b7280" font-size="22" font-weight="400" text-anchor="start" data-graph-role="decoration" data-graph-bounds="492.0 873.0 580.0 899.8">任务调度</text>
+</g>
+<g data-graph-role="decoration"><rect x="32" y="928" width="736" height="94" rx="8" fill="#f9fafb" stroke="#e5e7eb"/></g>
+<text x="56" y="964" fill="#111827" font-size="26" font-weight="600" text-anchor="start" data-graph-role="label" data-graph-bounds="56.0 938.0 160.0 969.7">共享契约</text>
+<text x="56" y="1000" fill="#6b7280" font-size="22" font-weight="400" text-anchor="start" data-graph-role="label" data-graph-bounds="56.0 978.0 450.2 1004.8">Schema 统一元数据、报告与客户端约定</text>
+<g data-graph-role="decoration"><rect x="32" y="1040" width="736" height="128" rx="8" fill="#f9fafb" stroke="#e5e7eb"/></g>
+<text x="56" y="1076" fill="#111827" font-size="26" font-weight="600" text-anchor="start" data-graph-role="label" data-graph-bounds="56.0 1050.0 186.0 1081.7">运行与存储</text>
+<text x="56" y="1112" fill="#6b7280" font-size="22" font-weight="400" text-anchor="start" data-graph-role="label" data-graph-bounds="56.0 1090.0 425.6 1116.8">PostgreSQL 17 · Docker Compose</text>
+<text x="56" y="1146" fill="#6b7280" font-size="22" font-weight="400" text-anchor="start" data-graph-role="label" data-graph-bounds="56.0 1124.0 320.0 1150.8">持久卷保存源码快照与制品</text>
+</svg>

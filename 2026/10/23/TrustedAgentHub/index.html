@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+  <!-- 元数据 -->
+  <meta charset="utf-8">
+  
+    <link rel="icon" href="/blog/images/favicon.png">
+  
+  
+  <title>TrustedAgentHub：Agent Skills 与 MCP 能力包审核分发平台实习复盘 | 北白念</title>
+  <link rel="canonical" href="https://beibainian.github.io/blog/2026/10/23/TrustedAgentHub/">
+  <meta name="author" content="董子阳" />
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="robots" content="index,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="format-detection" content="telphone=no, email=no" />
+  
+    <meta name="keywords" content="Agent, FastAPI, MCP, Next.js, 开源实习" />
+  
+  <meta name="description" content="2026 年 6 月至 10 月 ，我在华中科技大学开放原子开源俱乐部参与了《可信 Agent Skills 与 MCP Hub 平台设计与实现》开源实习。项目简称 TrustedAgentHub，围绕一个具体问题展开：用户准备安装一个 Agent 能力包时，怎样知道它来自哪个版本、具备哪些能力、经过怎样的审核，以及最终安装的内容有没有发生变化？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TrustedAgentHub：Agent Skills 与 MCP 能力包审核分发平台实习复盘">
+<meta property="og:url" content="https://beibainian.github.io/blog/2026/10/23/TrustedAgentHub/index.html">
+<meta property="og:site_name" content="北白念">
+<meta property="og:description" content="2026 年 6 月至 10 月 ，我在华中科技大学开放原子开源俱乐部参与了《可信 Agent Skills 与 MCP Hub 平台设计与实现》开源实习。项目简称 TrustedAgentHub，围绕一个具体问题展开：用户准备安装一个 Agent 能力包时，怎样知道它来自哪个版本、具备哪些能力、经过怎样的审核，以及最终安装的内容有没有发生变化？">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://beibainian.github.io/blog/blog/images/trusted-agent-hub.png">
+<meta property="article:published_time" content="2026-10-23T02:00:00.000Z">
+<meta property="article:modified_time" content="2026-10-23T03:17:22.490Z">
+<meta property="article:author" content="董子阳">
+<meta property="article:tag" content="开源实习">
+<meta property="article:tag" content="Agent">
+<meta property="article:tag" content="MCP">
+<meta property="article:tag" content="FastAPI">
+<meta property="article:tag" content="Next.js">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://beibainian.github.io/blog/blog/images/trusted-agent-hub.png">
+  
+  <!-- JSON-LD 结构化数据 -->
+  
+  
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"TrustedAgentHub：Agent Skills 与 MCP 能力包审核分发平台实习复盘","description":"2026 年 6 月至 10 月 ，我在华中科技大学开放原子开源俱乐部参与了《可信 Agent Skills 与 MCP Hub 平台设计与实现》开源实习。项目简称 ","image":"https://beibainian.github.io/blog/2026/10/23/TrustedAgentHub/blog/images/trusted-agent-hub.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-10-23T02:00:00.000Z","dateModified":"2026-10-23T03:17:22.490Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/10/23/TrustedAgentHub/"}}
+    </script>
+  
+  <!-- 关键 CSS 预加载 -->
+  <link rel="preload" href="/blog/css/kr-core.min.css" as="style" crossorigin>
+  <link rel="preload" href="/blog/css/kr-theme/light.min.css" as="style" crossorigin>
+  <link rel="preload" href="/blog/css/kr-theme/dark.min.css" as="style" crossorigin>
+  <!-- 样式表文件 -->
+  <link rel="stylesheet" id="kratos-css" href="/blog/css/kr-core.min.css" media="all">
+  <link rel="stylesheet" id="theme-light-css" href="/blog/css/kr-theme/light.min.css" media="all">
+  <link rel="stylesheet" id="theme-dark-css" href="/blog/css/kr-theme/dark.min.css" media="(prefers-color-scheme: dark)">
+  
+    <link rel="stylesheet"  id="highlight-css" href="/blog/css/highlight/highlight.js/night-eighties.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/css/highlight/highlight.js/night-eighties.min.css"></noscript>
+  
+  <script src="/blog/js/kr-theme.min.js"></script>
+  <link rel="stylesheet"  id="fontawe-css" href="/blog/vendors/font-awesome@4.7.0/css/font-awesome.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/font-awesome@4.7.0/css/font-awesome.min.css"></noscript>
+  
+    <link rel="stylesheet"  id="nprogress-css" href="/blog/vendors/nprogress@0.2.0/nprogress.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/nprogress@0.2.0/nprogress.css"></noscript>
+  
+  
+    <link rel="stylesheet"  href="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.css"></noscript>
+  
+  <!-- 预先加载的JS文件 -->
+  
+    <script src="/blog/vendors/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  
+  <!-- 自定义站点横幅和背景 -->
+  <style>
+    
+      .kratos-cover.kratos-cover-2 {
+        background-image: url('/blog/images/light.png');
+      }
+      html[data-theme="dark"] .kratos-cover.kratos-cover-2 {
+        background-image: url('/blog/images/dark.png');
+      }
+    
+    
+      @media(min-width:768px) {
+        body.custom-background {
+          background-image: url('/blog/images/background.png');
+        }
+        html[data-theme="dark"] body.custom-background {
+          background-image: url('/blog/images/background.png');
+        }
+      }
+    
+    
+      .widget-kratos-about .photo-background {
+        background-image: url('/blog/images/light.png');
+      }
+      html[data-theme="dark"] .widget-kratos-about .photo-background {
+        background-image: url('/blog/images/dark.png');
+      }
+    
+  </style>
+
+  <!-- 额外的追加注入项 -->
+  
+</head>
+
+    <body class="custom-background">
+        <div id="kratos-wrapper">
+    <div id="kratos-page">
+        <div id="kratos-header">
+            <header id="kratos-desktop-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="nav-header">
+                        <nav id="kratos-menu-wrap">
+                            <ul id="kratos-primary-menu" class="sf-menu">
+                                
+                                    <li>
+                                        
+                                            <a href="/blog/">
+                                        
+                                            
+                                                <i class="fa fa-home"></i>
+                                            
+                                            首页
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/blog/archives/">
+                                        
+                                            
+                                                <i class="fa fa-file"></i>
+                                            
+                                            档案馆
+                                        </a>
+                                        
+                                    </li>
+                                
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <header id="kratos-mobile-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="color-logo"><a href="/blog/">北白念</a></div>
+                    <div id="kratos-nav-toggle-wrapper" class="nav-toggle">
+                        <a id="kratos-nav-toggle" class="kratos-nav-toggle">
+                            <i></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="kratos-start kratos-hero-2">
+            <!-- <div class="kratos-overlay"></div> -->
+            <div class="kratos-cover kratos-cover-2 text-center">
+                <div class="desc desc2 animate-box">
+                    <a href="/blog/">
+                        <h2>北白念</h2> <br />
+                        <span>记录个人的学习笔记和技术文章，偶尔也会分享一些生活感悟。</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="kratos-blog-post">
+            <div class="container">
+                <div id="main" class="row">
+
+
+        
+
+            
+
+            <section class="kr-main-col col-md-8">
+
+        
+
+            <article itemscope itemtype="https://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://beibainian.github.io/blog/2026/10/23/TrustedAgentHub/">
+    <div class="kratos-hentry kratos-page-inner clearfix">
+        <header class="kratos-page-header">
+            
+                <h1 class="kratos-page-title text-center" itemprop="name headline">TrustedAgentHub：Agent Skills 与 MCP 能力包审核分发平台实习复盘</h1>
+            
+            <ul class="kratos-page-meta text-center">
+                <li><time datetime="2026-10-23T02:00:00.000Z" itemprop="datePublished"><i class="fa fa-calendar"></i> 2026-10-23</time></li>
+                <li itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <i class="fa fa-user"></i> 作者 <span itemprop="name">董子阳</span>
+                </li>
+                
+                    <li>
+                        <i class="fa fa-edit"></i> 
+                        
+                        
+                            ~6.67K
+                        
+                        字
+                    </li>
+                
+                
+                
+            </ul>
+        </header>
+        <div class="kratos-page-content kr-post">
+            
+            
+            
+            <hr />
+            <div itemprop="articleBody"><p>2026 年 6 月至 10 月 ，我在<strong>华中科技大学开放原子开源俱乐部</strong>参与了《可信 Agent Skills 与 MCP Hub 平台设计与实现》开源实习。项目简称 <a target="_blank" rel="noopener" href="https://github.com/hust-open-atom-club/trusted-agent-hub"><strong>TrustedAgentHub</strong></a>，围绕一个具体问题展开：用户准备安装一个 Agent 能力包时，怎样知道它来自哪个版本、具备哪些能力、经过怎样的审核，以及最终安装的内容有没有发生变化？</p>
+<span id="more"></span>
+
+<p>这次实习由我与另外一位<a target="_blank" rel="noopener" href="https://github.com/zqzlq"><strong>桂林电子科技大学 曾同学</strong></a>共同参与，指导老师为<a target="_blank" rel="noopener" href="https://github.com/mudongliang"><strong>华中科技大学网络空间安全学院副教授 慕冬亮老师</strong></a>。</p>
+<div class="alert alert-info" role="note">
+  <div class="icon"><i class="fa fa-info" aria-hidden="true"></i></div>
+  <div class="text">
+    <p><strong>开源社区实践与感谢</strong></p>
+    <p>加入华科开源社区后，我有机会与社区成员交流，也在真实项目中逐步熟悉<strong>开源社区的协作规范</strong>：如何通过 Issue 清晰描述问题、参与讨论并跟进进展；如何基于分支开展开发、整理提交记录，再通过 Pull Request 展示改动、接受评审，并结合 CI 检查和反馈持续完善。协作过程中，及时同步进展、尊重项目约定、认真回应意见同样重要。这些实践让我熟悉了 GitHub 的常用协作流程，也让我更深入地体会到开源项目对沟通、责任意识和团队配合的要求，提升了自己参与和维护开源项目的能力。</p>
+    <p>我也感受到，俱乐部持续搭建开源实践与交流的平台，让更多同学有机会接触开源、学习协作并参与项目，为开源社区培养和汇聚新的参与者。这样的投入为开源生态建设带来了切实而长远的支持。欢迎对开源感兴趣的同学加入<strong>华中科技大学开放原子开源俱乐部</strong>，和我们一起参与项目、交流成长，为开源社区贡献一份力量。</p>
+  </div>
+</div>
+
+<p>本文从系统实现和工程实践出发，记录项目如何把源码、扫描报告、审核记录和安装制品联系起来。</p>
+<p><img src="/blog/blog/images/trusted-agent-hub.png" alt="TrustedAgentHub 概念封面：能力包的来源、扫描、审核与安装"></p>
+<h2 id="💡-项目背景：安装能力包时，我们究竟在信任什么？"><a href="#💡-项目背景：安装能力包时，我们究竟在信任什么？" class="headerlink" title="💡 项目背景：安装能力包时，我们究竟在信任什么？"></a>💡 项目背景：安装能力包时，我们究竟在信任什么？</h2><p>Skill、MCP Server 以及其他 Agent 扩展通常同时包含代码和自然语言说明。一个看似简单的安装步骤，可能引入文件读写、网络请求、命令执行或外部系统调用能力。仅看 对应的README，很难完整判断这些能力会在什么条件下被使用。</p>
+<p>更麻烦的是版本对应关系：提交者给出的是一个仓库地址，扫描时读取的是某次提交，审核员看到的是一份报告，而用户安装的可能已经是更新后的文件。如果这些对象没有绑定到具体版本，审核结论就难以追溯。</p>
+<p>TrustedAgentHub 将<strong>具体版本</strong>作为审核对象，希望在分发前回答四个问题：</p>
+<ul>
+<li><strong>来源是什么？</strong> 能否定位到仓库、Commit 和明确的能力包边界？</li>
+<li><strong>发现了什么？</strong> 风险判断是否有文件、行号和上下文作为依据？</li>
+<li><strong>谁做了决定？</strong> 扫描、审核和发布各自处于什么状态？</li>
+<li><strong>安装了什么？</strong> 下载制品和本地文件是否与记录的摘要对应？</li>
+</ul>
+<p>平台主要面向实验室、华科开源社区和内部开发团队。它提供分发前审核与安装完整性保障，运行后的持续隔离和行为拦截仍属于后续扩展范围。</p>
+<h2 id="🛠️-核心技术栈与系统结构"><a href="#🛠️-核心技术栈与系统结构" class="headerlink" title="🛠️ 核心技术栈与系统结构"></a>🛠️ 核心技术栈与系统结构</h2><p>项目使用同一仓库管理多个模块，通过共享 Schema 对齐元数据、扫描结果、评分和客户端约定。这样，后端、前端、扫描器与 CLI 可以围绕同一个版本和同一份报告开展工作。</p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>主要技术</th>
+<th>负责的工作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>apps/web</code></td>
+<td>Next.js 14、React 18、TypeScript、i18next</td>
+<td>浏览搜索、提交、扫描进度、风险展示、审核与管理；中英文界面及移动端适配</td>
+</tr>
+<tr>
+<td><code>apps/api</code></td>
+<td>Python 3.12、FastAPI、SQLAlchemy、Alembic</td>
+<td>认证授权、包与版本管理、扫描任务、审核发布和审计</td>
+</tr>
+<tr>
+<td><code>scanners/risk_scanner</code></td>
+<td>正则、AST、Shell 与 Manifest 分析、OSV、可选 LLM</td>
+<td>风险检测、能力观察、上下文复核与证据报告</td>
+</tr>
+<tr>
+<td><code>packages/trust-score</code></td>
+<td>Python</td>
+<td>安全评估、证据质量、风险解释与评分模型标识</td>
+</tr>
+<tr>
+<td><code>apps/cli</code></td>
+<td>TypeScript、Node.js、Commander.js</td>
+<td><code>tah</code> 命令、客户端适配、安装更新、卸载及本地校验</td>
+</tr>
+<tr>
+<td><code>packages/schema</code></td>
+<td>JSON Schema、Python 与 TypeScript 常量</td>
+<td>统一六类能力包及跨模块数据契约</td>
+</tr>
+<tr>
+<td>部署与存储</td>
+<td>Docker Compose、PostgreSQL 17、持久化文件卷</td>
+<td>保存业务状态、源码快照和安装制品，执行维护任务</td>
+</tr>
+</tbody></table>
+<p><img src="/blog/blog/tah/system-architecture.png" alt="TrustedAgentHub 系统架构：Web 和 CLI 通过 API 连接扫描、评分与持久化存储"></p>
+<p>这里的难点不只在于把几个服务连接起来。例如，“扫描完成”、“审核通过”和“可以安装”各自代表不同的条件。只有先统一这些含义，前端提示、API 状态和 CLI 安装策略才能保持一致。</p>
+<h2 id="🔍-核心实现与工程难点"><a href="#🔍-核心实现与工程难点" class="headerlink" title="🔍 核心实现与工程难点"></a>🔍 核心实现与工程难点</h2><h3 id="1-固定来源版本，再讨论扫描结果"><a href="#1-固定来源版本，再讨论扫描结果" class="headerlink" title="1. 固定来源版本，再讨论扫描结果"></a>1. 固定来源版本，再讨论扫描结果</h3><p>平台的元数据规范覆盖 <strong>Skill、MCP Server、Plugin、Subagent、Command、Prompt</strong> 六类对象，描述身份、版本、作者、许可证、来源、权限、依赖、客户端兼容性和安装方式。</p>
+<p>提取器会读取 <code>SKILL.md</code>、<code>manifest.json</code>、插件配置以及常见依赖文件，识别一个能力包实际包含哪些内容，并执行 Schema 校验。对于仓库内的嵌套包，来源和许可证解析也受到快照范围限制。</p>
+<p>扫描前，系统固定来源 Commit，建立确定性的文件清单，并限制文件数量、单文件大小、总读取量和目录深度。目录符号链接不会继续跟随；扫描范围不足、读取过程中内容发生变化或规则执行异常，都需要写进结果。</p>
+<p>另一个重要设计是分别保存<strong>作者声明的权限</strong>和<strong>实际观察到的能力</strong>。例如，一个开发工具确实可能需要执行命令或读写文件，不能仅因它有这些能力就判定为恶意。需要进一步确认：这些能力是否声明、是否与用途相符，以及是否出现了具体危险行为。</p>
+<h3 id="2-让每条风险发现都能回到原始证据"><a href="#2-让每条风险发现都能回到原始证据" class="headerlink" title="2. 让每条风险发现都能回到原始证据"></a>2. 让每条风险发现都能回到原始证据</h3><p>结项版本的扫描器包含 <strong>20 个规则家族、21 个注册检测器</strong>，其中 <code>SR-005b</code> 是独立执行的 AST 检测器。检测范围包括提示注入、危险 Shell、凭据访问、硬编码密钥、远程执行、权限过宽、依赖供应链，以及 MCP 工具描述、Plugin Hook 和 Subagent 权限等问题。</p>
+<p>扫描结果分别表达安全发现、审核提示、能力观察和扫描完整性。证据中保留文件路径、行号、片段或 JSON Pointer，方便审核员回到源码检查。重复命中按根因聚合，凭据类证据先脱敏，再通过扫描范围内的指纹关联重复值。</p>
+<p>这个过程对误报控制尤其重要。文档里的危险命令示例、正常工具的执行能力、同一个问题在多个文件中的重复出现，都可能让简单的关键词匹配产生过重判断。保留上下文和根因关系，才能解释为什么某条发现需要处理。</p>
+<h3 id="3-用-LLM-复核上下文，同时约束它能改变什么"><a href="#3-用-LLM-复核上下文，同时约束它能改变什么" class="headerlink" title="3. 用 LLM 复核上下文，同时约束它能改变什么"></a>3. 用 LLM 复核上下文，同时约束它能改变什么</h3><p>静态规则能够稳定发现特征，但有些命中需要结合上下文判断。因此，项目加入了可选的 LLM 语义复核，用来分析静态命中的实际含义。被扫描包中的指令和文本始终作为待分析数据处理。</p>
+<p>复核默认接受两次独立评审，出现决定性冲突时再进入第三次仲裁。若要降低有效严重性，需要同时满足至少两次一致结论、置信度不低于 <strong>0.85</strong>、证据充分、上下文完整且未截断，并引用真正提供给模型的完整源码行。已确认的漏洞不能仅凭模型给出“良性”标签就降级。</p>
+<p>模型不可用、引用无效、超时或结论冲突时，系统保留复核前的严重性，交由人工继续处理。LLM 的结论也不能直接决定最终分数和等级。</p>
+<p>这里还区分了两种超时：已经产生有效静态报告、但 LLM 阶段超时，可以保留报告并标记为 <code>partial</code>；如果整体超时前还没有有效报告，则仍记为失败。这样，用户能够区分“已有部分证据”和“本次没有有效结果”。</p>
+<h3 id="4-分开表达安全风险与证据质量"><a href="#4-分开表达安全风险与证据质量" class="headerlink" title="4. 分开表达安全风险与证据质量"></a>4. 分开表达安全风险与证据质量</h3><p>评分引擎输出两个独立结果：</p>
+<ul>
+<li><code>security_assessment</code>：表达安全风险，参与等级判断和安装策略。</li>
+<li><code>evidence_assessment</code>：表达来源、证明、审核及社区信号是否充分。</li>
+</ul>
+<p>安全评估综合权限合理性、扫描发现、行为一致性、扫描完整性和人工审核。最终等级还受安全否决、风险基线、审核升级和待确认状态约束，不能只套用一次加权求和。</p>
+<p>证据侧则区分 <code>verified</code>、<code>not_verified</code> 和 <code>not_available</code>。缺少签名、供应链证明或 SBOM，会影响证据覆盖率，但不能直接作为恶意行为的证据。评分模型使用 <code>model_fingerprint</code> 标识变化，支持历史评分回填；源码变化之后，仍然需要重新扫描。</p>
+<p>CLI 消费服务端的同一套评分，按照等级执行安装门禁：</p>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>安全分范围</th>
+<th>安装处理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A</td>
+<td>85–100</td>
+<td>通常允许安装，仍遵守具体发现的显式确认要求</td>
+</tr>
+<tr>
+<td>B</td>
+<td>65–84</td>
+<td>提示风险与权限，必要时要求确认</td>
+</tr>
+<tr>
+<td>C</td>
+<td>45–64</td>
+<td>需要显式确认，通常使用 <code>--yes</code>，也接受 <code>--force</code></td>
+</tr>
+<tr>
+<td>D</td>
+<td>25–44</td>
+<td>同时提供 <code>--force</code> 和 <code>--accept-high-risk</code></td>
+</tr>
+<tr>
+<td>E</td>
+<td>0–24</td>
+<td>阻断安装，确认参数不能绕过</td>
+</tr>
+</tbody></table>
+<h3 id="5-把审核流程与长任务恢复一起设计"><a href="#5-把审核流程与长任务恢复一起设计" class="headerlink" title="5. 把审核流程与长任务恢复一起设计"></a>5. 把审核流程与长任务恢复一起设计</h3><p>平台围绕包、版本、扫描报告、扫描任务、审核记录、评分和审计日志建立业务模型。包保存稳定身份，版本记录具体来源与审核结果，扫描任务具有独立生命周期。</p>
+<p>版本的主要流转过程是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">draft → submitted → scanning → pending_review → approved → published</span><br></pre></td></tr></table></figure>
+
+<p>普通用户、提交者、审核员和管理员具有不同权限，并结合资源归属控制未发布内容和扫描结果的访问范围。审核员给出审核结论，管理员在满足前置条件后发布；流程还支持要求修改、驳回、下架和重新审核。</p>
+<p>扫描本身是一个长任务。用户重复提交、刷新页面、Worker 中断或回调延迟，都可能让多个模块对同一个任务产生不同理解。项目通过数据库持久任务、请求幂等、来源去重、租约领取、回调重试和启动恢复处理这些情况。前端使用持久任务标识恢复进度，晚到的结果也不能覆盖已经终结的状态。</p>
+<p>扫描执行状态和报告完整性在界面中分别展示。一个任务结束后，报告可能仍有未覆盖的范围；审核员需要看到这个区别，而不能仅依赖一个进度条是否到达终点。</p>
+<p><img src="/blog/blog/tah/review-install-flow.png" alt="TrustedAgentHub 从固定来源、风险扫描、人工审核到 CLI 安装校验的主流程"></p>
+<h3 id="6-把审核结论落实到实际安装内容"><a href="#6-把审核结论落实到实际安装内容" class="headerlink" title="6. 把审核结论落实到实际安装内容"></a>6. 把审核结论落实到实际安装内容</h3><p>CLI 提供 <code>tah search</code>、<code>info</code>、<code>install</code>、<code>update</code>、<code>verify</code> 和 <code>uninstall</code> 等命令。安装前先校验清单、客户端兼容性和 URL 策略，再执行风险门禁，通过后才进入下载和写入阶段。</p>
+<p>下载使用 SHA-256 校验；解压时检查路径穿越、符号链接、文件数量和展开大小。文件先写入 staging 目录，满足条件后再切换到正式位置，失败时恢复备份。安装完成后，<code>verify</code> 可以比较本地内容与记录摘要，提示安装后的修改。</p>
+<p>客户端适配包括 Claude Code、Cursor 和 Codex 等，但各客户端支持的包类型与安装方式需要分别处理。这里的摘要校验用来回答“内容有没有变”，不能单独证明这份内容没有风险。</p>
+<p>依赖分析同样需要控制边界。项目解析 npm、Python、Rust 等生态的依赖或锁文件，对能够取得精确坐标的依赖执行 OSV 漏洞核对，并记录未锁定版本、解析缺口、查询失败和不支持的生态。默认不会向 OSV 发送明确私有、未知或来源不确定的包坐标。</p>
+<p>外部请求检查协议、主机、路径、端口、DNS&#x2F;IP 和 TLS，每次重定向后重新校验，并限制并发、体积和超时。依赖制品完整性获取层只下载明确获批的私有源制品，流式计算摘要，不保留依赖正文，也不安装或执行依赖。</p>
+<h2 id="📊-测试与阶段性成果"><a href="#📊-测试与阶段性成果" class="headerlink" title="📊 测试与阶段性成果"></a>📊 测试与阶段性成果</h2><p>结项材料记录了 <strong>2026 年 10 月</strong>的验证结果。安全基准包含 59 个固定标注案例：27 个良性或具有正常能力的良性案例、18 个恶意案例，以及 14 个需要上下文判断的案例。</p>
+<table>
+<thead>
+<tr>
+<th>验证项</th>
+<th>结项记录</th>
+<th>结果适用范围</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>基准质量门禁</td>
+<td>59 个案例通过，所有 blocking 约束通过</td>
+<td>仓库内固定基准</td>
+</tr>
+<tr>
+<td>原始规则及根因级 Precision &#x2F; Recall</td>
+<td>均为 100%；TP 35、FP 0、FN 0</td>
+<td>固定标注及对应统计口径</td>
+</tr>
+<tr>
+<td>良性高危及严重误报率</td>
+<td>0%</td>
+<td>27 个良性及正常能力案例</td>
+</tr>
+<tr>
+<td>恶意高危及严重召回率</td>
+<td>100%</td>
+<td>18 个恶意案例</td>
+</tr>
+<tr>
+<td>扫描状态</td>
+<td>58 个 <code>complete</code>、1 个预期 <code>partial</code>，匹配率 100%</td>
+<td><code>partial</code> 案例用于表达未锁定依赖造成的覆盖不足</td>
+</tr>
+<tr>
+<td>检测器执行</td>
+<td>21 个检测器全部覆盖，执行 1,239 次，规则异常为 0</td>
+<td>离线基准执行过程</td>
+</tr>
+<tr>
+<td>独立评分测试</td>
+<td>86 项通过</td>
+<td>评分、证据边界、完整性及模型标识等</td>
+</tr>
+</tbody></table>
+<p>这些结果应结合执行条件阅读：基准使用离线 OSV 固定结果，不执行样例程序，不调用外部 LLM，并关闭可选 MCP 语义模型。因此，上表不能用来推导真实互联网能力包、在线漏洞查询、LLM 裁决或运行时攻击检测的效果。</p>
+<p>工程测试还覆盖 API 状态机、Web 组件和 CLI 安装流程。结项核验未重新运行全部数据库集成测试或线上写入式端到端验收，因此本文也不把它描述成一次完整的线上验收。</p>
+<p>交付物包括 Web 平台、API、CLI、安全扫描器、评分引擎、共享 Schema，以及部署和维护文档。仓库另提供 <strong>29 份能力包 manifest 示例</strong>，其中 14 份来自真实开源项目；这是示例数量，并非线上已发布能力包数量。</p>
+<h2 id="🤝-开源协作与实践收获"><a href="#🤝-开源协作与实践收获" class="headerlink" title="🤝 开源协作与实践收获"></a>🤝 开源协作与实践收获</h2><p>项目通过 Issue 描述问题，使用分支和 Pull Request 提交修改，并结合 CI 检查推进合并。相比单个模块的实现，跨模块协作更依赖清晰的数据契约、状态含义和可复现样例。</p>
+<p>按结项报告固定的提交 <a target="_blank" rel="noopener" href="https://github.com/hust-open-atom-club/trusted-agent-hub/tree/969fab54f394fb0551403692b9e02a06cfadfdc0"><code>969fab5</code></a> 统计，2026 年 7 月 3 日至 10 月 13 日的可达历史包含 362 次提交，其中非合并提交 241 次；112 个 PR 中，108 个已合并、4 个关闭未合并；52 个 Issue 全部关闭。这些数字描述的是团队仓库的协作记录。</p>
+<p>几项代表性的改进能更具体地说明项目如何逐步完善：</p>
+<table>
+<thead>
+<tr>
+<th>改进方向</th>
+<th>对应记录</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>固定扫描范围与资源预算，使报告能够说明检查了什么</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/hust-open-atom-club/trusted-agent-hub/pull/38">PR #38：确定性文件清单与扫描预算</a></td>
+</tr>
+<tr>
+<td>约束模型裁决，分开表达风险与证据质量</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/hust-open-atom-club/trusted-agent-hub/pull/102">PR #102：LLM 裁决约束</a>、<a target="_blank" rel="noopener" href="https://github.com/hust-open-atom-club/trusted-agent-hub/pull/103">PR #103：双指标评估</a></td>
+</tr>
+<tr>
+<td>处理任务中断、重复提交和刷新后的状态恢复</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/hust-open-atom-club/trusted-agent-hub/pull/124">PR #124：持久扫描任务</a>、<a target="_blank" rel="noopener" href="https://github.com/hust-open-atom-club/trusted-agent-hub/pull/140">PR #140：刷新恢复</a></td>
+</tr>
+<tr>
+<td>提高依赖查询可用性，同时明确覆盖范围</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/hust-open-atom-club/trusted-agent-hub/pull/162">PR #162：OSV 批量查询、缓存与覆盖报告</a></td>
+</tr>
+</tbody></table>
+<p>对我而言，这次实习最有收获的是开始认真区分几个容易混在一起的问题：工具具备什么能力，代码里出现了什么风险，以及手头的证据足不足以支持某个结论。扫描未命中、测试通过和摘要一致分别回答不同的问题，产品界面和安装策略需要把这些含义传达给用户。</p>
+<p>另一个收获来自失败恢复。扫描任务要能在重启后继续，安装失败要能恢复备份，审核结果要能抵抗重复回调。把这些情况纳入设计后，系统的状态、日志和数据结构才真正形成了相互对应的关系。</p>
+<p>开源协作也让我更重视变更的可解释性：一个 PR 应该说明解决了什么问题、证据是什么、怎样复现和检查。AI 编程工具可以辅助实现，但需求理解、安全边界、代码审查、测试有效性和来源许可证仍需要开发者负责。</p>
+<h2 id="🧭-当前边界与后续方向"><a href="#🧭-当前边界与后续方向" class="headerlink" title="🧭 当前边界与后续方向"></a>🧭 当前边界与后续方向</h2><p>当前完整的提交与采集流程以 GitHub 为主。Schema 能描述 npm、PyPI、Docker 和本地上传等来源，CLI 也支持多种安装方式，但这些能力还不代表每类来源都具备独立、完整的提交和审核入口。</p>
+<p>后续值得继续推进的工作包括：扩展来源入口与客户端兼容性验证；让审核凭证绑定版本、Commit、源码及制品摘要、报告摘要与模型标识；在源码或依赖变化后开展持续复核；增加真实包与独立对照样例，并单独评估 LLM 复核的正确率、分歧率、引用有效率、成本与时延。</p>
+<p>平台审核签名、跨版本自动持续复核和大规模真实包评测仍属于后续建设内容。本次实习交付了从提交、扫描、人工审核到安装与本地校验的业务流程，也为这些扩展留下了版本、证据和状态方面的基础。</p>
+<h2 id="🔗-项目与技术资料"><a href="#🔗-项目与技术资料" class="headerlink" title="🔗 项目与技术资料"></a>🔗 项目与技术资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/hust-open-atom-club/trusted-agent-hub">GitHub 开源仓库</a></li>
+<li><a target="_blank" rel="noopener" href="https://tah.openatom.club/">TrustedAgentHub 平台</a> · <a target="_blank" rel="noopener" href="https://tah.openatom.club/docs">API 文档</a> · <a target="_blank" rel="noopener" href="https://www.npmjs.com/package/trusted-agent-hub">npm 包</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/hust-open-atom-club/trusted-agent-hub/blob/969fab54f394fb0551403692b9e02a06cfadfdc0/docs/trust-assessment-model.md">安全风险与证据质量模型</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/hust-open-atom-club/trusted-agent-hub/blob/969fab54f394fb0551403692b9e02a06cfadfdc0/docs/llm-adjudication.md">LLM 复核约束</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/hust-open-atom-club/trusted-agent-hub/blob/969fab54f394fb0551403692b9e02a06cfadfdc0/docs/api-scans.md">扫描任务生命周期</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/hust-open-atom-club/trusted-agent-hub/blob/969fab54f394fb0551403692b9e02a06cfadfdc0/benchmarks/README.md">安全基准与复现说明</a></li>
+</ul>
+</div>
+        </div>
+        
+        <footer class="kratos-entry-footer clearfix">
+            
+            
+            
+                <div class="post-actions text-center clearfix" id="post-actions">
+                
+                    <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
+                
+                
+                    <a class="share" href="javascript:;" onclick="krOpenShareModal()"><i class="fa fa-share-alt"></i> 分享</a>
+                
+                </div>
+            
+            <div class="footer-tag clearfix">
+                <div class="pull-left">
+                <i class="fa fa-tags"></i>
+                    <a class="tag-none-link" href="/blog/tags/Agent/" rel="tag">Agent</a>, <a class="tag-none-link" href="/blog/tags/FastAPI/" rel="tag">FastAPI</a>, <a class="tag-none-link" href="/blog/tags/MCP/" rel="tag">MCP</a>, <a class="tag-none-link" href="/blog/tags/Next-js/" rel="tag">Next.js</a>, <a class="tag-none-link" href="/blog/tags/%E5%BC%80%E6%BA%90%E5%AE%9E%E4%B9%A0/" rel="tag">开源实习</a>
+                </div>
+                <div class="pull-date">
+                    <time datetime="2026-10-23T03:17:22.490Z" itemprop="dateModified">最后编辑：2026-10-23</time>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+        <nav class="navigation post-navigation clearfix" role="navigation">
+            
+            <div class="nav-previous clearfix">
+                <a title=" 高并发架构演进：Redis 三主三从 Cluster 极限压测与性能瓶颈剖析" href="/blog/2026/06/28/Redis Cluster压力测试与刨析/"><i class="fa fa-angle-left"></i> 上一篇</a>
+            </div>
+            
+            
+        </nav>
+    
+    
+</article>
+
+        
+
+            </section>
+
+            
+                
+
+<section id="kratos-widget-area" class="col-md-4 hidden-xs hidden-sm">
+    <!-- 文章和页面根据splitter来分割，没有的话就从头开始设置为sticky -->
+    
+    
+                <aside id="krw-about" class="widget widget-kratos-about clearfix">
+    <div class="photo-background"></div>
+    <div class="photo-wrapper clearfix">
+        <div class="photo-wrapper-tip text-center">
+            <img class="about-photo" src="/blog/images/logo.png" alt="董子阳" loading="lazy" decoding="auto" />
+        </div>
+    </div>
+    <div class="textwidget">
+        <p class="text-center">软件开发 | RISC-V | Java | 算法</p>
+    </div>
+    <div class="site-meta">
+        <a class="meta-item" href="/blog/archives/">
+            <span class="title">
+                文章
+            </span>
+            <span class="count">
+                10
+            </span>
+        </a>
+        <a class="meta-item" href="/blog/categories/">
+            <span class="title">
+                分类
+            </span>
+            <span class="count">
+                7
+            </span>
+        </a>
+        <a class="meta-item" href="/blog/tags/">
+            <span class="title">
+                标签
+            </span>
+            <span class="count">
+                21
+            </span>
+        </a>
+    </div>
+</aside>
+            
+                    <div class="sticky-area">
+                
+                
+  <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
+    <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/Redis/">Redis</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/%E6%99%BA%E5%85%BB%E8%88%92%E5%B1%85/">智养舒居</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/%E6%99%BA%E9%93%BE%E9%A3%9F%E5%AE%89/">智链食安</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/">项目经历</a><span class="category-list-count">3</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/%E5%BC%80%E6%BA%90%E5%AE%9E%E4%B9%A0/">开源实习</a><span class="category-list-count">1</span></li></ul></li></ul>
+  </aside>
+
+
+            
+                
+  <aside id="krw-tags" class="widget widget-kratos-tags clearfix">
+    <h4 class="widget-title"><i class="fa fa-tags"></i>标签聚合</h4>
+      <div class="tag-clouds">
+        <a href="/blog/tags/Agent/" style="font-size: 0.6em;">Agent</a> <a href="/blog/tags/Cluster%E9%9B%86%E7%BE%A4/" style="font-size: 0.7em;">Cluster集群</a> <a href="/blog/tags/FISCO-BCOS/" style="font-size: 0.8em;">FISCO BCOS</a> <a href="/blog/tags/FastAPI/" style="font-size: 0.6em;">FastAPI</a> <a href="/blog/tags/Hexo-Kratos-Rebirth/" style="font-size: 0.6em;">Hexo & Kratos-Rebirth</a> <a href="/blog/tags/MCP/" style="font-size: 0.6em;">MCP</a> <a href="/blog/tags/Next-js/" style="font-size: 0.6em;">Next.js</a> <a href="/blog/tags/Redis/" style="font-size: 0.7em;">Redis</a> <a href="/blog/tags/Spring-Boot/" style="font-size: 0.7em;">Spring Boot</a> <a href="/blog/tags/Vue/" style="font-size: 0.7em;">Vue</a> <a href="/blog/tags/WireGuard/" style="font-size: 0.8em;">WireGuard</a> <a href="/blog/tags/YOLOv8/" style="font-size: 0.7em;">YOLOv8</a> <a href="/blog/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%BC%93%E5%AD%98/" style="font-size: 0.7em;">分布式缓存</a> <a href="/blog/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" style="font-size: 0.8em;">区块链</a> <a href="/blog/tags/%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95/" style="font-size: 0.6em;">压力测试</a> <a href="/blog/tags/%E5%BC%80%E6%BA%90%E5%AE%9E%E4%B9%A0/" style="font-size: 0.6em;">开源实习</a> <a href="/blog/tags/%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98/" style="font-size: 0.6em;">性能调优</a> <a href="/blog/tags/%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB/" style="font-size: 0.6em;">故障转移</a>
+      </div>
+  </aside>
+
+            
+                
+  <aside id="krw-posts" class="widget widget-kratos-posts">
+  <h4 class="widget-title"><i class="fa fa-file"></i>最新文章</h4>
+  <div class="tab-content">
+      <ul class="list-group">
+        
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/10/23/TrustedAgentHub/"><i class="fa fa-book"></i> TrustedAgentHub：Agent Skills 与 MCP 能力包审核分发平台实习复盘</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/06/28/Redis%20Cluster%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95%E4%B8%8E%E5%88%A8%E6%9E%90/"><i class="fa fa-book"></i> 高并发架构演进：Redis 三主三从 Cluster 极限压测与性能瓶颈剖析</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/06/25/Redis%E4%B8%89%E4%B8%BB%E4%B8%89%E4%BB%8E%E6%9E%B6%E6%9E%84/"><i class="fa fa-book"></i> 高并发架构演进：Redis 三主三从 Cluster 集群搭建与底层机制解析</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/05/12/WireGuard%E7%BB%84%E7%BD%91/"><i class="fa fa-book"></i> WireGuard跨地域联盟链节点组网实战</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/05/09/Pro%20%E7%89%88%E4%B8%89%E8%8A%82%E7%82%B9%E5%88%86%E5%B8%83%E5%BC%8F%E9%83%A8%E7%BD%B2/"><i class="fa fa-book"></i> FISCO BCOS 3.0 Pro版三节点分布式部署实战</a>
+            
+          
+        
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+      </ul>
+  </div>
+  </aside>
+
+            
+    </div>
+</section>
+            
+
+        
+
+        </div>
+</div>
+</div>
+
+<footer>
+    <div id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 footer-list text-center">
+                    <ul class="kratos-social-icons">
+                        
+                    </ul>
+                    <ul class="kratos-copyright">
+                        <div>
+                            <li>&copy; 2026 北白念 版权所有.</li>
+                            <li>本站已运行<span id="kr-since">Loading...</span></li>
+                        </div>
+                        <div>
+                            <li></li>
+                            <li>站点由<i class="fa fa-heart" style="color:#d43f57"></i>北白念<i class="fa fa-heart" style="color:#d43f57"></i> 搭建</li>
+                        </div>
+                        <!-- 额外的追加注入项 -->
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="kr-tool text-center">
+            <div class="tool">
+                <!-- 额外的追加注入项 -->
+                
+                            
+                                <div class="box search-box">
+                                    <a href="/blog/search">
+                                        <span class="fa fa-search"></span>
+                                    </a>
+                                </div>
+                                
+                                    <div class="box theme-box" id="theme-toggle">
+                                        <span class="fa fa-adjust"></span>
+                                    </div>
+            </div>
+            <div id="gotop-box" class="box gotop-box">
+                <span class="fa fa-chevron-up"></span>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</div>
+
+
+    <div id="kr-donate-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseDonateModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-bitcoin"></i>
+            </div>
+            <div class="kr-modal-title">💖 感谢支持，点击查看收款码</div>
+            <button class="kr-modal-close" onclick="krCloseDonateModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-donate-message">你的鼓励是我持续更新的动力！</div>
+            <div class="kr-donate-qr" id="kr-donate-qr">
+                
+            </div>
+            <div class="kr-donate-platforms">
+                
+                    
+                        <button class="kr-donate-platform-button" style="color: #07C160;" title="微信" onclick="krDonateModalShowPlatformQR('wxp://f2f0U-8OUlrs0izTyZ-5lVarqsgP8EKsPgzaLP85BiSn9fcO3ZVKct1SLLVbeitwIZHi', '#07C160')">
+                            <i class="fa fa-fa-weixin"></i>
+                        </button>
+                    
+                
+                    
+                        <button class="kr-donate-platform-button" style="color: #1677FF;" title="支付宝" onclick="krDonateModalShowPlatformQR('https://qr.alipay.com/fkx18296ibecsgq8leryn49', '#1677FF')">
+                            <i class="fa fa-fa-alipay"></i>
+                        </button>
+                    
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/blog/js/kr-modal/donate.min.js"></script>
+
+        
+
+            
+                <div id="kr-share-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseShareModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-share-alt"></i>
+            </div>
+            <div class="kr-modal-title">分享</div>
+            <button class="kr-modal-close" onclick="krCloseShareModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-share-message">扫码查看github网址，按钮查看个人网站</div>
+            <div class="kr-share-qr" id="kr-share-qr"></div>
+            <div class="kr-share-platforms">
+                
+                    <button class="kr-share-platform-button" style="color: #62b6e7;" title="北白念" onclick="krShareModalOpenPlatform('http://hweb.fun/blog')">
+                        <svg fill="currentColor" width="18" height="18" viewBox="0 0 329 388"><path d="M0,36.226c0,-19.993 16.233,-36.226 36.226,-36.226c13.788,0 25.787,7.719 31.908,19.068l188.366,229.845l0,-111.259c-6.356,5.508 -14.645,8.843 -23.707,8.843c-19.994,0 -36.226,-16.232 -36.226,-36.226c-0,-8.551 2.968,-16.413 7.93,-22.613l-0.015,-0.013l56.614,-69.08c6.2,-11.073 18.047,-18.565 31.63,-18.565c19.994,0 36.227,16.233 36.227,36.226l-0,314.644c-0,19.994 -16.233,36.226 -36.227,36.226c-13.166,0 -24.701,-7.039 -31.044,-17.555l-189.229,-230.899l-0,212.228c-0,19.994 -16.233,36.226 -36.227,36.226c-19.993,0 -36.226,-16.232 -36.226,-36.226l0,-314.644Z" /></svg>
+                    </button>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/blog/js/kr-modal/share.min.js"></script>
+
+                    
+
+                        <!-- 额外的追加注入项 -->
+                        
+        <script>
+    if (!window.kr) {
+        window.kr = {};
+    }
+    window.kr.notMobile = (!(navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)));
+    window.kr.siteRoot = "/blog/";
+</script>
+
+
+  <script defer src="/blog/vendors/nprogress@0.2.0/nprogress.js"></script>
+
+
+
+  <script defer src="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.js"></script>
+
+
+<script defer src="/blog/js/kr-core.min.js"></script>
+
+
+  <script defer src="/blog/js/kr-pjax.min.js"></script>
+
+
+<!-- 额外的追加注入项 -->
+
+
+    </body>
+</html>

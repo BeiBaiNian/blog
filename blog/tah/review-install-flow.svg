@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1592" viewBox="0 0 800 1592" data-generator="fireworks-tech-graph" data-quality-profile="showcase" role="img" aria-labelledby="title description">
+<title id="title">TrustedAgentHub · 审核与安装流程</title>
+<desc id="description">风险门禁先于下载与写入，安装内容可以校验</desc>
+<style>text{font-family:"Helvetica Neue",Helvetica,Arial,"PingFang SC","Microsoft YaHei","Microsoft JhengHei",SimHei,sans-serif}</style>
+<defs>
+<marker id="arrow-blue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto" markerUnits="strokeWidth"><polygon points="0 0,10 3.5,0 7" fill="#2563eb"/></marker>
+<marker id="arrow-purple" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto" markerUnits="strokeWidth"><polygon points="0 0,10 3.5,0 7" fill="#9333ea"/></marker>
+<marker id="arrow-red" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto" markerUnits="strokeWidth"><polygon points="0 0,10 3.5,0 7" fill="#dc2626"/></marker>
+</defs>
+<rect width="800" height="1592" fill="#ffffff" data-graph-role="background"/>
+<rect x="32" y="36" width="6" height="32" rx="3" fill="#2563eb" data-graph-role="decoration"/>
+<text x="52" y="62" fill="#111827" font-size="28" font-weight="600" text-anchor="start" data-graph-role="label" data-graph-bounds="52.0 34.0 530.2 68.2">TrustedAgentHub · 审核与安装流程</text>
+<text x="32" y="104" fill="#6b7280" font-size="22" font-weight="400" text-anchor="start" data-graph-role="label" data-graph-bounds="32.0 82.0 472.0 108.8">风险门禁先于下载与写入，安装内容可以校验</text>
+<text x="40" y="150" fill="#111827" font-size="24" font-weight="600" text-anchor="start" data-graph-role="label" data-graph-bounds="40.0 126.0 136.0 155.3">发布流程</text>
+<path id="source-scan" data-edge-id="source-scan" data-graph-role="edge" data-source="source" data-target="scan" d="M 280,284 L 280,336" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<path id="scan-review" data-edge-id="scan-review" data-graph-role="edge" data-source="scan" data-target="review" d="M 280,436 L 280,488" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<path id="review-publish" data-edge-id="review-publish" data-graph-role="edge" data-source="review" data-target="publish" d="M 280,588 L 280,640" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<path id="published-gate" data-edge-id="published-gate" data-graph-role="edge" data-source="publish" data-target="gate" d="M 280,740 L 280,852" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<path id="gate-download" data-edge-id="gate-download" data-graph-role="edge" data-source="gate" data-target="download" d="M 280,1012 L 280,1072" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<path id="download-stage" data-edge-id="download-stage" data-graph-role="edge" data-source="download" data-target="stage" d="M 280,1172 L 280,1224" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<path id="stage-verify" data-edge-id="stage-verify" data-graph-role="edge" data-source="stage" data-target="verify" d="M 280,1324 L 280,1376" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-blue)"/>
+<path id="gate-block" data-edge-id="gate-block" data-graph-role="edge" data-source="gate" data-target="block" d="M 520,932 L 560,932" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-red)"/>
+<path id="stage-restore" data-edge-id="stage-restore" data-graph-role="edge" data-source="stage" data-target="restore" d="M 520,1274 L 560,1274" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-red)"/>
+<g id="node-source" data-node-id="source" data-graph-role="node" data-graph-bounds="40 184 520 284">
+<rect x="40" y="184" width="480" height="100" rx="8" fill="#ffffff" stroke="#d1d5db" stroke-width="1.5"/>
+<text x="280.0" y="231.0" fill="#111827" font-size="28" font-weight="600" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="192.6 203.0 367.4 237.2">01  固定来源</text>
+<text x="280.0" y="265.0" fill="#6b7280" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="170.9 243.0 389.1 269.8">Commit 与能力包边界</text>
+</g>
+<g id="node-scan" data-node-id="scan" data-graph-role="node" data-graph-bounds="40 336 520 436">
+<rect x="40" y="336" width="480" height="100" rx="8" fill="#ffffff" stroke="#d1d5db" stroke-width="1.5"/>
+<text x="280.0" y="383.0" fill="#111827" font-size="28" font-weight="600" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="178.6 355.0 381.4 389.2">02  扫描与复核</text>
+<text x="280.0" y="417.0" fill="#6b7280" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="133.9 395.0 426.1 421.8">静态规则 / OSV / 可选 LLM</text>
+</g>
+<g id="node-review" data-node-id="review" data-graph-role="node" data-graph-bounds="40 488 520 588">
+<rect x="40" y="488" width="480" height="100" rx="8" fill="#ffffff" stroke="#d1d5db" stroke-width="1.5"/>
+<text x="280.0" y="535.0" fill="#111827" font-size="28" font-weight="600" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="192.6 507.0 367.4 541.2">03  人工审核</text>
+<text x="280.0" y="569.0" fill="#6b7280" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="148.0 547.0 412.0 573.8">审核员审阅报告与风险证据</text>
+</g>
+<g id="node-publish" data-node-id="publish" data-graph-role="node" data-graph-bounds="40 640 520 740">
+<rect x="40" y="640" width="480" height="100" rx="8" fill="#ffffff" stroke="#d1d5db" stroke-width="1.5"/>
+<text x="280.0" y="687.0" fill="#111827" font-size="28" font-weight="600" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="178.6 659.0 381.4 693.2">04  管理员发布</text>
+<text x="280.0" y="721.0" fill="#6b7280" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="159.0 699.0 401.0 725.8">满足前置条件后发布版本</text>
+</g>
+<text x="40" y="816" fill="#111827" font-size="24" font-weight="600" text-anchor="start" data-graph-role="label" data-graph-bounds="40.0 792.0 136.0 821.3">安装流程</text>
+<text x="310" y="808" fill="#2563eb" font-size="22" font-weight="400" text-anchor="start" data-graph-role="label" data-graph-bounds="310.0 786.0 464.0 812.8">已发布版本清单</text>
+<g id="node-gate" data-node-id="gate" data-graph-role="node" data-graph-bounds="40 852 520 1012">
+<polygon points="280.0,852 520,932.0 280.0,1012 40,932.0" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+<text x="280.0" y="925.0" fill="#111827" font-size="28" font-weight="600" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="192.6 897.0 367.4 931.2">05  风险门禁</text>
+<text x="280.0" y="959.0" fill="#6b7280" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="166.0 937.0 394.0 963.8">清单 / 客户端 / 等级</text>
+</g>
+<g id="node-download" data-node-id="download" data-graph-role="node" data-graph-bounds="40 1072 520 1172">
+<rect x="40" y="1072" width="480" height="100" rx="8" fill="#ffffff" stroke="#d1d5db" stroke-width="1.5"/>
+<text x="280.0" y="1119.0" fill="#111827" font-size="28" font-weight="600" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="192.6 1091.0 367.4 1125.2">06  下载校验</text>
+<text x="280.0" y="1153.0" fill="#6b7280" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="146.2 1131.0 413.8 1157.8">SHA-256 摘要 / 安全解压</text>
+</g>
+<g id="node-stage" data-node-id="stage" data-graph-role="node" data-graph-bounds="40 1224 520 1324">
+<rect x="40" y="1224" width="480" height="100" rx="8" fill="#ffffff" stroke="#d1d5db" stroke-width="1.5"/>
+<text x="280.0" y="1271.0" fill="#111827" font-size="28" font-weight="600" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="178.6 1243.0 381.4 1277.2">07  暂存与切换</text>
+<text x="280.0" y="1305.0" fill="#6b7280" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="120.7 1283.0 439.3 1309.8">先写 staging，再切换正式位置</text>
+</g>
+<g id="node-verify" data-node-id="verify" data-graph-role="node" data-graph-bounds="40 1376 520 1476">
+<rect x="40" y="1376" width="480" height="100" rx="8" fill="#ffffff" stroke="#d1d5db" stroke-width="1.5"/>
+<text x="280.0" y="1423.0" fill="#111827" font-size="28" font-weight="600" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="192.6 1395.0 367.4 1429.2">08  本地校验</text>
+<text x="280.0" y="1457.0" fill="#6b7280" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="119.4 1435.0 440.6 1461.8">tah verify，识别安装后的修改</text>
+</g>
+<g id="node-block" data-node-id="block" data-graph-role="node" data-graph-bounds="560 864 760 1000">
+<rect x="560" y="864" width="200" height="136" rx="8" fill="#fef2f2" stroke="#fecaca" stroke-width="1.5"/>
+<text x="660.0" y="910.0" fill="#111827" font-size="24" font-weight="600" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="612.0 886.0 708.0 915.3">阻断安装</text>
+<text x="660.0" y="944.0" fill="#6b7280" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="636.7 922.0 683.3 948.8">E 级</text>
+<text x="660.0" y="978.0" fill="#6b7280" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="616.0 956.0 704.0 982.8">不可绕过</text>
+</g>
+<g id="node-restore" data-node-id="restore" data-graph-role="node" data-graph-bounds="560 1218 760 1330">
+<rect x="560" y="1218" width="200" height="112" rx="8" fill="#fef2f2" stroke="#fecaca" stroke-width="1.5"/>
+<text x="660.0" y="1269.0" fill="#111827" font-size="24" font-weight="600" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="612.0 1245.0 708.0 1274.3">失败恢复</text>
+<text x="660.0" y="1303.0" fill="#6b7280" font-size="22" font-weight="400" text-anchor="middle" data-graph-role="decoration" data-graph-bounds="616.0 1281.0 704.0 1307.8">恢复备份</text>
+</g>
+<text x="310" y="1053" fill="#2563eb" font-size="22" font-weight="400" text-anchor="start" data-graph-role="label" data-graph-bounds="310.0 1031.0 354.0 1057.8">允许</text>
+<g data-graph-role="legend">
+<path d="M 32,1532 L 76,1532" fill="none" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
+<text x="92" y="1539" fill="#6b7280" font-size="22" font-weight="400" text-anchor="start" data-graph-role="decoration" data-graph-bounds="92.0 1517.0 158.0 1543.8">主流程</text>
+<path d="M 432,1532 L 476,1532" fill="none" stroke="#dc2626" stroke-width="2.5" marker-end="url(#arrow-red)"/>
+<text x="492" y="1539" fill="#6b7280" font-size="22" font-weight="400" text-anchor="start" data-graph-role="decoration" data-graph-bounds="492.0 1517.0 617.0 1543.8">阻断 / 恢复</text>
+</g>
+</svg>
