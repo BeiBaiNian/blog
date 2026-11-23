@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="380" viewBox="0 0 800 380" role="img">
+<style>text{font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif}text.mono{font-family:Consolas,"Cascadia Mono","DejaVu Sans Mono",monospace}</style>
+<defs>
+<marker id="a-cyan" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#22D3EE"/></marker>
+<marker id="a-violet" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#8B5CF6"/></marker>
+<marker id="a-muted" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#94A6B8"/></marker>
+<marker id="a-green" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#34D399"/></marker>
+<marker id="a-amber" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#FBBF24"/></marker>
+<marker id="a-red" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#F87171"/></marker>
+<marker id="a-line" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#2A3441"/></marker>
+<radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#22D3EE" stop-opacity="0.22"/><stop offset="100%" stop-color="#22D3EE" stop-opacity="0"/></radialGradient>
+<linearGradient id="bgv" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0B0F14"/><stop offset="100%" stop-color="#0E151D"/></linearGradient>
+</defs>
+<rect width="800" height="380" fill="#0B0F14"/>
+<rect x="40" y="40" width="384" height="300" rx="10" fill="#070B10" stroke="#2A3441" stroke-width="1.2"/>
+<circle cx="56" cy="55" r="3.4" fill="#2C3846"/>
+<circle cx="68" cy="55" r="3.4" fill="#2C3846"/>
+<circle cx="80" cy="55" r="3.4" fill="#2C3846"/>
+<text x="232.0" y="59" font-size="11" fill="#94A6B8" text-anchor="middle" font-weight="400">psql · 函数</text>
+<text x="56" y="92" font-size="12" fill="#22D3EE" text-anchor="start" font-weight="400" class="mono">xingji=# \df api_*</text>
+<text x="56" y="122" font-size="12" fill="#E8EFF7" text-anchor="start" font-weight="400" class="mono">public | api_ack             |</text>
+<text x="284" y="122" font-size="12" fill="#94A6B8" text-anchor="start" font-weight="400" class="mono">jsonb</text>
+<text x="56" y="145" font-size="12" fill="#E8EFF7" text-anchor="start" font-weight="400" class="mono">public | api_bootstrap       |</text>
+<text x="284" y="145" font-size="12" fill="#94A6B8" text-anchor="start" font-weight="400" class="mono">jsonb</text>
+<text x="56" y="168" font-size="12" fill="#E8EFF7" text-anchor="start" font-weight="400" class="mono">public | api_changes         |</text>
+<text x="284" y="168" font-size="12" fill="#94A6B8" text-anchor="start" font-weight="400" class="mono">jsonb</text>
+<text x="56" y="191" font-size="12" fill="#E8EFF7" text-anchor="start" font-weight="400" class="mono">public | api_devices         |</text>
+<text x="284" y="191" font-size="12" fill="#94A6B8" text-anchor="start" font-weight="400" class="mono">jsonb</text>
+<text x="56" y="214" font-size="12" fill="#E8EFF7" text-anchor="start" font-weight="400" class="mono">public | api_list_vaults     |</text>
+<text x="284" y="214" font-size="12" fill="#94A6B8" text-anchor="start" font-weight="400" class="mono">jsonb</text>
+<text x="56" y="237" font-size="12" fill="#E8EFF7" text-anchor="start" font-weight="400" class="mono">public | api_purge           |</text>
+<text x="284" y="237" font-size="12" fill="#94A6B8" text-anchor="start" font-weight="400" class="mono">jsonb</text>
+<text x="56" y="260" font-size="12" fill="#E8EFF7" text-anchor="start" font-weight="400" class="mono">public | api_put             |</text>
+<text x="284" y="260" font-size="12" fill="#94A6B8" text-anchor="start" font-weight="400" class="mono">jsonb</text>
+<text x="56" y="283" font-size="12" fill="#E8EFF7" text-anchor="start" font-weight="400" class="mono">public | api_update_envelope |</text>
+<text x="284" y="283" font-size="12" fill="#94A6B8" text-anchor="start" font-weight="400" class="mono">jsonb</text>
+<text x="56" y="306" font-size="12" fill="#E8EFF7" text-anchor="start" font-weight="400" class="mono">public | api_version         |</text>
+<text x="284" y="306" font-size="12" fill="#94A6B8" text-anchor="start" font-weight="400" class="mono">integer</text>
+<rect x="440" y="40" width="320" height="300" rx="10" fill="#070B10" stroke="#2A3441" stroke-width="1.2"/>
+<circle cx="456" cy="55" r="3.4" fill="#2C3846"/>
+<circle cx="468" cy="55" r="3.4" fill="#2C3846"/>
+<circle cx="480" cy="55" r="3.4" fill="#2C3846"/>
+<text x="600.0" y="59" font-size="11" fill="#94A6B8" text-anchor="middle" font-weight="400">psql · records</text>
+<text x="456" y="92" font-size="12" fill="#22D3EE" text-anchor="start" font-weight="400" class="mono">select id, length(packet)</text>
+<text x="456" y="114" font-size="12" fill="#22D3EE" text-anchor="start" font-weight="400" class="mono">  from records limit 3;</text>
+<text x="456" y="144" font-size="12" fill="#94A6B8" text-anchor="start" font-weight="400" class="mono">     id      | bytes</text>
+<text x="456" y="162" font-size="12" fill="#2C3846" text-anchor="start" font-weight="400" class="mono">-------------+-------</text>
+<text x="456" y="184" font-size="12" fill="#E8EFF7" text-anchor="start" font-weight="400" class="mono"> 5d2a9c1f…   |   412</text>
+<text x="456" y="206" font-size="12" fill="#E8EFF7" text-anchor="start" font-weight="400" class="mono"> 0b7e44d2…   |  1024</text>
+<text x="456" y="228" font-size="12" fill="#E8EFF7" text-anchor="start" font-weight="400" class="mono"> c81f37aa…   |   380</text>
+<text x="456" y="272" font-size="12" fill="#FBBF24" text-anchor="start" font-weight="400" class="mono">-- 没有 title / body / tag 列</text>
+<text x="456" y="294" font-size="12" fill="#94A6B8" text-anchor="start" font-weight="400" class="mono">-- 想读内容只能先拿密钥</text>
+</svg>

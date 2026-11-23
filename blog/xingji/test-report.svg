@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="250" viewBox="0 0 800 250" role="img">
+<style>text{font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif}text.mono{font-family:Consolas,"Cascadia Mono","DejaVu Sans Mono",monospace}</style>
+<defs>
+<marker id="a-cyan" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#22D3EE"/></marker>
+<marker id="a-violet" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#8B5CF6"/></marker>
+<marker id="a-muted" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#94A6B8"/></marker>
+<marker id="a-green" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#34D399"/></marker>
+<marker id="a-amber" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#FBBF24"/></marker>
+<marker id="a-red" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#F87171"/></marker>
+<marker id="a-line" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#2A3441"/></marker>
+<radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#22D3EE" stop-opacity="0.22"/><stop offset="100%" stop-color="#22D3EE" stop-opacity="0"/></radialGradient>
+<linearGradient id="bgv" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0B0F14"/><stop offset="100%" stop-color="#0E151D"/></linearGradient>
+</defs>
+<rect width="800" height="250" fill="#0B0F14"/>
+<rect x="40" y="40" width="720" height="170" rx="10" fill="#070B10" stroke="#2A3441" stroke-width="1.2"/>
+<circle cx="56" cy="55" r="3.4" fill="#2C3846"/>
+<circle cx="68" cy="55" r="3.4" fill="#2C3846"/>
+<circle cx="80" cy="55" r="3.4" fill="#2C3846"/>
+<text x="400" y="59" font-size="11" fill="#94A6B8" text-anchor="middle" font-weight="400">flutter test</text>
+<text x="60" y="88" font-size="14" fill="#22D3EE" text-anchor="start" font-weight="400" class="mono">$ flutter test</text>
+<text x="60" y="114" font-size="14" fill="#94A6B8" text-anchor="start" font-weight="400" class="mono">00:03 +61: test/workflow_test.dart</text>
+<text x="60" y="140" font-size="14" fill="#94A6B8" text-anchor="start" font-weight="400" class="mono">00:06 +68: test/home_test.dart</text>
+<text x="60" y="166" font-size="14" fill="#34D399" text-anchor="start" font-weight="400" class="mono">00:09 +71 ~5: All tests passed!</text>
+</svg>

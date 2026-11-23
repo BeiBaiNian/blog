@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+  <!-- 元数据 -->
+  <meta charset="utf-8">
+  
+    <link rel="icon" href="/blog/images/favicon.png">
+  
+  
+  <title>星记 XingJi：端到端加密的双端备忘录，从需求拆解到双端交付 | 北白念</title>
+  <link rel="canonical" href="https://beibainian.github.io/blog/2026/11/23/%E6%98%9F%E8%AE%B0/">
+  <meta name="author" content="董子阳" />
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="robots" content="index,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="format-detection" content="telphone=no, email=no" />
+  
+    <meta name="keywords" content="Android, Flutter, PostgreSQL, 双端应用, 端到端加密, 隐私工具" />
+  
+  <meta name="description" content="这是我从 0 到 1 独立完成的一款私人备忘录：Windows 11 桌面端 + Android 手机端，同一套业务代码，断网照常写，联网自动对齐，服务器上只有密文。 起因很具体。我想把日记式的待办、家里的事、工作上的碎念放在一个地方，但不愿意它们以明文躺在别人的数据库里，也不愿意哪天断网就什么都写不了。于是做了这个项目，并且在三条约束下反复砍功能——不上云、不丢数据、不装死。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="星记 XingJi：端到端加密的双端备忘录，从需求拆解到双端交付">
+<meta property="og:url" content="https://beibainian.github.io/blog/2026/11/23/%E6%98%9F%E8%AE%B0/index.html">
+<meta property="og:site_name" content="北白念">
+<meta property="og:description" content="这是我从 0 到 1 独立完成的一款私人备忘录：Windows 11 桌面端 + Android 手机端，同一套业务代码，断网照常写，联网自动对齐，服务器上只有密文。 起因很具体。我想把日记式的待办、家里的事、工作上的碎念放在一个地方，但不愿意它们以明文躺在别人的数据库里，也不愿意哪天断网就什么都写不了。于是做了这个项目，并且在三条约束下反复砍功能——不上云、不丢数据、不装死。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://beibainian.github.io/blog/blog/images/xingji.png">
+<meta property="article:published_time" content="2026-11-23T13:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-23T08:34:26.834Z">
+<meta property="article:author" content="董子阳">
+<meta property="article:tag" content="端到端加密">
+<meta property="article:tag" content="Flutter">
+<meta property="article:tag" content="双端应用">
+<meta property="article:tag" content="隐私工具">
+<meta property="article:tag" content="PostgreSQL">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://beibainian.github.io/blog/blog/images/xingji.png">
+  
+  <!-- JSON-LD 结构化数据 -->
+  
+  
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"星记 XingJi：端到端加密的双端备忘录，从需求拆解到双端交付","description":"这是我从 0 到 1 独立完成的一款私人备忘录：Windows 11 桌面端 + Android 手机端，同一套业务代码，断网照常写，联网自动对齐，服务器上只有密文。\n起因很具体。我想把日记式的待办、家里的事、工作上的碎念放在一个地方，但不...","image":"https://beibainian.github.io/blog/2026/11/23/%E6%98%9F%E8%AE%B0/blog/images/xingji.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-11-23T13:00:00.000Z","dateModified":"2026-11-23T08:34:26.834Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/11/23/%E6%98%9F%E8%AE%B0/"}}
+    </script>
+  
+  <!-- 关键 CSS 预加载 -->
+  <link rel="preload" href="/blog/css/kr-core.min.css" as="style" crossorigin>
+  <link rel="preload" href="/blog/css/kr-theme/light.min.css" as="style" crossorigin>
+  <link rel="preload" href="/blog/css/kr-theme/dark.min.css" as="style" crossorigin>
+  <!-- 样式表文件 -->
+  <link rel="stylesheet" id="kratos-css" href="/blog/css/kr-core.min.css" media="all">
+  <link rel="stylesheet" id="theme-light-css" href="/blog/css/kr-theme/light.min.css" media="all">
+  <link rel="stylesheet" id="theme-dark-css" href="/blog/css/kr-theme/dark.min.css" media="(prefers-color-scheme: dark)">
+  
+    <link rel="stylesheet"  id="highlight-css" href="/blog/css/highlight/highlight.js/night-eighties.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/css/highlight/highlight.js/night-eighties.min.css"></noscript>
+  
+  <script src="/blog/js/kr-theme.min.js"></script>
+  <link rel="stylesheet"  id="fontawe-css" href="/blog/vendors/font-awesome@4.7.0/css/font-awesome.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/font-awesome@4.7.0/css/font-awesome.min.css"></noscript>
+  
+    <link rel="stylesheet"  id="nprogress-css" href="/blog/vendors/nprogress@0.2.0/nprogress.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/nprogress@0.2.0/nprogress.css"></noscript>
+  
+  
+    <link rel="stylesheet"  href="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.css"></noscript>
+  
+  <!-- 预先加载的JS文件 -->
+  
+    <script src="/blog/vendors/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  
+  <!-- 自定义站点横幅和背景 -->
+  <style>
+    
+      .kratos-cover.kratos-cover-2 {
+        background-image: url('/blog/images/light.png');
+      }
+      html[data-theme="dark"] .kratos-cover.kratos-cover-2 {
+        background-image: url('/blog/images/dark.png');
+      }
+    
+    
+      @media(min-width:768px) {
+        body.custom-background {
+          background-image: url('/blog/images/background.png');
+        }
+        html[data-theme="dark"] body.custom-background {
+          background-image: url('/blog/images/background.png');
+        }
+      }
+    
+    
+      .widget-kratos-about .photo-background {
+        background-image: url('/blog/images/light.png');
+      }
+      html[data-theme="dark"] .widget-kratos-about .photo-background {
+        background-image: url('/blog/images/dark.png');
+      }
+    
+  </style>
+
+  <!-- 额外的追加注入项 -->
+  
+</head>
+
+    <body class="custom-background">
+        <div id="kratos-wrapper">
+    <div id="kratos-page">
+        <div id="kratos-header">
+            <header id="kratos-desktop-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="nav-header">
+                        <nav id="kratos-menu-wrap">
+                            <ul id="kratos-primary-menu" class="sf-menu">
+                                
+                                    <li>
+                                        
+                                            <a href="/blog/">
+                                        
+                                            
+                                                <i class="fa fa-home"></i>
+                                            
+                                            首页
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/blog/archives/">
+                                        
+                                            
+                                                <i class="fa fa-file"></i>
+                                            
+                                            档案馆
+                                        </a>
+                                        
+                                    </li>
+                                
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <header id="kratos-mobile-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="color-logo"><a href="/blog/">北白念</a></div>
+                    <div id="kratos-nav-toggle-wrapper" class="nav-toggle">
+                        <a id="kratos-nav-toggle" class="kratos-nav-toggle">
+                            <i></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="kratos-start kratos-hero-2">
+            <!-- <div class="kratos-overlay"></div> -->
+            <div class="kratos-cover kratos-cover-2 text-center">
+                <div class="desc desc2 animate-box">
+                    <a href="/blog/">
+                        <h2>北白念</h2> <br />
+                        <span>记录个人的学习笔记和技术文章，偶尔也会分享一些生活感悟。</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="kratos-blog-post">
+            <div class="container">
+                <div id="main" class="row">
+
+
+        
+
+            
+
+            <section class="kr-main-col col-md-8">
+
+        
+
+            <article itemscope itemtype="https://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://beibainian.github.io/blog/2026/11/23/%E6%98%9F%E8%AE%B0/">
+    <div class="kratos-hentry kratos-page-inner clearfix">
+        <header class="kratos-page-header">
+            
+                <h1 class="kratos-page-title text-center" itemprop="name headline">星记 XingJi：端到端加密的双端备忘录，从需求拆解到双端交付</h1>
+            
+            <ul class="kratos-page-meta text-center">
+                <li><time datetime="2026-11-23T13:00:00.000Z" itemprop="datePublished"><i class="fa fa-calendar"></i> 2026-11-23</time></li>
+                <li itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <i class="fa fa-user"></i> 作者 <span itemprop="name">董子阳</span>
+                </li>
+                
+                    <li>
+                        <i class="fa fa-edit"></i> 
+                        
+                        
+                            ~4.19K
+                        
+                        字
+                    </li>
+                
+                
+                
+            </ul>
+        </header>
+        <div class="kratos-page-content kr-post">
+            
+            
+            
+            <hr />
+            <div itemprop="articleBody"><p>这是我从 0 到 1 独立完成的一款私人备忘录：<strong>Windows 11 桌面端 + Android 手机端</strong>，同一套业务代码，断网照常写，联网自动对齐，服务器上只有密文。</p>
+<p>起因很具体。我想把日记式的待办、家里的事、工作上的碎念放在一个地方，但不愿意它们以明文躺在别人的数据库里，也不愿意哪天断网就什么都写不了。于是做了这个项目，并且在三条约束下反复砍功能——<strong>不上云、不丢数据、不装死</strong>。</p>
+<span id="more"></span>
+
+<p>项目从 0.3.0 迭代到 0.5.1，首方代码约 <strong>15 400 行</strong>，最终交付了 Windows 安装包、Android APK 和一份自建 PostgreSQL 同步后端。这篇按「需求 → 产品 → 方案 → 落地 → 交付」讲，<strong>技术细节放到文末的专栏里</strong>，这里只讲为什么这么设计、代价是什么。</p>
+<p><img src="/blog/blog/images/xingji.png" alt="星记 XingJi：两端只与一台「只会存密文」的服务器交换密文包"></p>
+<h2 id="💡-需求：三个「不」"><a href="#💡-需求：三个「不」" class="headerlink" title="💡 需求：三个「不」"></a>💡 需求：三个「不」</h2><p>大部分备忘录不缺功能，缺的是「敢把真话写进去」的底气。我把需求压成三句话，每句话都直接决定了一条产品原则：</p>
+<table>
+<thead>
+<tr>
+<th>用户的顾虑</th>
+<th>具体要求</th>
+<th>由此定下的原则</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>我的私事不想被平台看见</td>
+<td>内容不能以明文存在服务端，DBA 直读也拿不到</td>
+<td>端到端加密，服务端零知识</td>
+</tr>
+<tr>
+<td>地铁、飞机、服务器挂了也不能丢</td>
+<td>没有网络、没有服务器也必须完整可用</td>
+<td>离线优先，本机是主副本</td>
+</tr>
+<tr>
+<td>设了提醒就必须响，没响要能查</td>
+<td>不能「发出请求就当成功」</td>
+<td>提醒可靠性优先于功能数量</td>
+</tr>
+</tbody></table>
+<p>还有一条隐性需求：<strong>不想注册账号</strong>。所以同步不走第三方云，用户自己部署一个 PostgreSQL，两端连同一个库就行——没有账号体系、没有遥测、没有「登录后才能用」。</p>
+<p>核心用户旅程一行能写完：<strong>建资料库（设主密码、存恢复码）→ 记事 → 设提醒 → 到点提醒 → 完成归档 → 按日期回顾 → 双端同步 → 导出加密备份</strong>。</p>
+<p>目标用户是三类人：注重隐私的个人；电脑上批量整理、手机上到点提醒的双端用户；有 NAS 或 VPS、愿意自己跑一个库的自建用户。</p>
+<h2 id="🎯-产品定义：做什么，不做什么"><a href="#🎯-产品定义：做什么，不做什么" class="headerlink" title="🎯 产品定义：做什么，不做什么"></a>🎯 产品定义：做什么，不做什么</h2><p>需求清楚之后，功能取舍反而容易。这一版交付的能力：</p>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>桌面</th>
+<th>手机</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>事项：标题 &#x2F; 正文 &#x2F; 标签 &#x2F; 清单 &#x2F; 优先级</td>
+<td>✅</td>
+<td>✅</td>
+<td>标题 200 字、正文 20 万字、清单 100 项</td>
+</tr>
+<tr>
+<td>到期提醒 + 提前 N 分钟多档</td>
+<td>✅</td>
+<td>✅</td>
+<td>桌面 512 条、手机 480 条预排</td>
+</tr>
+<tr>
+<td>重复：每日 &#x2F; 每周 &#x2F; 工作日</td>
+<td>✅</td>
+<td>✅</td>
+<td>完成本次归档，自动排下一次</td>
+</tr>
+<tr>
+<td>稍后提醒 &#x2F; 完成 &#x2F; 结束重复</td>
+<td>✅</td>
+<td>✅</td>
+<td>通知按钮直达，锁定状态需先解锁</td>
+</tr>
+<tr>
+<td>夜间静默（22:00–08:00）</td>
+<td>✅</td>
+<td>✅</td>
+<td>普通提醒顺延到 08:00，事项级闹钟例外</td>
+</tr>
+<tr>
+<td>事项级「闹铃提醒」</td>
+<td>—</td>
+<td>✅</td>
+<td>调系统时钟 1 秒倒计时</td>
+</tr>
+<tr>
+<td>完成归档 + 按日期回顾</td>
+<td>✅</td>
+<td>✅</td>
+<td>三种日期基准 × 三种状态</td>
+</tr>
+<tr>
+<td>编辑历史（每条 30 版）+ 预览恢复</td>
+<td>✅</td>
+<td>✅</td>
+<td>只有显式保存才留版本</td>
+</tr>
+<tr>
+<td>回收站 + 永久删除（防复活）</td>
+<td>✅</td>
+<td>✅</td>
+<td>需服务端结构 v2</td>
+</tr>
+<tr>
+<td>本机加密图片（≤ 9 张&#x2F;条、≤ 500 MiB&#x2F;库）</td>
+<td>✅</td>
+<td>✅</td>
+<td>不同步、不进备份</td>
+</tr>
+<tr>
+<td>双端同步（自建 PostgreSQL）</td>
+<td>✅</td>
+<td>✅</td>
+<td>TLS 默认校验证书，可导入 CA</td>
+</tr>
+<tr>
+<td>加密备份导出 &#x2F; 导入（<code>.xingji</code>）</td>
+<td>✅</td>
+<td>✅</td>
+<td>含回收站与历史</td>
+</tr>
+<tr>
+<td>托盘常驻 &#x2F; 随登录启动 &#x2F; 全局热键</td>
+<td>✅</td>
+<td>—</td>
+<td>关闭即退出，最小化进托盘</td>
+</tr>
+</tbody></table>
+<p><strong>刻意不做的</strong>：不做云账号与分享协作（等于放弃云端明文，产品定位不同）；不做自动更新通道（要签名与分发基础设施）；图片这一版不做跨端同步（原因见「边界」一节）。</p>
+<h2 id="🧭-整体方案：一套业务层，两套壳"><a href="#🧭-整体方案：一套业务层，两套壳" class="headerlink" title="🧭 整体方案：一套业务层，两套壳"></a>🧭 整体方案：一套业务层，两套壳</h2><p>确定了「双端一致 + 服务端不可信」，架构几乎是推导出来的：</p>
+<p><img src="/blog/blog/xingji/architecture.png" alt="分层与两条回程：写盘走数据层，提醒走原生层，回程都经应用层"></p>
+<ul>
+<li><strong>一套 Dart 业务层同时喂两端</strong>。界面按设备选一次布局，状态全部收敛在一个控制器里，桌面和手机不会出现「同一个功能两种行为」。</li>
+<li><strong>平台差异全收在适配层</strong>。设备密钥保护（Windows DPAPI &#x2F; Android Keystore）、文件选择、后台同步都藏在一组统一接口后面，业务层不写平台判断。</li>
+<li><strong>加密发生在应用层之下</strong>。本机 SQLite 只存密文包，服务端只接收密文包，明文只活在内存里。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>层面</th>
+<th>选型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>跨端</td>
+<td>Flutter 3.47.8 &#x2F; Dart 3.13.7，一套业务层两端复用</td>
+</tr>
+<tr>
+<td>加密</td>
+<td>libsodium：Argon2id 派生、XChaCha20-Poly1305、HKDF</td>
+</tr>
+<tr>
+<td>本机存储</td>
+<td>SQLite（WAL 模式），密文库 + 待发队列 + 历史版本</td>
+</tr>
+<tr>
+<td>同步</td>
+<td>自建 PostgreSQL 16，9 个 PL&#x2F;pgSQL 函数即全部 API</td>
+</tr>
+<tr>
+<td>原生</td>
+<td>Windows：C++&#x2F;WinRT + Win32；Android：Kotlin</td>
+</tr>
+<tr>
+<td>交付</td>
+<td>PowerShell 构建脚本族、Inno Setup 安装器、APK 签名指纹固定</td>
+</tr>
+</tbody></table>
+<h2 id="🖥️-两端体验：同一份数据，两种用法"><a href="#🖥️-两端体验：同一份数据，两种用法" class="headerlink" title="🖥️ 两端体验：同一份数据，两种用法"></a>🖥️ 两端体验：同一份数据，两种用法</h2><p>桌面端是三栏：左边筛选、中间列表、右边详情。适合一次整理十几条、批量改标签、翻历史版本。编辑器做了防抖和串行保存，快速连续输入不会互相覆盖；只有点「保存并返回」才留历史版本，自动保存只更新当前内容。</p>
+<p><img src="/blog/blog/xingji/desktop-workspace.png" alt="桌面端：筛选栏 &#x2F; 列表 &#x2F; 详情节"></p>
+<p>手机端是三段导航：「今天 &#x2F; 备忘录 &#x2F; 日期」。默认落在「今天」，未过时和已过时分组，到期自动变灰移到末尾但<strong>不自动完成</strong>——事情没做完就该留在那儿。</p>
+<p><img src="/blog/blog/xingji/mobile-reminder.png" alt="移动端：今天清单与全屏闹钟"></p>
+<h2 id="⏰-提醒：最容易被低估的需求"><a href="#⏰-提醒：最容易被低估的需求" class="headerlink" title="⏰ 提醒：最容易被低估的需求"></a>⏰ 提醒：最容易被低估的需求</h2><p>用户对提醒的要求只有一句「到点要响」，但这句话在真机上要过三关：系统权限给不给、厂商 ROM 拦不拦后台、时钟应用在不在。传统做法是「请求发出去了就算成功」，结果用户到点没听到铃，打开应用也查不到原因。</p>
+<p>我的处理原则是：<strong>宁可降级，也不静默，也不虚报。</strong></p>
+<ul>
+<li>排程做三级降级：闹钟级 → 精确唤醒 → 允许空闲唤醒，界面明确显示这次是「登记成功 &#x2F; 已降级 &#x2F; 失败」；</li>
+<li>「请求已经发给系统时钟」和「系统真的播放了」是两件事，界面上分开写，代码注释里也写清楚；</li>
+<li>失败原因拆成 8 类（权限缺失、时钟应用不存在、要用户先选默认时钟、后台启动被拒等），每条都对应一句人话提示和跳转设置；</li>
+<li>提供 30 秒 &#x2F; 10 秒两档自测和「复制最近 10 条诊断」，真机排障才有抓手。</li>
+</ul>
+<p><img src="/blog/blog/xingji/toast.png" alt="提醒落到系统里的样子：按钮走 xingji:&#x2F;&#x2F; 协议回到唯一实例"></p>
+<p><img src="/blog/blog/xingji/reminder-diagnose.png" alt="提醒诊断：登记、发出、播放三个状态分开显示"></p>
+<p>另一处取舍是<strong>免密期固定 72 小时，打开应用不续期</strong>。方便和安全总要选一边，这里选择让「临时解锁」有明确的有效期，而不是打开一次就永久免密。</p>
+<h2 id="🔐-隐私承诺怎么兑现"><a href="#🔐-隐私承诺怎么兑现" class="headerlink" title="🔐 隐私承诺怎么兑现"></a>🔐 隐私承诺怎么兑现</h2><p>「服务端看不到内容」不是一句口号，它由两个具体机制撑着。</p>
+<p><strong>一是密钥分层</strong>。主密码经慢哈希派生出的密钥只用来解开「包装密钥」，再由包装密钥解出资料库密钥；恢复码是另一条独立入口。改主密码只重包这一层，不换资料库密钥——所以旧密码立刻失效，但旧备份仍然打得开。</p>
+<p><img src="/blog/blog/xingji/key-hierarchy.png" alt="密钥层级：一条主链，三条派生路径"></p>
+<p><strong>二是删除要真的删</strong>。只打一个「已删除」标记是拦不住内容回流的：离线设备的旧副本、用旧备份恢复、重试请求重放，任何一条都能把内容写回来。所以删除被设计成一条「认证过的空密文」替换所有版本，服务端把它在变更流里的历史密文一并置空，其余设备拉到后先认证标记再本地擦除。</p>
+<p><img src="/blog/blog/xingji/purge-compare.png" alt="删除不会复活：四条回流路径都被拦住"></p>
+<p>那服务端到底能看到什么？<strong>记录条数、记录 ID、密文长度、同步游标、写入时间、设备 ID</strong>。看不到标题、正文、标签、清单，也看不到「这条什么时候到期」——时间是密文里的字段。这条边界我写在文档里，不夸张也不藏。</p>
+<h2 id="🧪-交付与质量：一个人的项目也得能复现"><a href="#🧪-交付与质量：一个人的项目也得能复现" class="headerlink" title="🧪 交付与质量：一个人的项目也得能复现"></a>🧪 交付与质量：一个人的项目也得能复现</h2><p>独立开发最怕「只有我这台机器能构建」。所以这一版把交付当成功能做：</p>
+<ul>
+<li><strong>双端产物</strong>：Windows 安装包 12.25 MB、便携 ZIP 11.78 MB、Android APK 63.48 MB（ARMv7 &#x2F; ARM64 &#x2F; x86_64 三架构），外加 SHA-256 清单、使用说明、第三方许可证声明。</li>
+<li><strong>构建可复现</strong>：PowerShell 脚本族把环境隔离、依赖解析、编译、打安装包、生成清单串成一条链；构建用独占锁做租约，并发构建不会互相踩临时目录。</li>
+<li><strong>升级不丢数据</strong>：APK 构建后自动比对签名指纹，和发布时固定的一致才允许出包——签名一换，覆盖升级就会让用户丢数据。</li>
+<li><strong>回归可追溯</strong>：76 个用例分 11 个文件，其中 5 项需要独立 PostgreSQL 的集成用例默认跳过；另有 Android 仪器测试和 Windows QA 夹具，验收证据按版本留档。</li>
+</ul>
+<p><img src="/blog/blog/xingji/test-report.png" alt="回归与交付：76 个用例，5 项隔离数据库用例默认跳过"></p>
+<h2 id="🚧-边界与取舍"><a href="#🚧-边界与取舍" class="headerlink" title="🚧 边界与取舍"></a>🚧 边界与取舍</h2><ul>
+<li><strong>没做</strong>：完整月历视图、自动更新、完整密钥轮换、跨设备本机历史同步、图片跨端同步、非空资料库的切换与合并。</li>
+<li><strong>已知取舍</strong>：SQLite 整库没有加密（只加密业务字段），运行元数据可见；永久删除不清 WAL 与磁盘快照；服务端会保留删除标记的元数据行。</li>
+<li><strong>没验证</strong>：Android 真机的厂商后台策略（Redmi K60 仍待测）、实际扬声器响度、Android 14+ 的后台启动限制；Windows 安装器没做商业代码签名，首次安装会触发 SmartScreen。</li>
+<li><strong>为什么图片不同步</strong>：500 MiB &#x2F; 库的体量，跨端同步要分块上传、断点续传、配额协商和失败回滚，做半套比不做更危险。这一版先把「本机加密 + 引用回收」做对。</li>
+</ul>
+<h2 id="📚-技术细节去哪了"><a href="#📚-技术细节去哪了" class="headerlink" title="📚 技术细节去哪了"></a>📚 技术细节去哪了</h2><p>上面每一段背后都有一堆实现细节，全塞进来会让这篇变得没法读。我把它拆成几篇单独写，写完在这里挂链接：</p>
+<ul>
+<li>《密钥模型：为什么改密码不用换密钥》——自认证密钥包、AAD 绑定、恢复码</li>
+<li>《9 个 PL&#x2F;pgSQL 函数撑起的同步协议》——行锁与游标、幂等、乐观锁与冲突副本</li>
+<li>《提醒为什么会「没响」》——Android 三级降级、系统时钟交接与 8 类失败原因</li>
+<li>《图片：分块认证与引用回收》——HKDF 分密钥、256 KiB 分块、触发器回收</li>
+</ul>
+<p>做这个项目最大的收获不是用了多少密码学原语，而是学会<strong>把「不知道」和「做不到」写进产品和文档里</strong>：服务端确实看不到明文，但能看到条数；删除确实不会复活，但 WAL 里还有影子；提醒确实尽力了，但厂商拦截时只能降级并告诉你原因。把边界讲清楚，比多做一个功能更值。</p>
+</div>
+        </div>
+        
+        <footer class="kratos-entry-footer clearfix">
+            
+            
+            
+                <div class="post-actions text-center clearfix" id="post-actions">
+                
+                    <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
+                
+                
+                    <a class="share" href="javascript:;" onclick="krOpenShareModal()"><i class="fa fa-share-alt"></i> 分享</a>
+                
+                </div>
+            
+            <div class="footer-tag clearfix">
+                <div class="pull-left">
+                <i class="fa fa-tags"></i>
+                    <a class="tag-none-link" href="/blog/tags/Android/" rel="tag">Android</a>, <a class="tag-none-link" href="/blog/tags/Flutter/" rel="tag">Flutter</a>, <a class="tag-none-link" href="/blog/tags/PostgreSQL/" rel="tag">PostgreSQL</a>, <a class="tag-none-link" href="/blog/tags/%E5%8F%8C%E7%AB%AF%E5%BA%94%E7%94%A8/" rel="tag">双端应用</a>, <a class="tag-none-link" href="/blog/tags/%E7%AB%AF%E5%88%B0%E7%AB%AF%E5%8A%A0%E5%AF%86/" rel="tag">端到端加密</a>, <a class="tag-none-link" href="/blog/tags/%E9%9A%90%E7%A7%81%E5%B7%A5%E5%85%B7/" rel="tag">隐私工具</a>
+                </div>
+                <div class="pull-date">
+                    <time datetime="2026-11-23T08:34:26.834Z" itemprop="dateModified">最后编辑：2026-11-23</time>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+        <nav class="navigation post-navigation clearfix" role="navigation">
+            
+            <div class="nav-previous clearfix">
+                <a title=" TrustedAgentHub：Agent Skills 与 MCP 能力包审核分发平台实习复盘" href="/blog/2026/10/23/TrustedAgentHub/"><i class="fa fa-angle-left"></i> 上一篇</a>
+            </div>
+            
+            
+        </nav>
+    
+    
+</article>
+
+        
+
+            </section>
+
+            
+                
+
+<section id="kratos-widget-area" class="col-md-4 hidden-xs hidden-sm">
+    <!-- 文章和页面根据splitter来分割，没有的话就从头开始设置为sticky -->
+    
+    
+                <aside id="krw-about" class="widget widget-kratos-about clearfix">
+    <div class="photo-background"></div>
+    <div class="photo-wrapper clearfix">
+        <div class="photo-wrapper-tip text-center">
+            <img class="about-photo" src="/blog/images/logo.png" alt="董子阳" loading="lazy" decoding="auto" />
+        </div>
+    </div>
+    <div class="textwidget">
+        <p class="text-center">软件开发 | RISC-V | Java | 算法</p>
+    </div>
+    <div class="site-meta">
+        <a class="meta-item" href="/blog/archives/">
+            <span class="title">
+                文章
+            </span>
+            <span class="count">
+                11
+            </span>
+        </a>
+        <a class="meta-item" href="/blog/categories/">
+            <span class="title">
+                分类
+            </span>
+            <span class="count">
+                7
+            </span>
+        </a>
+        <a class="meta-item" href="/blog/tags/">
+            <span class="title">
+                标签
+            </span>
+            <span class="count">
+                27
+            </span>
+        </a>
+    </div>
+</aside>
+            
+                    <div class="sticky-area">
+                
+                
+  <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
+    <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/Redis/">Redis</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/%E6%99%BA%E5%85%BB%E8%88%92%E5%B1%85/">智养舒居</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/%E6%99%BA%E9%93%BE%E9%A3%9F%E5%AE%89/">智链食安</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/">项目经历</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/%E5%BC%80%E6%BA%90%E5%AE%9E%E4%B9%A0/">开源实习</a><span class="category-list-count">1</span></li></ul></li></ul>
+  </aside>
+
+
+            
+                
+  <aside id="krw-tags" class="widget widget-kratos-tags clearfix">
+    <h4 class="widget-title"><i class="fa fa-tags"></i>标签聚合</h4>
+      <div class="tag-clouds">
+        <a href="/blog/tags/Agent/" style="font-size: 0.6em;">Agent</a> <a href="/blog/tags/Android/" style="font-size: 0.6em;">Android</a> <a href="/blog/tags/Cluster%E9%9B%86%E7%BE%A4/" style="font-size: 0.7em;">Cluster集群</a> <a href="/blog/tags/FISCO-BCOS/" style="font-size: 0.8em;">FISCO BCOS</a> <a href="/blog/tags/FastAPI/" style="font-size: 0.6em;">FastAPI</a> <a href="/blog/tags/Flutter/" style="font-size: 0.6em;">Flutter</a> <a href="/blog/tags/Hexo-Kratos-Rebirth/" style="font-size: 0.6em;">Hexo & Kratos-Rebirth</a> <a href="/blog/tags/MCP/" style="font-size: 0.6em;">MCP</a> <a href="/blog/tags/Next-js/" style="font-size: 0.6em;">Next.js</a> <a href="/blog/tags/PostgreSQL/" style="font-size: 0.6em;">PostgreSQL</a> <a href="/blog/tags/Redis/" style="font-size: 0.7em;">Redis</a> <a href="/blog/tags/Spring-Boot/" style="font-size: 0.7em;">Spring Boot</a> <a href="/blog/tags/Vue/" style="font-size: 0.7em;">Vue</a> <a href="/blog/tags/WireGuard/" style="font-size: 0.8em;">WireGuard</a> <a href="/blog/tags/YOLOv8/" style="font-size: 0.7em;">YOLOv8</a> <a href="/blog/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%BC%93%E5%AD%98/" style="font-size: 0.7em;">分布式缓存</a> <a href="/blog/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" style="font-size: 0.8em;">区块链</a> <a href="/blog/tags/%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95/" style="font-size: 0.6em;">压力测试</a>
+      </div>
+  </aside>
+
+            
+                
+  <aside id="krw-posts" class="widget widget-kratos-posts">
+  <h4 class="widget-title"><i class="fa fa-file"></i>最新文章</h4>
+  <div class="tab-content">
+      <ul class="list-group">
+        
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/11/23/%E6%98%9F%E8%AE%B0/"><i class="fa fa-book"></i> 星记 XingJi：端到端加密的双端备忘录，从需求拆解到双端交付</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/10/23/TrustedAgentHub/"><i class="fa fa-book"></i> TrustedAgentHub：Agent Skills 与 MCP 能力包审核分发平台实习复盘</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/06/28/Redis%20Cluster%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95%E4%B8%8E%E5%88%A8%E6%9E%90/"><i class="fa fa-book"></i> 高并发架构演进：Redis 三主三从 Cluster 极限压测与性能瓶颈剖析</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/06/25/Redis%E4%B8%89%E4%B8%BB%E4%B8%89%E4%BB%8E%E6%9E%B6%E6%9E%84/"><i class="fa fa-book"></i> 高并发架构演进：Redis 三主三从 Cluster 集群搭建与底层机制解析</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/05/12/WireGuard%E7%BB%84%E7%BD%91/"><i class="fa fa-book"></i> WireGuard跨地域联盟链节点组网实战</a>
+            
+          
+        
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+      </ul>
+  </div>
+  </aside>
+
+            
+    </div>
+</section>
+            
+
+        
+
+        </div>
+</div>
+</div>
+
+<footer>
+    <div id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 footer-list text-center">
+                    <ul class="kratos-social-icons">
+                        
+                    </ul>
+                    <ul class="kratos-copyright">
+                        <div>
+                            <li>&copy; 2026 北白念 版权所有.</li>
+                            <li>本站已运行<span id="kr-since">Loading...</span></li>
+                        </div>
+                        <div>
+                            <li></li>
+                            <li>站点由<i class="fa fa-heart" style="color:#d43f57"></i>北白念<i class="fa fa-heart" style="color:#d43f57"></i> 搭建</li>
+                        </div>
+                        <!-- 额外的追加注入项 -->
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="kr-tool text-center">
+            <div class="tool">
+                <!-- 额外的追加注入项 -->
+                
+                            
+                                <div class="box search-box">
+                                    <a href="/blog/search">
+                                        <span class="fa fa-search"></span>
+                                    </a>
+                                </div>
+                                
+                                    <div class="box theme-box" id="theme-toggle">
+                                        <span class="fa fa-adjust"></span>
+                                    </div>
+            </div>
+            <div id="gotop-box" class="box gotop-box">
+                <span class="fa fa-chevron-up"></span>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</div>
+
+
+    <div id="kr-donate-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseDonateModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-bitcoin"></i>
+            </div>
+            <div class="kr-modal-title">💖 感谢支持，点击查看收款码</div>
+            <button class="kr-modal-close" onclick="krCloseDonateModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-donate-message">你的鼓励是我持续更新的动力！</div>
+            <div class="kr-donate-qr" id="kr-donate-qr">
+                
+            </div>
+            <div class="kr-donate-platforms">
+                
+                    
+                        <button class="kr-donate-platform-button" style="color: #07C160;" title="微信" onclick="krDonateModalShowPlatformQR('wxp://f2f0U-8OUlrs0izTyZ-5lVarqsgP8EKsPgzaLP85BiSn9fcO3ZVKct1SLLVbeitwIZHi', '#07C160')">
+                            <i class="fa fa-fa-weixin"></i>
+                        </button>
+                    
+                
+                    
+                        <button class="kr-donate-platform-button" style="color: #1677FF;" title="支付宝" onclick="krDonateModalShowPlatformQR('https://qr.alipay.com/fkx18296ibecsgq8leryn49', '#1677FF')">
+                            <i class="fa fa-fa-alipay"></i>
+                        </button>
+                    
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/blog/js/kr-modal/donate.min.js"></script>
+
+        
+
+            
+                <div id="kr-share-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseShareModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-share-alt"></i>
+            </div>
+            <div class="kr-modal-title">分享</div>
+            <button class="kr-modal-close" onclick="krCloseShareModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-share-message">扫码查看github网址，按钮查看个人网站</div>
+            <div class="kr-share-qr" id="kr-share-qr"></div>
+            <div class="kr-share-platforms">
+                
+                    <button class="kr-share-platform-button" style="color: #62b6e7;" title="北白念" onclick="krShareModalOpenPlatform('http://hweb.fun/blog')">
+                        <svg fill="currentColor" width="18" height="18" viewBox="0 0 329 388"><path d="M0,36.226c0,-19.993 16.233,-36.226 36.226,-36.226c13.788,0 25.787,7.719 31.908,19.068l188.366,229.845l0,-111.259c-6.356,5.508 -14.645,8.843 -23.707,8.843c-19.994,0 -36.226,-16.232 -36.226,-36.226c-0,-8.551 2.968,-16.413 7.93,-22.613l-0.015,-0.013l56.614,-69.08c6.2,-11.073 18.047,-18.565 31.63,-18.565c19.994,0 36.227,16.233 36.227,36.226l-0,314.644c-0,19.994 -16.233,36.226 -36.227,36.226c-13.166,0 -24.701,-7.039 -31.044,-17.555l-189.229,-230.899l-0,212.228c-0,19.994 -16.233,36.226 -36.227,36.226c-19.993,0 -36.226,-16.232 -36.226,-36.226l0,-314.644Z" /></svg>
+                    </button>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/blog/js/kr-modal/share.min.js"></script>
+
+                    
+
+                        <!-- 额外的追加注入项 -->
+                        
+        <script>
+    if (!window.kr) {
+        window.kr = {};
+    }
+    window.kr.notMobile = (!(navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)));
+    window.kr.siteRoot = "/blog/";
+</script>
+
+
+  <script defer src="/blog/vendors/nprogress@0.2.0/nprogress.js"></script>
+
+
+
+  <script defer src="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.js"></script>
+
+
+<script defer src="/blog/js/kr-core.min.js"></script>
+
+
+  <script defer src="/blog/js/kr-pjax.min.js"></script>
+
+
+<!-- 额外的追加注入项 -->
+
+
+    </body>
+</html>

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" role="img">
+<style>text{font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif}text.mono{font-family:Consolas,"Cascadia Mono","DejaVu Sans Mono",monospace}</style>
+<defs>
+<marker id="a-cyan" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#22D3EE"/></marker>
+<marker id="a-violet" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#8B5CF6"/></marker>
+<marker id="a-muted" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#94A6B8"/></marker>
+<marker id="a-green" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#34D399"/></marker>
+<marker id="a-amber" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#FBBF24"/></marker>
+<marker id="a-red" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#F87171"/></marker>
+<marker id="a-line" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#2A3441"/></marker>
+<radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#22D3EE" stop-opacity="0.22"/><stop offset="100%" stop-color="#22D3EE" stop-opacity="0"/></radialGradient>
+<linearGradient id="bgv" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0B0F14"/><stop offset="100%" stop-color="#0E151D"/></linearGradient>
+</defs>
+<rect width="800" height="600" fill="#0B0F14"/>
+<rect x="50" y="40" width="200" height="62" rx="10" fill="#121A23" stroke="#2A3441" stroke-width="1.2"/>
+<text x="150" y="66" font-size="18" fill="#E8EFF7" text-anchor="middle" font-weight="600">设备 A</text>
+<text x="150" y="88" font-size="13" fill="#94A6B8" text-anchor="middle" font-weight="400">本机 SQLite</text>
+<path d="M150,102 L150,566" stroke="#2A3441" stroke-width="1.2" stroke-dasharray="5 6" fill="none"/>
+<rect x="300" y="40" width="200" height="62" rx="10" fill="#121A23" stroke="#2A3441" stroke-width="1.2"/>
+<text x="400" y="66" font-size="18" fill="#E8EFF7" text-anchor="middle" font-weight="600">PostgreSQL 16</text>
+<text x="400" y="88" font-size="13" fill="#94A6B8" text-anchor="middle" font-weight="400">9 个函数</text>
+<path d="M400,102 L400,566" stroke="#2A3441" stroke-width="1.2" stroke-dasharray="5 6" fill="none"/>
+<rect x="550" y="40" width="200" height="62" rx="10" fill="#121A23" stroke="#2A3441" stroke-width="1.2"/>
+<text x="650" y="66" font-size="18" fill="#E8EFF7" text-anchor="middle" font-weight="600">设备 B</text>
+<text x="650" y="88" font-size="13" fill="#94A6B8" text-anchor="middle" font-weight="400">本机 SQLite</text>
+<path d="M650,102 L650,566" stroke="#2A3441" stroke-width="1.2" stroke-dasharray="5 6" fill="none"/>
+<path d="M 154,158 L 396,158" fill="none" stroke="#22D3EE" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a-cyan)"/>
+<text x="275.0" y="149" font-size="14" fill="#22D3EE" text-anchor="middle" font-weight="400" class="mono">api_bootstrap()</text>
+<path d="M 396,210 L 154,210" fill="none" stroke="#22D3EE" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a-cyan)"/>
+<text x="275.0" y="201" font-size="14" fill="#22D3EE" text-anchor="middle" font-weight="400" class="mono">envelope + cursor</text>
+<path d="M 154,262 L 396,262" fill="none" stroke="#22D3EE" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a-cyan)"/>
+<text x="275.0" y="253" font-size="14" fill="#22D3EE" text-anchor="middle" font-weight="400" class="mono">api_put(base, packet)</text>
+<path d="M 396,314 L 154,314" fill="none" stroke="#FBBF24" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a-amber)"/>
+<text x="275.0" y="305" font-size="14" fill="#FBBF24" text-anchor="middle" font-weight="400" class="mono">ok / conflict</text>
+<path d="M 404,366 L 646,366" fill="none" stroke="#94A6B8" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5" marker-end="url(#a-muted)"/>
+<text x="525.0" y="357" font-size="14" fill="#94A6B8" text-anchor="middle" font-weight="400" class="mono">pg_notify(vault)</text>
+<path d="M 646,418 L 404,418" fill="none" stroke="#22D3EE" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a-cyan)"/>
+<text x="525.0" y="409" font-size="14" fill="#22D3EE" text-anchor="middle" font-weight="400" class="mono">api_changes(cursor)</text>
+<path d="M 404,470 L 646,470" fill="none" stroke="#22D3EE" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a-cyan)"/>
+<text x="525.0" y="461" font-size="14" fill="#22D3EE" text-anchor="middle" font-weight="400" class="mono">≤ 200 条 / 页</text>
+<path d="M 646,522 L 404,522" fill="none" stroke="#22D3EE" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a-cyan)"/>
+<text x="525.0" y="513" font-size="14" fill="#22D3EE" text-anchor="middle" font-weight="400" class="mono">api_ack(cursor)</text>
+</svg>

@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="420" viewBox="0 0 800 420" role="img">
+<style>text{font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif}text.mono{font-family:Consolas,"Cascadia Mono","DejaVu Sans Mono",monospace}</style>
+<defs>
+<marker id="a-cyan" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#22D3EE"/></marker>
+<marker id="a-violet" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#8B5CF6"/></marker>
+<marker id="a-muted" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#94A6B8"/></marker>
+<marker id="a-green" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#34D399"/></marker>
+<marker id="a-amber" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#FBBF24"/></marker>
+<marker id="a-red" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#F87171"/></marker>
+<marker id="a-line" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><polygon points="0 0,11 4.5,0 9" fill="#2A3441"/></marker>
+<radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#22D3EE" stop-opacity="0.22"/><stop offset="100%" stop-color="#22D3EE" stop-opacity="0"/></radialGradient>
+<linearGradient id="bgv" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0B0F14"/><stop offset="100%" stop-color="#0E151D"/></linearGradient>
+</defs>
+<rect width="800" height="420" fill="#0B0F14"/>
+<rect x="40" y="40" width="720" height="340" rx="12" fill="#121A23" stroke="#2A3441" stroke-width="1.2"/>
+<circle cx="60" cy="58" r="4" fill="#3B4A5A"/>
+<circle cx="76" cy="58" r="4" fill="#3B4A5A"/>
+<circle cx="92" cy="58" r="4" fill="#3B4A5A"/>
+<path d="M40,76 L760,76" stroke="#2A3441" stroke-width="1"/>
+<path d="M230,76 L230,380 M520,76 L520,380" stroke="#2A3441" stroke-width="1"/>
+<text x="56" y="98" font-size="13" fill="#94A6B8" text-anchor="start" font-weight="400">筛选</text>
+<text x="62" y="128" font-size="14" fill="#94A6B8" text-anchor="start" font-weight="400">全部</text>
+<rect x="48" y="136" width="174" height="24" rx="6" fill="#17222D"/>
+<rect x="48" y="136" width="3" height="24" rx="1.5" fill="#22D3EE"/>
+<text x="62" y="154" font-size="14" fill="#E8EFF7" text-anchor="start" font-weight="400">今天</text>
+<text x="62" y="180" font-size="14" fill="#94A6B8" text-anchor="start" font-weight="400">以后</text>
+<text x="62" y="206" font-size="14" fill="#94A6B8" text-anchor="start" font-weight="400">已完成</text>
+<text x="62" y="232" font-size="14" fill="#94A6B8" text-anchor="start" font-weight="400">逾期</text>
+<text x="62" y="258" font-size="14" fill="#94A6B8" text-anchor="start" font-weight="400">回收站</text>
+<text x="62" y="284" font-size="14" fill="#94A6B8" text-anchor="start" font-weight="400">冲突副本</text>
+<rect x="238" y="90" width="274" height="52" rx="8" fill="#17222D"/>
+<rect x="246" y="104" width="13" height="13" rx="3" fill="none" stroke="#22D3EE" stroke-width="1.2"/>
+<text x="270" y="116" font-size="14" fill="#E8EFF7" text-anchor="start" font-weight="400">季度复盘：把三条结论写清</text>
+<text x="270" y="134" font-size="12" fill="#22D3EE" text-anchor="start" font-weight="400">今天 20:00</text>
+<rect x="246" y="160" width="13" height="13" rx="3" fill="none" stroke="#2A3441" stroke-width="1.2"/>
+<text x="270" y="172" font-size="14" fill="#94A6B8" text-anchor="start" font-weight="400">给妈妈买血压计</text>
+<text x="270" y="190" font-size="12" fill="#6E8091" text-anchor="start" font-weight="400">明天 09:00</text>
+<rect x="246" y="216" width="13" height="13" rx="3" fill="none" stroke="#2A3441" stroke-width="1.2"/>
+<text x="270" y="228" font-size="14" fill="#94A6B8" text-anchor="start" font-weight="400">周五前交周报</text>
+<text x="270" y="246" font-size="12" fill="#6E8091" text-anchor="start" font-weight="400">已逾期 2 小时</text>
+<rect x="246" y="272" width="13" height="13" rx="3" fill="none" stroke="#2A3441" stroke-width="1.2"/>
+<text x="270" y="284" font-size="14" fill="#94A6B8" text-anchor="start" font-weight="400">续订域名</text>
+<text x="270" y="302" font-size="12" fill="#6E8091" text-anchor="start" font-weight="400">无提醒</text>
+<rect x="246" y="328" width="13" height="13" rx="3" fill="none" stroke="#2A3441" stroke-width="1.2"/>
+<text x="270" y="340" font-size="14" fill="#94A6B8" text-anchor="start" font-weight="400">牙科复诊</text>
+<text x="270" y="358" font-size="12" fill="#6E8091" text-anchor="start" font-weight="400">已完成</text>
+<text x="536" y="106" font-size="15" fill="#E8EFF7" text-anchor="start" font-weight="600">季度复盘</text>
+<rect x="536" y="116" width="44.0" height="20" rx="10.0" fill="none" stroke="#22D3EE" stroke-width="1.1"/>
+<text x="558.0" y="130.32" font-size="12" fill="#22D3EE" text-anchor="middle" font-weight="400">工作</text>
+<rect x="586" y="116" width="32.0" height="20" rx="10.0" fill="none" stroke="#8B5CF6" stroke-width="1.1"/>
+<text x="602.0" y="130.32" font-size="12" fill="#8B5CF6" text-anchor="middle" font-weight="400">高</text>
+<rect x="536" y="156" width="196" height="8" rx="4" fill="#2A3441" opacity="0.8"/>
+<rect x="536" y="178" width="208" height="8" rx="4" fill="#2A3441" opacity="0.8"/>
+<rect x="536" y="200" width="160" height="8" rx="4" fill="#2A3441" opacity="0.8"/>
+<rect x="536" y="222" width="188" height="8" rx="4" fill="#2A3441" opacity="0.8"/>
+<text x="536" y="278" font-size="13" fill="#22D3EE" text-anchor="start" font-weight="400">提醒 · 今天 20:00</text>
+<rect x="536" y="294" width="96" height="30" rx="8" fill="#10222B" stroke="#22D3EE" stroke-width="1.1"/>
+<text x="584" y="314" font-size="13" fill="#22D3EE" text-anchor="middle" font-weight="400">完成</text>
+<rect x="644" y="294" width="104" height="30" rx="8" fill="none" stroke="#2A3441" stroke-width="1.1"/>
+<text x="696" y="314" font-size="13" fill="#94A6B8" text-anchor="middle" font-weight="400">稍后 10 分钟</text>
+</svg>
