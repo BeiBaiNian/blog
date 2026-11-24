@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+  <!-- 元数据 -->
+  <meta charset="utf-8">
+  
+    <link rel="icon" href="/blog/images/favicon.png">
+  
+  
+  <title>泡泡来信 BubblePost：把一只电子宠物鱼养在 QQ 里 | 北白念</title>
+  <link rel="canonical" href="https://beibainian.github.io/blog/2026/11/24/BubblePost/">
+  <meta name="author" content="董子阳" />
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="robots" content="index,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="format-detection" content="telphone=no, email=no" />
+  
+    <meta name="keywords" content="LLM Agent, OneBot v11, Python 异步, SQLite, 容器化部署, 电子宠物" />
+  
+  <meta name="description" content="我想养一条住在聊天软件里的鱼：发消息它回，发链接它读完再聊，没人理它的时候自己安排作息、写日记、挑表情包。这件事不能靠“再开一个 App”解决——打开 App 本身就是成本，而聊天窗口本来就在那儿。 三条约束从第一天就定下来：交互面只有 QQ；记忆必须分得清私聊还是群，宁可少记也不串台；所有会打扰主人的动作都要能解释、能停，包括主动分享、日报和失败重试。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="泡泡来信 BubblePost：把一只电子宠物鱼养在 QQ 里">
+<meta property="og:url" content="https://beibainian.github.io/blog/2026/11/24/BubblePost/index.html">
+<meta property="og:site_name" content="北白念">
+<meta property="og:description" content="我想养一条住在聊天软件里的鱼：发消息它回，发链接它读完再聊，没人理它的时候自己安排作息、写日记、挑表情包。这件事不能靠“再开一个 App”解决——打开 App 本身就是成本，而聊天窗口本来就在那儿。 三条约束从第一天就定下来：交互面只有 QQ；记忆必须分得清私聊还是群，宁可少记也不串台；所有会打扰主人的动作都要能解释、能停，包括主动分享、日报和失败重试。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://beibainian.github.io/blog/blog/images/bubblepost.png">
+<meta property="article:published_time" content="2026-11-24T02:20:00.000Z">
+<meta property="article:modified_time" content="2026-11-24T03:24:21.928Z">
+<meta property="article:author" content="董子阳">
+<meta property="article:tag" content="LLM Agent">
+<meta property="article:tag" content="电子宠物">
+<meta property="article:tag" content="OneBot v11">
+<meta property="article:tag" content="Python 异步">
+<meta property="article:tag" content="SQLite">
+<meta property="article:tag" content="容器化部署">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://beibainian.github.io/blog/blog/images/bubblepost.png">
+  
+  <!-- JSON-LD 结构化数据 -->
+  
+  
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"泡泡来信 BubblePost：把一只电子宠物鱼养在 QQ 里","description":"我想养一条住在聊天软件里的鱼：发消息它回，发链接它读完再聊，没人理它的时候自己安排作息、写日记、挑表情包。这件事不能靠“再开一个 App”解决——打开 App 本身就是成本，而聊天窗口本来就在那儿。\n三条约束从第一天就定下来：交互面只有 QQ","image":"https://beibainian.github.io/blog/2026/11/24/BubblePost/blog/images/bubblepost.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-11-24T02:20:00.000Z","dateModified":"2026-11-24T03:24:21.928Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/11/24/BubblePost/"}}
+    </script>
+  
+  <!-- 关键 CSS 预加载 -->
+  <link rel="preload" href="/blog/css/kr-core.min.css" as="style" crossorigin>
+  <link rel="preload" href="/blog/css/kr-theme/light.min.css" as="style" crossorigin>
+  <link rel="preload" href="/blog/css/kr-theme/dark.min.css" as="style" crossorigin>
+  <!-- 样式表文件 -->
+  <link rel="stylesheet" id="kratos-css" href="/blog/css/kr-core.min.css" media="all">
+  <link rel="stylesheet" id="theme-light-css" href="/blog/css/kr-theme/light.min.css" media="all">
+  <link rel="stylesheet" id="theme-dark-css" href="/blog/css/kr-theme/dark.min.css" media="(prefers-color-scheme: dark)">
+  
+    <link rel="stylesheet"  id="highlight-css" href="/blog/css/highlight/highlight.js/night-eighties.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/css/highlight/highlight.js/night-eighties.min.css"></noscript>
+  
+  <script src="/blog/js/kr-theme.min.js"></script>
+  <link rel="stylesheet"  id="fontawe-css" href="/blog/vendors/font-awesome@4.7.0/css/font-awesome.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/font-awesome@4.7.0/css/font-awesome.min.css"></noscript>
+  
+    <link rel="stylesheet"  id="nprogress-css" href="/blog/vendors/nprogress@0.2.0/nprogress.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/nprogress@0.2.0/nprogress.css"></noscript>
+  
+  
+    <link rel="stylesheet"  href="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.css"></noscript>
+  
+  <!-- 预先加载的JS文件 -->
+  
+    <script src="/blog/vendors/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  
+  <!-- 自定义站点横幅和背景 -->
+  <style>
+    
+      .kratos-cover.kratos-cover-2 {
+        background-image: url('/blog/images/light.png');
+      }
+      html[data-theme="dark"] .kratos-cover.kratos-cover-2 {
+        background-image: url('/blog/images/dark.png');
+      }
+    
+    
+      @media(min-width:768px) {
+        body.custom-background {
+          background-image: url('/blog/images/background.png');
+        }
+        html[data-theme="dark"] body.custom-background {
+          background-image: url('/blog/images/background.png');
+        }
+      }
+    
+    
+      .widget-kratos-about .photo-background {
+        background-image: url('/blog/images/light.png');
+      }
+      html[data-theme="dark"] .widget-kratos-about .photo-background {
+        background-image: url('/blog/images/dark.png');
+      }
+    
+  </style>
+
+  <!-- 额外的追加注入项 -->
+  
+</head>
+
+    <body class="custom-background">
+        <div id="kratos-wrapper">
+    <div id="kratos-page">
+        <div id="kratos-header">
+            <header id="kratos-desktop-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="nav-header">
+                        <nav id="kratos-menu-wrap">
+                            <ul id="kratos-primary-menu" class="sf-menu">
+                                
+                                    <li>
+                                        
+                                            <a href="/blog/">
+                                        
+                                            
+                                                <i class="fa fa-home"></i>
+                                            
+                                            首页
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/blog/archives/">
+                                        
+                                            
+                                                <i class="fa fa-file"></i>
+                                            
+                                            档案馆
+                                        </a>
+                                        
+                                    </li>
+                                
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <header id="kratos-mobile-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="color-logo"><a href="/blog/">北白念</a></div>
+                    <div id="kratos-nav-toggle-wrapper" class="nav-toggle">
+                        <a id="kratos-nav-toggle" class="kratos-nav-toggle">
+                            <i></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="kratos-start kratos-hero-2">
+            <!-- <div class="kratos-overlay"></div> -->
+            <div class="kratos-cover kratos-cover-2 text-center">
+                <div class="desc desc2 animate-box">
+                    <a href="/blog/">
+                        <h2>北白念</h2> <br />
+                        <span>记录个人的学习笔记和技术文章，偶尔也会分享一些生活感悟。</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="kratos-blog-post">
+            <div class="container">
+                <div id="main" class="row">
+
+
+        
+
+            
+
+            <section class="kr-main-col col-md-8">
+
+        
+
+            <article itemscope itemtype="https://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://beibainian.github.io/blog/2026/11/24/BubblePost/">
+    <div class="kratos-hentry kratos-page-inner clearfix">
+        <header class="kratos-page-header">
+            
+                <h1 class="kratos-page-title text-center" itemprop="name headline">泡泡来信 BubblePost：把一只电子宠物鱼养在 QQ 里</h1>
+            
+            <ul class="kratos-page-meta text-center">
+                <li><time datetime="2026-11-24T02:20:00.000Z" itemprop="datePublished"><i class="fa fa-calendar"></i> 2026-11-24</time></li>
+                <li itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <i class="fa fa-user"></i> 作者 <span itemprop="name">董子阳</span>
+                </li>
+                
+                    <li>
+                        <i class="fa fa-edit"></i> 
+                        
+                        
+                            ~6.13K
+                        
+                        字
+                    </li>
+                
+                
+                
+            </ul>
+        </header>
+        <div class="kratos-page-content kr-post">
+            
+            
+            
+            <hr />
+            <div itemprop="articleBody"><p>我想养一条住在聊天软件里的鱼：发消息它回，发链接它读完再聊，没人理它的时候自己安排作息、写日记、挑表情包。这件事不能靠“再开一个 App”解决——打开 App 本身就是成本，而聊天窗口本来就在那儿。</p>
+<p>三条约束从第一天就定下来：<strong>交互面只有 QQ</strong>；<strong>记忆必须分得清私聊还是群</strong>，宁可少记也不串台；<strong>所有会打扰主人的动作都要能解释、能停</strong>，包括主动分享、日报和失败重试。</p>
+<span id="more"></span>
+
+<p>项目一共 16 天、5 次提交，源码 0.1.11，Python 26 个文件 12,641 行，Android 端 10 个文件 1,644 行，设计到测试全是一个人做。这篇按“需求 → 产品 → 方案 → 落地 → 交付”讲，每处设计都把代价一起写出来，<strong>机制细节留到文末的专栏清单</strong>。</p>
+<p><img src="/blog/blog/images/bubblepost.png" alt="泡泡来信 BubblePost：一只住在聊天气泡里的鱼，会记忆、会读链接、会自己安排作息"></p>
+<h2 id="💡-需求：三个「不」"><a href="#💡-需求：三个「不」" class="headerlink" title="💡 需求：三个「不」"></a>💡 需求：三个「不」</h2><p>把“养一只鱼”翻译成工程语言，就是三句否定句。每句都直接换成一条产品原则：</p>
+<table>
+<thead>
+<tr>
+<th>我的顾虑</th>
+<th>具体要求</th>
+<th>由此定下的原则</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>不想再多一个 App</td>
+<td>在 QQ 里发消息就算交互，不装东西、不记命令</td>
+<td>交互面收敛到聊天窗口，管理动作才进面板</td>
+</tr>
+<tr>
+<td>不能是个只会念知识的问答机</td>
+<td>得记得住上次聊的事，得有自己的作息和情绪</td>
+<td>记忆与自主行为是核心功能，不是彩蛋</td>
+</tr>
+<tr>
+<td>出错不能装死</td>
+<td>没发出去、发重复、被站点风控，都要说得清</td>
+<td>先把失败语义设计完，再谈功能数量</td>
+</tr>
+</tbody></table>
+<p>还有一条隐性需求：<strong>不能因为“想它更像活的”就去打穿别人的站点</strong>。它要读网页，就得有明确的抓取边界；遇到登录墙、验证码、限流，只能停下来等人。</p>
+<p>核心旅程一行写完：<strong>发消息 → 按会话召回记忆 → 回话（可能带表情包）→ 发链接 → 读完写摘要 → 过一会儿追问“刚才那篇” → 自己去读白名单站点并写日报</strong>。用户只有一类：愿意把一只虚拟宠物长期养在自己 QQ 里的个人，单实例单账号。</p>
+<h2 id="🎯-产品定义：做什么，不做什么"><a href="#🎯-产品定义：做什么，不做什么" class="headerlink" title="🎯 产品定义：做什么，不做什么"></a>🎯 产品定义：做什么，不做什么</h2><table>
+<thead>
+<tr>
+<th>能力</th>
+<th>面板</th>
+<th>手机</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>私聊 &#x2F; 群聊对话</td>
+<td>✅</td>
+<td>✅</td>
+<td>群聊默认要 @，可配白名单、概率、冷却</td>
+</tr>
+<tr>
+<td>按会话隔离的长期记忆</td>
+<td>✅</td>
+<td>✅</td>
+<td><code>scope</code> + <code>conv</code> 双层隔离，可筛选、批删</td>
+</tr>
+<tr>
+<td>记忆压缩（草稿 → 预览 → 替换）</td>
+<td>✅</td>
+<td>✅</td>
+<td>来源指纹校验，1 小时草稿有效期</td>
+</tr>
+<tr>
+<td>链接阅读与分层摘要</td>
+<td>✅</td>
+<td>✅</td>
+<td>12 万字正文上限，最多 6 层汇总</td>
+</tr>
+<tr>
+<td>跨历史窗口追问</td>
+<td>✅</td>
+<td>✅</td>
+<td>会话绑定内容，不依赖聊天历史长度</td>
+</tr>
+<tr>
+<td>白名单自主阅读 + 日报</td>
+<td>✅</td>
+<td>✅</td>
+<td>默认关闭，空白名单不抓任何站点</td>
+</tr>
+<tr>
+<td>站点授权（隔离浏览器）</td>
+<td>✅</td>
+<td>—</td>
+<td>本人扫码&#x2F;输入，只导出 Cookie</td>
+</tr>
+<tr>
+<td>日记、表情包、自身活动</td>
+<td>✅</td>
+<td>✅</td>
+<td>与主对话分域，不污染聊天上下文</td>
+</tr>
+<tr>
+<td>额度三窗口（5h &#x2F; 周 &#x2F; 月）</td>
+<td>✅</td>
+<td>✅</td>
+<td>本地累计 + 官方接口查询与缓存</td>
+</tr>
+<tr>
+<td>QQ 通道（扫码 &#x2F; 快速登录 &#x2F; 掉线恢复）</td>
+<td>✅</td>
+<td>✅</td>
+<td>二维码本地渲染，内容不入库</td>
+</tr>
+<tr>
+<td>Android 客户端</td>
+<td>—</td>
+<td>✅</td>
+<td>同源 WebView + Keystore 存凭据</td>
+</tr>
+</tbody></table>
+<p><strong>刻意不做的</strong>：不做知识库问答（它是角色，不是检索器）；不做多用户 SaaS；不绕过登录墙、验证码和付费墙（遇到就停在“等你来授权”）；不冒充“看完了完整视频”——只有标题和简介时，它会明说只看到这些。</p>
+<h2 id="🧭-整体方案：一个进程，四块职责"><a href="#🧭-整体方案：一个进程，四块职责" class="headerlink" title="🧭 整体方案：一个进程，四块职责"></a>🧭 整体方案：一个进程，四块职责</h2><p>单机单用户场景下，我选择<strong>一个 Python 进程扛下所有职责</strong>，外面套一个 NapCat 容器做 QQ 协议旁车：</p>
+<p><img src="/blog/blog/bubblepost/architecture.png" alt="分层与两条回程：QQ 走 NapCat 进内网，面板和 App 反向接管理端口，主动发言从生活循环绕回聊天窗口"></p>
+<p>三条设计约束：</p>
+<ul>
+<li><strong>只有一条主链</strong>。QQ → NapCat → OneBot 事件 → 手写 HTTP 接收端 → 事件循环；链条短，出问题时栈只有几层。</li>
+<li><strong>对外只开一个门</strong>。NapCat 的 WebUI、OneBot API、事件上报都不发布到宿主机，只在 <code>qq_internal</code> 内网可达；面板默认只绑 <code>127.0.0.1</code>，要远程用得自己套反代并配 <code>ADMIN_PUBLIC_ORIGIN</code>。</li>
+<li><strong>两类密钥互相独立</strong>。站点授权 Cookie 与 QQ 登录凭据各一把主密钥，都在数据库父目录之外，漏一把不连带另一把；代价是备份必须“库 + 两把密钥 + 密文目录”一起做。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>层面</th>
+<th>选型</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>运行时</td>
+<td>Python 3.12、<code>asyncio</code> + <code>ThreadingHTTPServer</code></td>
+<td>不用 Web 框架，路由与验签全手写</td>
+</tr>
+<tr>
+<td>IM 协议</td>
+<td>OneBot v11（NapCat）、Telegram Bot API、终端</td>
+<td>收事件走 HTTP 上报，发消息走 HTTP API</td>
+</tr>
+<tr>
+<td>存储</td>
+<td>SQLite（WAL、<code>synchronous=NORMAL</code>）</td>
+<td>16 张业务表、16 个显式索引</td>
+</tr>
+<tr>
+<td>模型</td>
+<td>DeepSeek Chat 兼容接口（OpenAI 协议）+ 内置 Mock</td>
+<td>Mock 模式让 85 项自检无 Key 可跑</td>
+</tr>
+<tr>
+<td>密码学</td>
+<td><code>cryptography</code> AES-GCM、<code>hmac</code>+SHA-1、<code>secrets</code></td>
+<td>两套主密钥，密文与密钥分离</td>
+</tr>
+<tr>
+<td>浏览器</td>
+<td>Playwright + Chromium（可选依赖）</td>
+<td>站点授权、QQ 人工验证</td>
+</tr>
+<tr>
+<td>面板</td>
+<td>服务端模板字符串 + 原生 JS + 单文件 CSS</td>
+<td>614 行 CSS 含移动断点，零构建</td>
+</tr>
+<tr>
+<td>客户端</td>
+<td>Kotlin、minSdk 26 &#x2F; target 35、WebView + Keystore</td>
+<td>零第三方运行库，唯一依赖是 JUnit</td>
+</tr>
+<tr>
+<td>部署</td>
+<td>Docker Compose、<code>python:3.12-slim</code>、非 root UID 10001</td>
+<td>双容器 + healthcheck + 日志轮转</td>
+</tr>
+</tbody></table>
+<h2 id="🖥️-两端体验：面板是运维台，手机是同源壳"><a href="#🖥️-两端体验：面板是运维台，手机是同源壳" class="headerlink" title="🖥️ 两端体验：面板是运维台，手机是同源壳"></a>🖥️ 两端体验：面板是运维台，手机是同源壳</h2><p>面板不是“配置页”，而是<strong>需要人判断的动作的集中地</strong>：扫码、授权、重试、批量删记忆、压缩预览都在这里点，不用去翻日志。</p>
+<p><img src="/blog/blog/bubblepost/panel-ui.png" alt="面板示意：左侧十项导航，右侧状态卡、筛选与记忆列表（示意稿，可用真机截图替换同名文件）"></p>
+<p>49 条显式路由（GET 24、POST 27，其中 <code>/persona</code>、<code>/tuning</code> 两种方法都收）、10 个一级导航，全部要求 <code>?token=</code> 并做常量时间比较，未配 token 时面板根本不启动——代价是分享链接也得带 token，不能“发个地址就能看”。</p>
+<p>手机端没做原生界面，而是一个<strong>同源 WebView 壳</strong>：精确比对 scheme+host+port，跨域导航一律交给系统浏览器；凭据用 Android Keystore 生成的 AES-256&#x2F;GCM 密钥加密后存 SharedPreferences；“保存二维码”把图写进相册再拉起手机 QQ，同机扫码不需要两台设备。明文 HTTP 只对<strong>数字 IP 直连</strong>开口子，域名、代理、混合内容、坏证书、重定向默认全拒——想用域名就得配 HTTPS，这是刻意留的摩擦。</p>
+<h2 id="🔐-难点一：记忆不许串台，靠查询条件而不是提示词"><a href="#🔐-难点一：记忆不许串台，靠查询条件而不是提示词" class="headerlink" title="🔐 难点一：记忆不许串台，靠查询条件而不是提示词"></a>🔐 难点一：记忆不许串台，靠查询条件而不是提示词</h2><p>早期最容易被问的是“你写了多长的提示词让它别串台”。答案是：<strong>不靠提示词</strong>。</p>
+<p><img src="/blog/blog/bubblepost/memory-scope.png" alt="四个作用域各自独立，召回时按 scope + conv 关进一列，归属不明的旧记忆默认不召回"></p>
+<p>会话落库时被映射成 <code>private / group / self / diary</code> 四种 <code>scope</code>，同时记下 <code>conv</code>；召回时查询条件里直接带这两个字段，所以群里的记忆在私聊里<strong>查不出来</strong>，而不是“查出来但被要求别说”。归属不明的旧记忆默认不召回——宁可少记，也不冒串台的风险。自检有三条断言专门盯这件事：私聊不漏到群里、群里不漏到私聊、历史窗口不串台。</p>
+<p>记忆攒多了会变吵，于是有了<strong>记忆压缩</strong>，做成两阶段：</p>
+<ul>
+<li>勾选记忆（可按当前筛选“选全部页”）→ <code>prepare()</code> 落草稿，记下每条来源的指纹与更新时间，1 小时有效；</li>
+<li>后台分批调模型生成摘要 → 面板预览展开原文、可整组跳过；</li>
+<li><code>confirm()</code> 时<strong>再核对一遍来源指纹</strong>：有变化就拒绝替换、要求重新预览；没变化才在同一个事务里删源记忆、写压缩记忆、留回执。</li>
+</ul>
+<p>流程比“一键压缩”长一倍，换来的是“你看到的就是你替换的”。压缩只动 <code>memory</code> 表，日记、聊天历史、收藏一律保留。</p>
+<h2 id="🌐-难点二：能读网页，但不许打到内网"><a href="#🌐-难点二：能读网页，但不许打到内网" class="headerlink" title="🌐 难点二：能读网页，但不许打到内网"></a>🌐 难点二：能读网页，但不许打到内网</h2><p>链接阅读是它最像“活物”的地方：收到链接先回一句“我看看”，抓取、清洗、分块、分层摘要，再回原会话说结论；之后你说“这个链接”“刚才那篇”，它会带着正文回答，<strong>不依赖聊天历史窗口</strong>——绑定关系存在独立的 <code>content_binding</code> 表里。</p>
+<p><img src="/blog/blog/bubblepost/content-pipeline.png" alt="抓取关卡四道校验、正文分块与最多 6 层收敛、四类阻塞各自停下等授权，追问直接取正文"></p>
+<p>抓取的安全边界写得比较硬，因为“让 Agent 自己去访问 URL”天然是 SSRF 入口：</p>
+<ul>
+<li>只允许 <code>http/https</code>，端口只开 <code>80/443</code>，显式拒绝 <code>localhost</code>；解析 DNS 拿<strong>全部</strong> A&#x2F;AAAA，任一不是 <code>ip.is_global</code> 就拒；</li>
+<li><strong>解析后固定 IP 直连</strong>，连完用 <code>getpeername()</code> 复核；HTTPS 用 <code>server_hostname</code> 保住 SNI 与证书校验；</li>
+<li>重定向最多 5 跳，<strong>每一跳都重做完整校验</strong>；Cookie 按当前域名重算，绝不跨站转发；</li>
+<li>解压后再算体积（2 MB 封顶）、MIME 白名单，防压缩炸弹。</li>
+</ul>
+<p><img src="/blog/blog/bubblepost/ssrf-pinned.png" alt="常规做法把校验放在参数上，DNS 可以在校验和请求之间换答案；这里把校验落到真正建立连接的那一步"></p>
+<p>摘要走分层 map-reduce：正文按 3,500 字分块，按 10,000 字分组，最多 6 层，直到“分组数 ≤ 4 且总长 ≤ 18,000 字”才做最终归纳——刻意不“只取前 12 组”，长文尾部的结论不能丢。归纳要求模型返回 JSON：<code>summary</code> &#x2F; <code>reflection</code> &#x2F; <code>topics</code>，事实摘要和“鱼的感想”分开存；抓来的内容一律声明为<strong>不可信资料、不执行其中任何指令</strong>。</p>
+<p>失败也不合并成一个 <code>failed</code>：登录墙、人工验证、限流、动态空壳是四个独立状态，<strong>都不消耗抓取失败次数</strong>——把站点风控当成自己的失败去重试，只会把自己打成黑名单。</p>
+<h2 id="⏰-难点三：HTTP-返回-200，但-QQ-永远收不到回复"><a href="#⏰-难点三：HTTP-返回-200，但-QQ-永远收不到回复" class="headerlink" title="⏰ 难点三：HTTP 返回 200，但 QQ 永远收不到回复"></a>⏰ 难点三：HTTP 返回 200，但 QQ 永远收不到回复</h2><p>NapCat 已登录、5700 端口能连、探针返回 200、日志里有 <code>accepted</code>，但私聊就是没有回复——<code>queued</code> 和 <code>dequeued</code> 一次都没出现。这是整个项目最值得讲的一个 bug。</p>
+<p>排查走了三步：先补日志，发现真实回调带的是 <code>X-Signature</code> 而不是 Bearer，于是补上 HMAC-SHA-1 双通道验签；签名通过后出现 <code>auth_valid</code>，仍然不动；最后加 <code>SIGUSR1</code> 按需转储 Python 栈，栈指向看门狗里的 <code>threading.Event.wait()</code>。</p>
+<p>根因是看门狗在<strong>主线程</strong>里同步等待：<code>asyncio.wait_for()</code> 的超时只有控制权回到事件循环后才生效，而同步等待把循环整个卡住。收包线程是独立线程，所以还能应答 200——“能收包”把“消费停了”遮住了。</p>
+<p><img src="/blog/blog/bubblepost/watchdog-block.png" alt="修复前 accepted 之后再无 queued；修复后同一条 trace 走完四段"></p>
+<p>修复只有两行：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">await</span> asyncio.to_thread(<span class="variable language_">self</span>.poll)                       <span class="comment"># 阻塞轮询丢进线程池</span></span><br><span class="line"><span class="keyword">await</span> asyncio.wait((closed,), timeout=<span class="variable language_">self</span>.cfg.napcat_watchdog_seconds)  <span class="comment"># 可被 close() 唤醒</span></span><br></pre></td></tr></table></figure>
+
+<p>代价是每条异步写路径都要带 <code>expected_generation</code>：扫码轮询、浏览器回调、快速登录都可能“晚到”，晚到结果不能覆盖新状态，过期回调直接丢弃。换来的是“状态只会往前走”。</p>
+<h2 id="📬-难点四：宁可漏发，也不重复发"><a href="#📬-难点四：宁可漏发，也不重复发" class="headerlink" title="📬 难点四：宁可漏发，也不重复发"></a>📬 难点四：宁可漏发，也不重复发</h2><p>QQ 发消息超时的时候，你无法区分“没发出去”和“发出去了但响应丢了”。朴素做法是重试，结果是主人被同一条日报轰炸两遍。</p>
+<p>所以投递结果被显式建模成三类：<code>ok</code>（终态，永不重发）、<code>failed</code>（明确失败，限次指数退避后可重试）、<code>unknown</code>（结果未知，停止自动重发，必须到面板人工确认）。进程重启时，所有停在 <code>sending</code> 的记录统一标成 <code>unknown</code> 并写明原因。</p>
+<p><img src="/blog/blog/bubblepost/delivery-states.png" alt="投递三态：unknown 不是 failed，它必须由人来收口"></p>
+<p>同一套语义用在内容通知、日报、主动分享三处。代价是面板多一个“待确认”清单，而且它不会自己消失——但“多发一遍”比“多点一次”更打扰人。</p>
+<h2 id="🧪-交付与质量"><a href="#🧪-交付与质量" class="headerlink" title="🧪 交付与质量"></a>🧪 交付与质量</h2><p>一个人的项目最容易死在“只有我这台机器能跑”，所以这一版把可复现当成功能做：</p>
+<ul>
+<li><strong>五层测试，全部离线</strong>：内置自检 85 项（Mock 模型 + 临时库）、17 组独立 smoke、打包与部署 smoke 26 项、Android JVM 单测 24 项、2 组 Playwright 浏览器用例，另有专项 79 项（密码登录 52 + QQ 通道 27）。临时 SQLite、回环 HTTP、模拟 NapCat 上报、虚构链接（<code>BV1TEST</code> 这类占位），所以能进 CI，也不碰真实账号。</li>
+<li><strong>断言写到协议层</strong>：<code>smoke_onebot.py</code> 断言 <code>accepted → queued → dequeued → outcome=ok</code> 全链路，不是“返回 200 就算过”；<code>smoke_chunked.py</code> 是专为“只读 Content-Length 会把 body 读空”这个 bug 立的碑。</li>
+<li><strong>交付物有指纹</strong>：部署包 66 文件 275,790 B、APK 884,811 B、SHA-256 清单；自研 PAX&#x2F;UTF-8 打包器把 uid&#x2F;gid 归零，避免中文文件名跨平台乱码。</li>
+<li><strong>CI 双 job</strong>：Python 3.10 &#x2F; 3.12 矩阵跑全量离线检查，Android job 跑 JVM 测试 + <code>assembleDebug</code>。</li>
+</ul>
+<h2 id="🚧-边界与取舍"><a href="#🚧-边界与取舍" class="headerlink" title="🚧 边界与取舍"></a>🚧 边界与取舍</h2><ul>
+<li><strong>单文件的代价</strong>。<code>admin.py</code> 2,158 行承担全部路由，这是“不用 Web 框架”的直接后果，已记录为待拆分项。</li>
+<li><strong>打包与依赖</strong>。没有 <code>pyproject.toml</code>，不能 <code>pip install</code>；两个 requirements 的 <code>cryptography</code> 下界不一致；<code>.gitignore</code> 里的 <code>*.[mM][dD]</code> 会静默忽略新增 Markdown，挡住了 <code>SECURITY.md</code> 这类文件。</li>
+<li><strong>没开工的</strong>。配置管理 CRUD 与 PostgreSQL 迁移只有设计没有实现，后者要等表结构稳定才有意义。</li>
+<li><strong>已知缺口</strong>。面板里的“重启应用”走 systemd，对 Compose 部署无效——这个洞是换部署方式之后留下的，没来得及补。</li>
+</ul>
+<h2 id="📚-技术细节去哪了"><a href="#📚-技术细节去哪了" class="headerlink" title="📚 技术细节去哪了"></a>📚 技术细节去哪了</h2><p>上面每段背后都有一堆实现细节，全塞进来会让这篇没法读，我打算拆成几篇单独写：</p>
+<ul>
+<li><a href="/blog/2026/12/01/onebot-chunked/">《手写一个能收 chunked 的 OneBot 接收端》</a>——Content-Length 与 Transfer-Encoding 双路径、双通道验签、四段打点</li>
+<li><a href="/blog/2026/12/01/ssrf-pinned/">《把 SSRF 挡在建连那一步》</a>——固定 IP 连接、<code>getpeername</code> 复核、逐跳重校验与压缩炸弹</li>
+<li><a href="/blog/2026/12/01/memory-compression/">《记忆压缩的两阶段确认》</a>——来源指纹、草稿 TTL、事务内替换与幂等迁移</li>
+<li><a href="/blog/2026/12/01/qq-credential/">《凭据工程：密码不落盘到底要做什么》</a>——AES-GCM、密钥分离、权限收紧、跨重启冷却与 <code>generation</code></li>
+</ul>
+<p>做这个项目最大的收获不是“教会一只鱼说话”，而是学会<strong>把不确定写进产品里</strong>：抓不到就说是登录墙而不是失败，发没发出去就标 <code>unknown</code> 而不是重试，记不住就不召回而不是硬猜。把边界讲清楚，比多做一个功能更值。</p>
+</div>
+        </div>
+        
+        <footer class="kratos-entry-footer clearfix">
+            
+            
+            
+                <div class="post-actions text-center clearfix" id="post-actions">
+                
+                    <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
+                
+                
+                    <a class="share" href="javascript:;" onclick="krOpenShareModal()"><i class="fa fa-share-alt"></i> 分享</a>
+                
+                </div>
+            
+            <div class="footer-tag clearfix">
+                <div class="pull-left">
+                <i class="fa fa-tags"></i>
+                    <a class="tag-none-link" href="/blog/tags/LLM-Agent/" rel="tag">LLM Agent</a>, <a class="tag-none-link" href="/blog/tags/OneBot-v11/" rel="tag">OneBot v11</a>, <a class="tag-none-link" href="/blog/tags/Python-%E5%BC%82%E6%AD%A5/" rel="tag">Python 异步</a>, <a class="tag-none-link" href="/blog/tags/SQLite/" rel="tag">SQLite</a>, <a class="tag-none-link" href="/blog/tags/%E5%AE%B9%E5%99%A8%E5%8C%96%E9%83%A8%E7%BD%B2/" rel="tag">容器化部署</a>, <a class="tag-none-link" href="/blog/tags/%E7%94%B5%E5%AD%90%E5%AE%A0%E7%89%A9/" rel="tag">电子宠物</a>
+                </div>
+                <div class="pull-date">
+                    <time datetime="2026-11-24T03:24:21.928Z" itemprop="dateModified">最后编辑：2026-11-24</time>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+        <nav class="navigation post-navigation clearfix" role="navigation">
+            
+            <div class="nav-previous clearfix">
+                <a title=" 星记 XingJi：端到端加密的双端备忘录，从需求拆解到双端交付" href="/blog/2026/11/23/星记/"><i class="fa fa-angle-left"></i> 上一篇</a>
+            </div>
+            
+            
+        </nav>
+    
+    
+</article>
+
+        
+
+            </section>
+
+            
+                
+
+<section id="kratos-widget-area" class="col-md-4 hidden-xs hidden-sm">
+    <!-- 文章和页面根据splitter来分割，没有的话就从头开始设置为sticky -->
+    
+    
+                <aside id="krw-about" class="widget widget-kratos-about clearfix">
+    <div class="photo-background"></div>
+    <div class="photo-wrapper clearfix">
+        <div class="photo-wrapper-tip text-center">
+            <img class="about-photo" src="/blog/images/logo.png" alt="董子阳" loading="lazy" decoding="auto" />
+        </div>
+    </div>
+    <div class="textwidget">
+        <p class="text-center">软件开发 | RISC-V | Java | 算法</p>
+    </div>
+    <div class="site-meta">
+        <a class="meta-item" href="/blog/archives/">
+            <span class="title">
+                文章
+            </span>
+            <span class="count">
+                12
+            </span>
+        </a>
+        <a class="meta-item" href="/blog/categories/">
+            <span class="title">
+                分类
+            </span>
+            <span class="count">
+                7
+            </span>
+        </a>
+        <a class="meta-item" href="/blog/tags/">
+            <span class="title">
+                标签
+            </span>
+            <span class="count">
+                33
+            </span>
+        </a>
+    </div>
+</aside>
+            
+                    <div class="sticky-area">
+                
+                
+  <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
+    <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/Redis/">Redis</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/%E6%99%BA%E5%85%BB%E8%88%92%E5%B1%85/">智养舒居</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/%E6%99%BA%E9%93%BE%E9%A3%9F%E5%AE%89/">智链食安</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/">项目经历</a><span class="category-list-count">5</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/%E5%BC%80%E6%BA%90%E5%AE%9E%E4%B9%A0/">开源实习</a><span class="category-list-count">1</span></li></ul></li></ul>
+  </aside>
+
+
+            
+                
+  <aside id="krw-tags" class="widget widget-kratos-tags clearfix">
+    <h4 class="widget-title"><i class="fa fa-tags"></i>标签聚合</h4>
+      <div class="tag-clouds">
+        <a href="/blog/tags/Agent/" style="font-size: 0.6em;">Agent</a> <a href="/blog/tags/Android/" style="font-size: 0.6em;">Android</a> <a href="/blog/tags/Cluster%E9%9B%86%E7%BE%A4/" style="font-size: 0.7em;">Cluster集群</a> <a href="/blog/tags/FISCO-BCOS/" style="font-size: 0.8em;">FISCO BCOS</a> <a href="/blog/tags/FastAPI/" style="font-size: 0.6em;">FastAPI</a> <a href="/blog/tags/Flutter/" style="font-size: 0.6em;">Flutter</a> <a href="/blog/tags/Hexo-Kratos-Rebirth/" style="font-size: 0.6em;">Hexo & Kratos-Rebirth</a> <a href="/blog/tags/LLM-Agent/" style="font-size: 0.6em;">LLM Agent</a> <a href="/blog/tags/MCP/" style="font-size: 0.6em;">MCP</a> <a href="/blog/tags/Next-js/" style="font-size: 0.6em;">Next.js</a> <a href="/blog/tags/OneBot-v11/" style="font-size: 0.6em;">OneBot v11</a> <a href="/blog/tags/PostgreSQL/" style="font-size: 0.6em;">PostgreSQL</a> <a href="/blog/tags/Python-%E5%BC%82%E6%AD%A5/" style="font-size: 0.6em;">Python 异步</a> <a href="/blog/tags/Redis/" style="font-size: 0.7em;">Redis</a> <a href="/blog/tags/SQLite/" style="font-size: 0.6em;">SQLite</a> <a href="/blog/tags/Spring-Boot/" style="font-size: 0.7em;">Spring Boot</a> <a href="/blog/tags/Vue/" style="font-size: 0.7em;">Vue</a> <a href="/blog/tags/WireGuard/" style="font-size: 0.8em;">WireGuard</a>
+      </div>
+  </aside>
+
+            
+                
+  <aside id="krw-posts" class="widget widget-kratos-posts">
+  <h4 class="widget-title"><i class="fa fa-file"></i>最新文章</h4>
+  <div class="tab-content">
+      <ul class="list-group">
+        
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/11/24/BubblePost/"><i class="fa fa-book"></i> 泡泡来信 BubblePost：把一只电子宠物鱼养在 QQ 里</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/11/23/%E6%98%9F%E8%AE%B0/"><i class="fa fa-book"></i> 星记 XingJi：端到端加密的双端备忘录，从需求拆解到双端交付</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/10/23/TrustedAgentHub/"><i class="fa fa-book"></i> TrustedAgentHub：Agent Skills 与 MCP 能力包审核分发平台实习复盘</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/06/28/Redis%20Cluster%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95%E4%B8%8E%E5%88%A8%E6%9E%90/"><i class="fa fa-book"></i> 高并发架构演进：Redis 三主三从 Cluster 极限压测与性能瓶颈剖析</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/06/25/Redis%E4%B8%89%E4%B8%BB%E4%B8%89%E4%BB%8E%E6%9E%B6%E6%9E%84/"><i class="fa fa-book"></i> 高并发架构演进：Redis 三主三从 Cluster 集群搭建与底层机制解析</a>
+            
+          
+        
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+      </ul>
+  </div>
+  </aside>
+
+            
+    </div>
+</section>
+            
+
+        
+
+        </div>
+</div>
+</div>
+
+<footer>
+    <div id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 footer-list text-center">
+                    <ul class="kratos-social-icons">
+                        
+                    </ul>
+                    <ul class="kratos-copyright">
+                        <div>
+                            <li>&copy; 2026 北白念 版权所有.</li>
+                            <li>本站已运行<span id="kr-since">Loading...</span></li>
+                        </div>
+                        <div>
+                            <li></li>
+                            <li>站点由<i class="fa fa-heart" style="color:#d43f57"></i>北白念<i class="fa fa-heart" style="color:#d43f57"></i> 搭建</li>
+                        </div>
+                        <!-- 额外的追加注入项 -->
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="kr-tool text-center">
+            <div class="tool">
+                <!-- 额外的追加注入项 -->
+                
+                            
+                                <div class="box search-box">
+                                    <a href="/blog/search">
+                                        <span class="fa fa-search"></span>
+                                    </a>
+                                </div>
+                                
+                                    <div class="box theme-box" id="theme-toggle">
+                                        <span class="fa fa-adjust"></span>
+                                    </div>
+            </div>
+            <div id="gotop-box" class="box gotop-box">
+                <span class="fa fa-chevron-up"></span>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</div>
+
+
+    <div id="kr-donate-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseDonateModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-bitcoin"></i>
+            </div>
+            <div class="kr-modal-title">💖 感谢支持，点击查看收款码</div>
+            <button class="kr-modal-close" onclick="krCloseDonateModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-donate-message">你的鼓励是我持续更新的动力！</div>
+            <div class="kr-donate-qr" id="kr-donate-qr">
+                
+            </div>
+            <div class="kr-donate-platforms">
+                
+                    
+                        <button class="kr-donate-platform-button" style="color: #07C160;" title="微信" onclick="krDonateModalShowPlatformQR('wxp://f2f0U-8OUlrs0izTyZ-5lVarqsgP8EKsPgzaLP85BiSn9fcO3ZVKct1SLLVbeitwIZHi', '#07C160')">
+                            <i class="fa fa-fa-weixin"></i>
+                        </button>
+                    
+                
+                    
+                        <button class="kr-donate-platform-button" style="color: #1677FF;" title="支付宝" onclick="krDonateModalShowPlatformQR('https://qr.alipay.com/fkx18296ibecsgq8leryn49', '#1677FF')">
+                            <i class="fa fa-fa-alipay"></i>
+                        </button>
+                    
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/blog/js/kr-modal/donate.min.js"></script>
+
+        
+
+            
+                <div id="kr-share-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseShareModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-share-alt"></i>
+            </div>
+            <div class="kr-modal-title">分享</div>
+            <button class="kr-modal-close" onclick="krCloseShareModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-share-message">扫码查看github网址，按钮查看个人网站</div>
+            <div class="kr-share-qr" id="kr-share-qr"></div>
+            <div class="kr-share-platforms">
+                
+                    <button class="kr-share-platform-button" style="color: #62b6e7;" title="北白念" onclick="krShareModalOpenPlatform('http://hweb.fun/blog')">
+                        <svg fill="currentColor" width="18" height="18" viewBox="0 0 329 388"><path d="M0,36.226c0,-19.993 16.233,-36.226 36.226,-36.226c13.788,0 25.787,7.719 31.908,19.068l188.366,229.845l0,-111.259c-6.356,5.508 -14.645,8.843 -23.707,8.843c-19.994,0 -36.226,-16.232 -36.226,-36.226c-0,-8.551 2.968,-16.413 7.93,-22.613l-0.015,-0.013l56.614,-69.08c6.2,-11.073 18.047,-18.565 31.63,-18.565c19.994,0 36.227,16.233 36.227,36.226l-0,314.644c-0,19.994 -16.233,36.226 -36.227,36.226c-13.166,0 -24.701,-7.039 -31.044,-17.555l-189.229,-230.899l-0,212.228c-0,19.994 -16.233,36.226 -36.227,36.226c-19.993,0 -36.226,-16.232 -36.226,-36.226l0,-314.644Z" /></svg>
+                    </button>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/blog/js/kr-modal/share.min.js"></script>
+
+                    
+
+                        <!-- 额外的追加注入项 -->
+                        
+        <script>
+    if (!window.kr) {
+        window.kr = {};
+    }
+    window.kr.notMobile = (!(navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)));
+    window.kr.siteRoot = "/blog/";
+</script>
+
+
+  <script defer src="/blog/vendors/nprogress@0.2.0/nprogress.js"></script>
+
+
+
+  <script defer src="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.js"></script>
+
+
+<script defer src="/blog/js/kr-core.min.js"></script>
+
+
+  <script defer src="/blog/js/kr-pjax.min.js"></script>
+
+
+<!-- 额外的追加注入项 -->
+
+
+    </body>
+</html>

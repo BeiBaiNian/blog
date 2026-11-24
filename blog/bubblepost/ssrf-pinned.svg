@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="360" viewBox="0 0 800 360" role="img">
+<style>text{font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif}</style>
+<rect width="800" height="360" fill="#0E1518"/>
+<radialGradient id="g1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#14313D" stop-opacity="0.45"/><stop offset="62%" stop-color="#14313D" stop-opacity="0.171"/><stop offset="100%" stop-color="#14313D" stop-opacity="0"/></radialGradient>
+<circle cx="720" cy="30" r="360" fill="url(#g1)"/>
+<rect x="36" y="44" width="728" height="108" rx="18" fill="#121C20" stroke="#26353C" stroke-width="1.2"/>
+<rect x="52" y="31" width="94.0" height="26" rx="13" fill="#172026" stroke="#2C3D45" stroke-width="1.2"/>
+<text x="99.0" y="50" fill="#F5A623" font-size="17" font-weight="500" text-anchor="middle" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>常规做法</text>
+<rect x="56" y="84" width="130" height="44" rx="13" fill="#1E2A31" stroke="#2C3D45" stroke-width="1.3"/>
+<text x="121.0" y="112.12" fill="#9DB0AC" font-size="17" font-weight="500" text-anchor="middle" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>解析域名</text>
+<rect x="206" y="84" width="110" height="44" rx="13" fill="#1E2A31" stroke="#2C3D45" stroke-width="1.3"/>
+<text x="261.0" y="112.12" fill="#9DB0AC" font-size="17" font-weight="500" text-anchor="middle" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>判私网</text>
+<rect x="336" y="84" width="156" height="44" rx="13" fill="#1E2A31" stroke="#2C3D45" stroke-width="1.3"/>
+<text x="414.0" y="112.12" fill="#9DB0AC" font-size="17" font-weight="500" text-anchor="middle" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>用域名再请求</text>
+<marker id="ar2" markerWidth="9" markerHeight="9" refX="7.2" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L9,4.5 L0,9 z" fill="#4A5A60"/></marker>
+<path d="M 186.0,106.0 L 204.0,106.0" fill="none" stroke="#4A5A60" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#ar2)"/>
+<marker id="ar3" markerWidth="9" markerHeight="9" refX="7.2" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L9,4.5 L0,9 z" fill="#4A5A60"/></marker>
+<path d="M 316.0,106.0 L 334.0,106.0" fill="none" stroke="#4A5A60" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#ar3)"/>
+<rect x="516" y="84" width="156" height="44" rx="22.0" fill="#2A1D20" stroke="#FFB1B8" stroke-width="1.2"/>
+<text x="594.0" y="112.12" fill="#FFB1B8" font-size="17" font-weight="400" text-anchor="middle" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>DNS 换答案</text>
+<marker id="ar4" markerWidth="9" markerHeight="9" refX="7.2" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L9,4.5 L0,9 z" fill="#FFB1B8"/></marker>
+<path d="M 492.0,106.0 L 514.0,106.0" fill="none" stroke="#FFB1B8" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5" marker-end="url(#ar4)"/>
+<rect x="36" y="176" width="728" height="140" rx="18" fill="#121C20" stroke="#26353C" stroke-width="1.2"/>
+<rect x="52" y="163" width="94.0" height="26" rx="13" fill="#172026" stroke="#2C3D45" stroke-width="1.2"/>
+<text x="99.0" y="182" fill="#99D8C6" font-size="17" font-weight="500" text-anchor="middle" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>固定地址</text>
+<rect x="56" y="220" width="158" height="44" rx="13" fill="#172026" stroke="#2C3D45" stroke-width="1.3"/>
+<text x="135.0" y="248.12" fill="#EDF3F1" font-size="17" font-weight="500" text-anchor="middle" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>解析全部地址</text>
+<rect x="234" y="220" width="150" height="44" rx="13" fill="#172026" stroke="#2C3D45" stroke-width="1.3"/>
+<text x="309.0" y="248.12" fill="#EDF3F1" font-size="17" font-weight="500" text-anchor="middle" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>is_global 校验</text>
+<rect x="404" y="220" width="126" height="44" rx="13" fill="#172026" stroke="#2C3D45" stroke-width="1.3"/>
+<text x="467.0" y="248.12" fill="#EDF3F1" font-size="17" font-weight="500" text-anchor="middle" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>直连该 IP</text>
+<rect x="550" y="220" width="178" height="44" rx="13" fill="#172026" stroke="#2C3D45" stroke-width="1.3"/>
+<text x="639.0" y="248.12" fill="#EDF3F1" font-size="17" font-weight="500" text-anchor="middle" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>getpeername 复核</text>
+<marker id="ar5" markerWidth="9" markerHeight="9" refX="7.2" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L9,4.5 L0,9 z" fill="#99D8C6"/></marker>
+<path d="M 214.0,242.0 L 232.0,242.0" fill="none" stroke="#99D8C6" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#ar5)"/>
+<marker id="ar6" markerWidth="9" markerHeight="9" refX="7.2" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L9,4.5 L0,9 z" fill="#99D8C6"/></marker>
+<path d="M 384.0,242.0 L 402.0,242.0" fill="none" stroke="#99D8C6" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#ar6)"/>
+<marker id="ar7" markerWidth="9" markerHeight="9" refX="7.2" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L9,4.5 L0,9 z" fill="#99D8C6"/></marker>
+<path d="M 530.0,242.0 L 548.0,242.0" fill="none" stroke="#99D8C6" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#ar7)"/>
+<marker id="ar8" markerWidth="9" markerHeight="9" refX="7.2" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L9,4.5 L0,9 z" fill="#99D8C6"/></marker>
+<path d="M 639.0,264.0 L 639.0,290.0 L 196.0,290.0 L 196.0,266.0" fill="none" stroke="#99D8C6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5" marker-end="url(#ar8)"/>
+<rect x="300" y="276" width="180" height="28" rx="14.0" fill="#16302A" stroke="#99D8C6" stroke-width="1.2"/>
+<text x="390.0" y="295.04" fill="#99D8C6" font-size="14" font-weight="400" text-anchor="middle" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>每跳重定向重走</text>
+</svg>

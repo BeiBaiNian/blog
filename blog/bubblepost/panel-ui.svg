@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="460" viewBox="0 0 800 460" role="img">
+<style>text{font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif}</style>
+<rect width="800" height="460" fill="#0E1518"/>
+<radialGradient id="g1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#1E3D42" stop-opacity="0.45"/><stop offset="62%" stop-color="#1E3D42" stop-opacity="0.171"/><stop offset="100%" stop-color="#1E3D42" stop-opacity="0"/></radialGradient>
+<circle cx="680" cy="60" r="420" fill="url(#g1)"/>
+<rect x="24" y="24" width="752" height="412" rx="18" fill="#111C20" stroke="#26353C" stroke-width="1.3"/>
+<line x1="24" y1="64" x2="776" y2="64" stroke="#26353C" stroke-width="1.2"/>
+<circle cx="48" cy="44" r="4.5" fill="#3A4A50"/>
+<circle cx="66" cy="44" r="4.5" fill="#3A4A50"/>
+<circle cx="84" cy="44" r="4.5" fill="#3A4A50"/>
+<rect x="24" y="64" width="160" height="372" rx="0" fill="#131E23"/>
+<text x="56" y="102" fill="#6B7D79" font-size="15" font-weight="400" text-anchor="start" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>概览</text>
+<text x="56" y="136" fill="#6B7D79" font-size="15" font-weight="400" text-anchor="start" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>额度</text>
+<rect x="34" y="150" width="140" height="28" rx="9" fill="#1B2C31" stroke="#99D8C6" stroke-width="1.2"/>
+<rect x="34" y="154" width="3" height="20" rx="2" fill="#99D8C6"/>
+<text x="56" y="170" fill="#99D8C6" font-size="15" font-weight="400" text-anchor="start" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>记忆</text>
+<text x="56" y="204" fill="#6B7D79" font-size="15" font-weight="400" text-anchor="start" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>指令</text>
+<text x="56" y="238" fill="#6B7D79" font-size="15" font-weight="400" text-anchor="start" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>表情包</text>
+<text x="56" y="272" fill="#6B7D79" font-size="15" font-weight="400" text-anchor="start" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>人格</text>
+<text x="56" y="306" fill="#6B7D79" font-size="15" font-weight="400" text-anchor="start" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>调参</text>
+<text x="56" y="340" fill="#6B7D79" font-size="15" font-weight="400" text-anchor="start" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>内容</text>
+<text x="56" y="374" fill="#6B7D79" font-size="15" font-weight="400" text-anchor="start" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>QQ 通道</text>
+<text x="56" y="408" fill="#6B7D79" font-size="15" font-weight="400" text-anchor="start" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>设置</text>
+<rect x="204" y="84" width="126" height="68" rx="14" fill="#172026" stroke="#26353C" stroke-width="1.1"/>
+<text x="224" y="126" fill="#99D8C6" font-size="17" font-weight="400" text-anchor="start" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>记忆 372 条</text>
+<rect x="344" y="84" width="126" height="68" rx="14" fill="#172026" stroke="#26353C" stroke-width="1.1"/>
+<text x="364" y="126" fill="#BCB9EB" font-size="17" font-weight="400" text-anchor="start" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>内容 67 篇</text>
+<rect x="484" y="84" width="126" height="68" rx="14" fill="#172026" stroke="#26353C" stroke-width="1.1"/>
+<text x="504" y="126" fill="#9DB0AC" font-size="17" font-weight="400" text-anchor="start" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>事件 1577</text>
+<rect x="624" y="84" width="126" height="68" rx="14" fill="#172026" stroke="#26353C" stroke-width="1.1"/>
+<text x="644" y="126" fill="#F5A623" font-size="17" font-weight="400" text-anchor="start" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>QQ 在线</text>
+<rect x="204" y="168" width="66" height="30" rx="15" fill="#1E2A31" stroke="#2C3D45" stroke-width="1.1"/>
+<text x="237" y="188" fill="#9DB0AC" font-size="14" font-weight="400" text-anchor="middle" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>全部</text>
+<rect x="278" y="168" width="66" height="30" rx="15" fill="#1E2A31" stroke="#2C3D45" stroke-width="1.1"/>
+<text x="311" y="188" fill="#9DB0AC" font-size="14" font-weight="400" text-anchor="middle" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>私聊</text>
+<rect x="352" y="168" width="66" height="30" rx="15" fill="#1B2C31" stroke="#99D8C6" stroke-width="1.1"/>
+<text x="385" y="188" fill="#99D8C6" font-size="14" font-weight="400" text-anchor="middle" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>群聊</text>
+<rect x="426" y="168" width="66" height="30" rx="15" fill="#1E2A31" stroke="#2C3D45" stroke-width="1.1"/>
+<text x="459" y="188" fill="#9DB0AC" font-size="14" font-weight="400" text-anchor="middle" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>自身</text>
+<rect x="204" y="214" width="548" height="200" rx="16" fill="#172026" stroke="#26353C" stroke-width="1.1"/>
+<rect x="218" y="230" width="520" height="34" rx="10" fill="#1B272D" stroke="#2A363C" stroke-width="1.0"/>
+<circle cx="238" cy="247" r="4" fill="#99D8C6"/>
+<text x="254" y="253" fill="#9DB0AC" font-size="15" font-weight="400" text-anchor="start" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>群聊 · 记忆 12 条</text>
+<rect x="660" y="242" width="62" height="10" rx="5" fill="#2A363C"/>
+<rect x="218" y="274" width="520" height="34" rx="10" fill="#1B272D" stroke="#2A363C" stroke-width="1.0"/>
+<circle cx="238" cy="291" r="4" fill="#99D8C6"/>
+<text x="254" y="297" fill="#9DB0AC" font-size="15" font-weight="400" text-anchor="start" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>群聊 · 记忆 8 条</text>
+<rect x="660" y="286" width="62" height="10" rx="5" fill="#2A363C"/>
+<rect x="218" y="318" width="520" height="34" rx="10" fill="#1B272D" stroke="#2A363C" stroke-width="1.0"/>
+<circle cx="238" cy="335" r="4" fill="#BCB9EB"/>
+<text x="254" y="341" fill="#9DB0AC" font-size="15" font-weight="400" text-anchor="start" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>私聊 · 记忆 21 条</text>
+<rect x="660" y="330" width="62" height="10" rx="5" fill="#2A363C"/>
+<rect x="218" y="362" width="520" height="34" rx="10" fill="#1B272D" stroke="#2A363C" stroke-width="1.0"/>
+<circle cx="238" cy="379" r="4" fill="#BCB9EB"/>
+<text x="254" y="385" fill="#9DB0AC" font-size="15" font-weight="400" text-anchor="start" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>会话 · 记忆 4 条</text>
+<rect x="660" y="374" width="62" height="10" rx="5" fill="#2A363C"/>
+</svg>

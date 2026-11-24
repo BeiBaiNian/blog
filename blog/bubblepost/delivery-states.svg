@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="330" viewBox="0 0 800 330" role="img">
+<style>text{font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif}</style>
+<rect width="800" height="330" fill="#0E1518"/>
+<radialGradient id="g1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#1E3D42" stop-opacity="0.4"/><stop offset="62%" stop-color="#1E3D42" stop-opacity="0.152"/><stop offset="100%" stop-color="#1E3D42" stop-opacity="0"/></radialGradient>
+<circle cx="70" cy="300" r="340" fill="url(#g1)"/>
+<rect x="56" y="132" width="130" height="44" rx="13" fill="#1E2A31" stroke="#2C3D45" stroke-width="1.3"/>
+<text x="121.0" y="159.76" fill="#9DB0AC" font-size="16" font-weight="500" text-anchor="middle" font-family='Consolas,"Cascadia Mono","DejaVu Sans Mono",monospace'>pending</text>
+<rect x="216" y="132" width="130" height="44" rx="13" fill="#172026" stroke="#2C3D45" stroke-width="1.3"/>
+<text x="281.0" y="159.76" fill="#EDF3F1" font-size="16" font-weight="500" text-anchor="middle" font-family='Consolas,"Cascadia Mono","DejaVu Sans Mono",monospace'>sending</text>
+<marker id="ar2" markerWidth="9" markerHeight="9" refX="7.2" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L9,4.5 L0,9 z" fill="#9DB0AC"/></marker>
+<path d="M 188.0,154.0 L 214.0,154.0" fill="none" stroke="#9DB0AC" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#ar2)"/>
+<rect x="400" y="44" width="150" height="44" rx="13" fill="#16302A" stroke="#99D8C6" stroke-width="1.3"/>
+<text x="475.0" y="71.76" fill="#99D8C6" font-size="16" font-weight="500" text-anchor="middle" font-family='Consolas,"Cascadia Mono","DejaVu Sans Mono",monospace'>sent</text>
+<rect x="400" y="132" width="150" height="44" rx="13" fill="#232019" stroke="#F5A623" stroke-width="1.3"/>
+<text x="475.0" y="159.76" fill="#F5A623" font-size="16" font-weight="500" text-anchor="middle" font-family='Consolas,"Cascadia Mono","DejaVu Sans Mono",monospace'>failed</text>
+<rect x="400" y="220" width="150" height="44" rx="13" fill="#2A1D20" stroke="#FFB1B8" stroke-width="1.3"/>
+<text x="475.0" y="247.76" fill="#FFB1B8" font-size="16" font-weight="500" text-anchor="middle" font-family='Consolas,"Cascadia Mono","DejaVu Sans Mono",monospace'>unknown</text>
+<marker id="ar3" markerWidth="9" markerHeight="9" refX="7.2" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L9,4.5 L0,9 z" fill="#99D8C6"/></marker>
+<path d="M 350.0,150.0 L 398.0,66.0" fill="none" stroke="#99D8C6" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#ar3)"/>
+<marker id="ar4" markerWidth="9" markerHeight="9" refX="7.2" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L9,4.5 L0,9 z" fill="#F5A623"/></marker>
+<path d="M 348.0,154.0 L 398.0,154.0" fill="none" stroke="#F5A623" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#ar4)"/>
+<marker id="ar5" markerWidth="9" markerHeight="9" refX="7.2" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L9,4.5 L0,9 z" fill="#FFB1B8"/></marker>
+<path d="M 350.0,158.0 L 398.0,242.0" fill="none" stroke="#FFB1B8" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#ar5)"/>
+<rect x="600" y="220" width="150" height="44" rx="13" fill="#172026" stroke="#2C3D45" stroke-width="1.3"/>
+<text x="675.0" y="248.12" fill="#9DB0AC" font-size="17" font-weight="500" text-anchor="middle" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>面板确认</text>
+<marker id="ar6" markerWidth="9" markerHeight="9" refX="7.2" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L9,4.5 L0,9 z" fill="#FFB1B8"/></marker>
+<path d="M 552.0,242.0 L 598.0,242.0" fill="none" stroke="#FFB1B8" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5" marker-end="url(#ar6)"/>
+<marker id="ar7" markerWidth="9" markerHeight="9" refX="7.2" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L9,4.5 L0,9 z" fill="#F5A623"/></marker>
+<path d="M 675.0,220.0 L 675.0,154.0 L 552.0,154.0" fill="none" stroke="#F5A623" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5" marker-end="url(#ar7)"/>
+<text x="266" y="268" fill="#FFB1B8" font-size="15" font-weight="400" text-anchor="end" font-family='"Microsoft YaHei","PingFang SC","Noto Sans SC","Segoe UI",sans-serif'>重启</text>
+<marker id="ar8" markerWidth="9" markerHeight="9" refX="7.2" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L9,4.5 L0,9 z" fill="#FFB1B8"/></marker>
+<path d="M 281.0,176.0 L 281.0,296.0 L 398.0,296.0 L 398.0,266.0" fill="none" stroke="#FFB1B8" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 5" marker-end="url(#ar8)"/>
+</svg>
