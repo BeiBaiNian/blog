@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+  <!-- 元数据 -->
+  <meta charset="utf-8">
+  
+    <link rel="icon" href="/blog/images/favicon.png">
+  
+  
+  <title>密钥模型：为什么改密码不用换密钥 | 北白念</title>
+  <link rel="canonical" href="https://beibainian.github.io/blog/2026/11/26/xingji-key-model/">
+  <meta name="author" content="董子阳" />
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="robots" content="index,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="format-detection" content="telphone=no, email=no" />
+  
+    <meta name="keywords" content="Argon2id, XChaCha20-Poly1305, libsodium, 密钥管理, 端到端加密" />
+  
+  <meta name="description" content="星记里「改主密码」这四个字容易让人误会，以为它要把整库数据重新加密一遍。 不是。主密码在这个项目里从来不是直接加密数据的那把钥匙，它只负责打开一个装钥匙的盒子。改密码换的是盒子。盒子里那 32 字节，从头到尾没动过。 写完 vault_crypto.dart 之后我最想记下来的就是这个：一套密钥模型好不好，不看它用了多少原语，看的是「改密码」这种日常操作要不要停机重刷数据。下面按执行顺序讲一遍。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="密钥模型：为什么改密码不用换密钥">
+<meta property="og:url" content="https://beibainian.github.io/blog/2026/11/26/xingji-key-model/index.html">
+<meta property="og:site_name" content="北白念">
+<meta property="og:description" content="星记里「改主密码」这四个字容易让人误会，以为它要把整库数据重新加密一遍。 不是。主密码在这个项目里从来不是直接加密数据的那把钥匙，它只负责打开一个装钥匙的盒子。改密码换的是盒子。盒子里那 32 字节，从头到尾没动过。 写完 vault_crypto.dart 之后我最想记下来的就是这个：一套密钥模型好不好，不看它用了多少原语，看的是「改密码」这种日常操作要不要停机重刷数据。下面按执行顺序讲一遍。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://beibainian.github.io/blog/blog/xingji/key-hierarchy.png">
+<meta property="article:published_time" content="2026-11-26T02:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-26T06:39:26.232Z">
+<meta property="article:author" content="董子阳">
+<meta property="article:tag" content="端到端加密">
+<meta property="article:tag" content="Argon2id">
+<meta property="article:tag" content="XChaCha20-Poly1305">
+<meta property="article:tag" content="libsodium">
+<meta property="article:tag" content="密钥管理">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://beibainian.github.io/blog/blog/xingji/key-hierarchy.png">
+  
+  <!-- JSON-LD 结构化数据 -->
+  
+  
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"密钥模型：为什么改密码不用换密钥","description":"星记里「改主密码」这四个字容易让人误会，以为它要把整库数据重新加密一遍。\n不是。主密码在这个项目里从来不是直接加密数据的那把钥匙，它只负责打开一个装钥匙的盒子。改密码换的是盒子。盒子里那 32 字节，从头到尾没动过。\n写完 vault_crypto...","image":"https://beibainian.github.io/blog/2026/11/26/xingji-key-model/blog/xingji/key-hierarchy.png","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-11-26T02:00:00.000Z","dateModified":"2026-11-26T06:39:26.232Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/11/26/xingji-key-model/"}}
+    </script>
+  
+  <!-- 关键 CSS 预加载 -->
+  <link rel="preload" href="/blog/css/kr-core.min.css" as="style" crossorigin>
+  <link rel="preload" href="/blog/css/kr-theme/light.min.css" as="style" crossorigin>
+  <link rel="preload" href="/blog/css/kr-theme/dark.min.css" as="style" crossorigin>
+  <!-- 样式表文件 -->
+  <link rel="stylesheet" id="kratos-css" href="/blog/css/kr-core.min.css" media="all">
+  <link rel="stylesheet" id="theme-light-css" href="/blog/css/kr-theme/light.min.css" media="all">
+  <link rel="stylesheet" id="theme-dark-css" href="/blog/css/kr-theme/dark.min.css" media="(prefers-color-scheme: dark)">
+  
+    <link rel="stylesheet"  id="highlight-css" href="/blog/css/highlight/highlight.js/night-eighties.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/css/highlight/highlight.js/night-eighties.min.css"></noscript>
+  
+  <script src="/blog/js/kr-theme.min.js"></script>
+  <link rel="stylesheet"  id="fontawe-css" href="/blog/vendors/font-awesome@4.7.0/css/font-awesome.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/font-awesome@4.7.0/css/font-awesome.min.css"></noscript>
+  
+    <link rel="stylesheet"  id="nprogress-css" href="/blog/vendors/nprogress@0.2.0/nprogress.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/nprogress@0.2.0/nprogress.css"></noscript>
+  
+  
+    <link rel="stylesheet"  href="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.css"></noscript>
+  
+  <!-- 预先加载的JS文件 -->
+  
+    <script src="/blog/vendors/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  
+  <!-- 自定义站点横幅和背景 -->
+  <style>
+    
+      .kratos-cover.kratos-cover-2 {
+        background-image: url('/blog/images/light.png');
+      }
+      html[data-theme="dark"] .kratos-cover.kratos-cover-2 {
+        background-image: url('/blog/images/dark.png');
+      }
+    
+    
+      @media(min-width:768px) {
+        body.custom-background {
+          background-image: url('/blog/images/background.png');
+        }
+        html[data-theme="dark"] body.custom-background {
+          background-image: url('/blog/images/background.png');
+        }
+      }
+    
+    
+      .widget-kratos-about .photo-background {
+        background-image: url('/blog/images/light.png');
+      }
+      html[data-theme="dark"] .widget-kratos-about .photo-background {
+        background-image: url('/blog/images/dark.png');
+      }
+    
+  </style>
+
+  <!-- 额外的追加注入项 -->
+  
+</head>
+
+    <body class="custom-background">
+        <div id="kratos-wrapper">
+    <div id="kratos-page">
+        <div id="kratos-header">
+            <header id="kratos-desktop-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="nav-header">
+                        <nav id="kratos-menu-wrap">
+                            <ul id="kratos-primary-menu" class="sf-menu">
+                                
+                                    <li>
+                                        
+                                            <a href="/blog/">
+                                        
+                                            
+                                                <i class="fa fa-home"></i>
+                                            
+                                            首页
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/blog/archives/">
+                                        
+                                            
+                                                <i class="fa fa-file"></i>
+                                            
+                                            档案馆
+                                        </a>
+                                        
+                                    </li>
+                                
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <header id="kratos-mobile-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="color-logo"><a href="/blog/">北白念</a></div>
+                    <div id="kratos-nav-toggle-wrapper" class="nav-toggle">
+                        <a id="kratos-nav-toggle" class="kratos-nav-toggle">
+                            <i></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="kratos-start kratos-hero-2">
+            <!-- <div class="kratos-overlay"></div> -->
+            <div class="kratos-cover kratos-cover-2 text-center">
+                <div class="desc desc2 animate-box">
+                    <a href="/blog/">
+                        <h2>北白念</h2> <br />
+                        <span>记录个人的学习笔记和技术文章，偶尔也会分享一些生活感悟。</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="kratos-blog-post">
+            <div class="container">
+                <div id="main" class="row">
+
+
+        
+
+            
+
+            <section class="kr-main-col col-md-8">
+
+        
+
+            <article itemscope itemtype="https://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://beibainian.github.io/blog/2026/11/26/xingji-key-model/">
+    <div class="kratos-hentry kratos-page-inner clearfix">
+        <header class="kratos-page-header">
+            
+                <h1 class="kratos-page-title text-center" itemprop="name headline">密钥模型：为什么改密码不用换密钥</h1>
+            
+            <ul class="kratos-page-meta text-center">
+                <li><time datetime="2026-11-26T02:00:00.000Z" itemprop="datePublished"><i class="fa fa-calendar"></i> 2026-11-26</time></li>
+                <li itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <i class="fa fa-user"></i> 作者 <span itemprop="name">董子阳</span>
+                </li>
+                
+                    <li>
+                        <i class="fa fa-edit"></i> 
+                        
+                        
+                            ~9.07K
+                        
+                        字
+                    </li>
+                
+                
+                
+            </ul>
+        </header>
+        <div class="kratos-page-content kr-post">
+            
+            
+            
+            <hr />
+            <div itemprop="articleBody"><p>星记里「改主密码」这四个字容易让人误会，以为它要把整库数据重新加密一遍。</p>
+<p>不是。主密码在这个项目里从来不是直接加密数据的那把钥匙，它只负责打开一个装钥匙的盒子。改密码换的是盒子。盒子里那 32 字节，从头到尾没动过。</p>
+<p>写完 <code>vault_crypto.dart</code> 之后我最想记下来的就是这个：一套密钥模型好不好，不看它用了多少原语，看的是「改密码」这种日常操作要不要停机重刷数据。下面按执行顺序讲一遍。</p>
+<span id="more"></span>
+
+<h2 id="🔑-三层"><a href="#🔑-三层" class="headerlink" title="🔑 三层"></a>🔑 三层</h2><p>真正参与加密的只有一把密钥，32 字节随机数。记录、历史版本、图片分块，都由它或它的派生去加密。</p>
+<p>用户记住的那个主密码，作用只是把这把密钥锁住，中间隔一层 Argon2id：密码派生出一个包装密钥，包装密钥负责解封。</p>
+<p>第三样是恢复码。同样是 32 字节真随机，建库时和资料库密钥一起生成，挂在另一条独立的包装路径上。它存在的理由很朴素：人会忘密码。</p>
+<table>
+<thead>
+<tr>
+<th>东西</th>
+<th>长度</th>
+<th>从哪来</th>
+<th>落在哪</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主密码</td>
+<td>至少 10 字符</td>
+<td>用户自己想</td>
+<td>哪都不存</td>
+</tr>
+<tr>
+<td>包装密钥</td>
+<td>32 字节</td>
+<td>每次解锁现算 Argon2id(密码, 16 字节盐)</td>
+<td>不落盘，算完擦掉</td>
+</tr>
+<tr>
+<td>资料库密钥</td>
+<td>32 字节</td>
+<td><code>keygen()</code> 真随机</td>
+<td>只以密文形式躺在密钥包里</td>
+</tr>
+<tr>
+<td>恢复码</td>
+<td><code>XJ1.</code> 加 43 个字符</td>
+<td><code>secureRandom(32)</code></td>
+<td>建库那一次显示，之后没有</td>
+</tr>
+</tbody></table>
+<p>拉成三层是为了让密码和数据脱钩。想改密码就改，想读数据随时能读，两者只靠一次包装连着。代价也在同一处：任何一环丢了都补不回来，所以恢复码必须在建库那一刻抄下来，那个界面不会出现第二次。</p>
+<h2 id="📦-密钥包"><a href="#📦-密钥包" class="headerlink" title="📦 密钥包"></a>📦 密钥包</h2><p>密钥包是个 JSON，建库后原样写进本机 SQLite 的 meta 表，也是唯一会同步到服务器的东西。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;format&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;vault_id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;9f2c1e7a-....&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;key_version&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;kdf&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;algorithm&quot;</span><span class="punctuation">:</span> <span class="string">&quot;argon2id13&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;memory&quot;</span><span class="punctuation">:</span> <span class="number">67108864</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;operations&quot;</span><span class="punctuation">:</span> <span class="number">3</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;salt&quot;</span><span class="punctuation">:</span> <span class="string">&quot;16 字节 base64&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;password&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;nonce&quot;</span><span class="punctuation">:</span> <span class="string">&quot;24 字节 base64&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;payload&quot;</span><span class="punctuation">:</span> <span class="string">&quot;48 字节 base64&quot;</span> <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;recovery&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;nonce&quot;</span><span class="punctuation">:</span> <span class="string">&quot;24 字节 base64&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;payload&quot;</span><span class="punctuation">:</span> <span class="string">&quot;48 字节 base64&quot;</span> <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;proof&quot;</span><span class="punctuation">:</span>    <span class="punctuation">&#123;</span> <span class="attr">&quot;nonce&quot;</span><span class="punctuation">:</span> <span class="string">&quot;24 字节 base64&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;payload&quot;</span><span class="punctuation">:</span> <span class="string">&quot;16 字节 base64&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>几个长度是能对上的。<code>password</code> 和 <code>recovery</code> 的 payload 都是 48 字节，等于 32 字节明文加 16 字节 Poly1305 标签。<code>proof</code> 的 payload 只有 16 字节，因为它封的是空明文，只剩标签。整个包五百字节上下，服务器那边给它留了 16 KB 上限。</p>
+<p>没有用户名，没有邮箱，也没有账号。这套体系里唯一的身份是 <code>vault_id</code>，一个随机 UUID，不参与派生计算，只用来做绑定。</p>
+<h2 id="🏗️-建库"><a href="#🏗️-建库" class="headerlink" title="🏗️ 建库"></a>🏗️ 建库</h2><p>建库干四件事：造密钥、造恢复码、派生包装密钥、把密钥封两遍。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> id = uuid.v4();</span><br><span class="line"><span class="keyword">final</span> key = sodium.crypto.aeadXChaCha20Poly1305IETF.keygen();</span><br><span class="line"><span class="keyword">final</span> recovery = sodium.secureRandom(<span class="number">32</span>);</span><br><span class="line"><span class="keyword">final</span> kdf = _descriptor();</span><br><span class="line"><span class="keyword">final</span> wrapping = <span class="keyword">await</span> _derive(password, kdf);</span><br><span class="line"></span><br><span class="line"><span class="keyword">final</span> wrapped = key.runUnlockedSync(</span><br><span class="line">  (bytes) =&gt; _seal(bytes, wrapping, <span class="string">&#x27;xingji-key:1:<span class="subst">$id</span>:password&#x27;</span>),</span><br><span class="line">);</span><br><span class="line"><span class="keyword">final</span> recoveryWrapped = key.runUnlockedSync(</span><br><span class="line">  (bytes) =&gt; _seal(bytes, recovery, <span class="string">&#x27;xingji-key:1:<span class="subst">$id</span>:recovery&#x27;</span>),</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>封装用 XChaCha20-Poly1305，每次一个新 nonce，AAD 里塞的是 <code>xingji-key:1:&lt;vault_id&gt;:&lt;用途&gt;</code>：</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Json _seal(Uint8List bytes, SecureKey key, <span class="built_in">String</span> aad) &#123;</span><br><span class="line">  <span class="keyword">final</span> nonce = sodium.randombytes.buf(<span class="number">24</span>);</span><br><span class="line">  <span class="keyword">final</span> encrypted = sodium.crypto.aeadXChaCha20Poly1305IETF.encrypt(</span><br><span class="line">    message: bytes,</span><br><span class="line">    nonce: nonce,</span><br><span class="line">    key: key,</span><br><span class="line">    additionalData: Uint8List.fromList(utf8.encode(aad)),</span><br><span class="line">  );</span><br><span class="line">  <span class="keyword">return</span> &#123;<span class="string">&#x27;nonce&#x27;</span>: base64Encode(nonce), <span class="string">&#x27;payload&#x27;</span>: base64Encode(encrypted)&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>AAD 里为什么要带 vault_id 和用途。因为这两段密文封的是同一把数据密钥。假设两个库碰巧用了同一个主密码，它们的包装密钥就会是同一把，那么 A 库的密码块塞进 B 库是能解开的，解出来却是 A 的数据密钥，然后 B 库所有记录全部解不开。用户看到的现象是「密码明明对，数据全乱」。加上 AAD 之后，这种情形在解锁那一步就失败，不会留下一个半坏的状态。</p>
+<h2 id="🔓-解锁"><a href="#🔓-解锁" class="headerlink" title="🔓 解锁"></a>🔓 解锁</h2><p>主密码和恢复码走同一段代码，只有「包装密钥从哪来」这一步不同。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (recovery) &#123;</span><br><span class="line">  <span class="keyword">final</span> normalized = secret.replaceAll(<span class="built_in">RegExp</span>(<span class="string">r&#x27;\s&#x27;</span>), <span class="string">&#x27;&#x27;</span>);</span><br><span class="line">  <span class="keyword">if</span> (!normalized.startsWith(<span class="string">&#x27;XJ1.&#x27;</span>)) <span class="keyword">throw</span> <span class="keyword">const</span> FormatException(<span class="string">&#x27;恢复码格式不正确&#x27;</span>);</span><br><span class="line">  <span class="keyword">final</span> raw = base64Url.decode(base64Url.normalize(normalized.substring(<span class="number">4</span>)));</span><br><span class="line">  <span class="keyword">if</span> (raw.length != <span class="number">32</span>) <span class="keyword">throw</span> <span class="keyword">const</span> FormatException(<span class="string">&#x27;恢复码格式不正确&#x27;</span>);</span><br><span class="line">  wrapper = sodium.secureCopy(raw);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  wrapper = <span class="keyword">await</span> _derive(secret, envelope[<span class="string">&#x27;kdf&#x27;</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>恢复码不做慢哈希。它本身就是 32 字节真随机，熵已经顶格，再套一层 Argon2id 只能拖慢合法用户。密码相反，密码是人编的，必须靠慢哈希把每次猜测的成本抬起来：64 MiB 内存、3 轮迭代。</p>
+<p>参数写死了，而且严格校验：</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (descriptor[<span class="string">&#x27;algorithm&#x27;</span>] != <span class="string">&#x27;argon2id13&#x27;</span> ||</span><br><span class="line">    descriptor[<span class="string">&#x27;memory&#x27;</span>] != memoryLimit ||</span><br><span class="line">    descriptor[<span class="string">&#x27;operations&#x27;</span>] != operations) &#123;</span><br><span class="line">  <span class="keyword">throw</span> <span class="keyword">const</span> FormatException(<span class="string">&#x27;不支持的密码派生参数&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这一步看着啰嗦，其实是必要的。密钥包是从服务器拿的，如果允许它自己指定 <code>memory</code>，那它写个 1 TiB 就能让客户端替攻击者分配内存把自己撑死。测试里有一条专测这个：异常 KDF 参数不会触发巨额分配。</p>
+<p>Argon2id 放在 <code>Isolate.run</code> 里跑，单次百毫秒左右，搁 UI 线程上解锁动画会卡成幻灯片。派生结果复制进 libsodium 的 SecureKey 之后立刻清零原始 buffer，用完 dispose。</p>
+<p>解出数据密钥之后还有三步，最后一步常被省掉：</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (raw.length != <span class="number">32</span>) <span class="keyword">throw</span> <span class="keyword">const</span> FormatException(<span class="string">&#x27;资料库密钥格式错误&#x27;</span>);</span><br><span class="line">lock();</span><br><span class="line">_key = sodium.secureCopy(raw);</span><br><span class="line">vaultId = id;</span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  verifyEnvelope(envelope);</span><br><span class="line">&#125; <span class="keyword">catch</span> (_) &#123;</span><br><span class="line">  lock();</span><br><span class="line">  <span class="keyword">rethrow</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>顺序是有讲究的。先清掉旧状态，再把新密钥装进去，最后拿它去验证「装着它的这个盒子」是不是原装的。任何一步失败都退回未解锁。</p>
+<h2 id="♻️-改密码"><a href="#♻️-改密码" class="headerlink" title="♻️ 改密码"></a>♻️ 改密码</h2><p>正题，完整实现十七行：</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Future&lt;Json&gt; changePassword(Json envelope, <span class="built_in">String</span> password) <span class="keyword">async</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (password.length &lt; <span class="number">10</span>) <span class="keyword">throw</span> <span class="keyword">const</span> FormatException(<span class="string">&#x27;主密码至少需要 10 个字符&#x27;</span>);</span><br><span class="line">  <span class="keyword">if</span> (envelope[<span class="string">&#x27;vault_id&#x27;</span>] != vaultId) <span class="keyword">throw</span> <span class="keyword">const</span> FormatException(<span class="string">&#x27;资料库不匹配&#x27;</span>);</span><br><span class="line">  <span class="keyword">final</span> kdf = _descriptor();</span><br><span class="line">  <span class="keyword">final</span> wrapper = <span class="keyword">await</span> _derive(password, kdf);</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> _prove(&#123;</span><br><span class="line">      ...envelope,</span><br><span class="line">      <span class="string">&#x27;kdf&#x27;</span>: kdf,</span><br><span class="line">      <span class="string">&#x27;password&#x27;</span>: _key!.runUnlockedSync(</span><br><span class="line">        (raw) =&gt; _seal(raw, wrapper, <span class="string">&#x27;xingji-key:1:<span class="subst">$vaultId</span>:password&#x27;</span>),</span><br><span class="line">      ),</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    wrapper.dispose();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>recovery</code> 字段压根没出现，被 <code>...envelope</code> 原样带过去了。这就是「改密码不影响恢复码」的实现级原因：不是刻意保留，是根本没碰。</p>
+<p>改动只有三处。盐换新的，让同一个密码在两次包装里派生出不同的密钥；密码块整段重封；证明重算。<code>key_version</code> 还是 1，<code>vault_id</code> 不动。</p>
+<p>数据密钥没变，于是磁盘上几千条记录、历史版本、图片分块、待发队列一条都不用碰。另一台设备同步时只会看到密钥包变了，不会以为数据变了。已经导出的旧备份照样能用旧密码打开。</p>
+<p>旧密码为什么立刻就不能用了。因为能不能解密只由一段密文决定，就是 <code>password.payload</code>。它被新包装密钥加过，拿旧包装密钥去解，标签对不上，解密失败。没有过渡期，也没有需要清理的旧密钥副本，旧的那份从来没落到磁盘上。</p>
+<p>换盐其实不是必须的，只换密文就够让旧密码失效。顺手做掉是因为它让每次包装的中间密钥都不同，也让人没法拿两次包装的密文去做同密码比对。</p>
+<p>再说个我一开始没想到的问题：改密码为什么不问旧密码。因为能点这个按钮的前提是库已经解锁，内存里已经躺着数据密钥，它已经证明了「这个会话有权限重新包装」。再问一遍不会增加任何安全性，只会制造「记得新密码却忘了旧密码所以改不了」的荒谬场景。</p>
+<p>代价得讲清楚。拿到一台已解锁机器的人可以改密，把真正的机主锁在外面。缓解手段都在设备侧：手动锁定会清内存密钥、Windows 锁屏也清、可信密钥由 DPAPI 或 Keystore 保护、手机端免密窗口固定 72 小时不续期。真要求验旧密码也不难，改之前拿旧密码走一次派生和解封，五行代码。这一版选择了不验。</p>
+<p>改完界面会提示两句：请重新导出备份，等待同步完成。都不是客套。旧备份只有旧密码能开，新备份得重新导出才轮到新密码；同步没完成之前，另一台设备上的密钥包还是旧的。</p>
+<h2 id="🧾-服务端验签"><a href="#🧾-服务端验签" class="headerlink" title="🧾 服务端验签"></a>🧾 服务端验签</h2><p>密钥包要在服务器上漂，就得能自己证明自己没被改过。做法是拿数据密钥给整个包签一个标签，AAD 是除 proof 之外全部字段的规范化 JSON。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">dynamic</span> _canonical(<span class="built_in">dynamic</span> value) &#123;</span><br><span class="line">  <span class="keyword">if</span> (value <span class="keyword">is</span> <span class="built_in">Map</span>) &#123;</span><br><span class="line">    <span class="keyword">final</span> keys = value.keys.cast&lt;<span class="built_in">String</span>&gt;().toList()..sort();</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="keyword">for</span> (<span class="keyword">final</span> key <span class="keyword">in</span> keys) key: _canonical(value[key])&#125;;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (value <span class="keyword">is</span> <span class="built_in">List</span>) <span class="keyword">return</span> value.map(_canonical).toList();</span><br><span class="line">  <span class="keyword">return</span> value;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Json _prove(Json envelope) =&gt; &#123;</span><br><span class="line">  ...envelope,</span><br><span class="line">  <span class="string">&#x27;proof&#x27;</span>: _seal(Uint8List(<span class="number">0</span>), _key!, _envelopeAad(envelope)),</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>三处值得说。</p>
+<p>排序那一段不光是为了好看。Dart 的 Map 遍历顺序不保证，直接 <code>jsonEncode</code> 可能两次产出不同字符串，AAD 就永远对不上，所以先把 key 递归排序再序列化。</p>
+<p>proof 封的是空明文。0 字节进去，只剩 16 字节标签出来，它不承载数据，只表达「持有数据密钥的人认可这份包」。</p>
+<p>服务器签不出来。它没有数据密钥，能改字节但改不出配套标签，能做的只剩原样重放一份旧的。</p>
+<p>具体挡住的东西：换掉 recovery 段的 nonce、把 <code>kdf.memory</code> 改成天文数字、把 A 库的密钥包塞给 B 库、把密码块和恢复块互换、改 <code>format</code> 或 <code>key_version</code>。前四种在解锁或验签那一步就失败，最后一种直接拒绝加载。</p>
+<h2 id="🌐-两台设备同时改密码"><a href="#🌐-两台设备同时改密码" class="headerlink" title="🌐 两台设备同时改密码"></a>🌐 两台设备同时改密码</h2><p>密钥包是唯一双向同步的东西，所以它自带乐观锁。服务器侧：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">IF p_envelope<span class="operator">-</span><span class="operator">&gt;&gt;</span><span class="string">&#x27;vault_id&#x27;</span> <span class="keyword">IS</span> <span class="keyword">DISTINCT</span> <span class="keyword">FROM</span> p_vault::text</span><br><span class="line">   <span class="keyword">OR</span> p_envelope<span class="operator">-</span><span class="operator">&gt;&gt;</span><span class="string">&#x27;format&#x27;</span> <span class="keyword">IS</span> <span class="keyword">DISTINCT</span> <span class="keyword">FROM</span> <span class="string">&#x27;1&#x27;</span></span><br><span class="line">   <span class="keyword">OR</span> <span class="keyword">octet_length</span>(p_envelope::text) <span class="operator">&gt;</span> <span class="number">16384</span> <span class="keyword">THEN</span></span><br><span class="line">  RAISE EXCEPTION <span class="string">&#x27;invalid envelope&#x27;</span>;</span><br><span class="line"><span class="keyword">END</span> IF;</span><br><span class="line">PERFORM <span class="number">1</span> <span class="keyword">FROM</span> xingji.vaults <span class="keyword">WHERE</span> id <span class="operator">=</span> p_vault <span class="keyword">FOR</span> <span class="keyword">UPDATE</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> envelope_revision <span class="keyword">INTO</span> v_revision</span><br><span class="line">  <span class="keyword">FROM</span> xingji.vaults <span class="keyword">WHERE</span> id <span class="operator">=</span> p_vault <span class="keyword">AND</span> envelope <span class="operator">=</span> p_envelope;</span><br><span class="line">IF FOUND <span class="keyword">THEN</span> <span class="keyword">RETURN</span> v_revision; <span class="keyword">END</span> IF;</span><br><span class="line"></span><br><span class="line"><span class="keyword">UPDATE</span> xingji.vaults</span><br><span class="line">   <span class="keyword">SET</span> envelope <span class="operator">=</span> p_envelope, envelope_revision <span class="operator">=</span> envelope_revision <span class="operator">+</span> <span class="number">1</span></span><br><span class="line"> <span class="keyword">WHERE</span> id <span class="operator">=</span> p_vault <span class="keyword">AND</span> envelope_revision <span class="operator">=</span> p_base</span><br><span class="line"> RETURNING envelope_revision <span class="keyword">INTO</span> v_revision;</span><br><span class="line">IF <span class="keyword">NOT</span> FOUND <span class="keyword">THEN</span></span><br><span class="line">  RAISE EXCEPTION <span class="string">&#x27;envelope revision conflict&#x27;</span> <span class="keyword">USING</span> ERRCODE <span class="operator">=</span> <span class="string">&#x27;40001&#x27;</span>;</span><br><span class="line"><span class="keyword">END</span> IF;</span><br></pre></td></tr></table></figure>
+
+<p><code>envelope = p_envelope</code> 那一段是幂等处理，网络抖动带来的重复提交不会把 revision 顶上去，直接认账。真正冲突的是基线 revision 已经不是最新，这时候客户端不硬覆盖：</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (serverEnvelopeRevision != store.envelopeRevision) &#123;</span><br><span class="line">  <span class="keyword">final</span> remote = <span class="built_in">Map</span>&lt;<span class="built_in">String</span>, <span class="built_in">dynamic</span>&gt;.from(bootstrap[<span class="string">&#x27;envelope&#x27;</span>] <span class="keyword">as</span> <span class="built_in">Map</span>);</span><br><span class="line">  crypto.verifyEnvelope(remote);</span><br><span class="line">  _conflictingEnvelope = remote;</span><br><span class="line">  _conflictingEnvelopeRevision = serverEnvelopeRevision;</span><br><span class="line">  <span class="keyword">throw</span> <span class="keyword">const</span> FormatException(<span class="string">&#x27;两台设备都更改了主密码，请在“安全与备份”中选择保留哪一份&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>界面给两个按钮：使用本机主密码、使用另一设备的主密码。选后者时代码会先验一遍签名再采纳，服务器给的密钥包必须自证合法，否则连进候选名单的资格都没有。集成测试里这条路径跑了两轮，先保留本机再采纳对端，最后两端都能用同一个密码打开同一批密文。</p>
+<h2 id="🚧-换不掉的"><a href="#🚧-换不掉的" class="headerlink" title="🚧 换不掉的"></a>🚧 换不掉的</h2><p>这部分不太好看，但比藏在代码里好。</p>
+<p>旧备份永远能用旧密码打开。备份文件里内嵌着当时的密钥包，数据密钥又没换，所以旧备份加旧密码照样能拿到钥匙，改多少次密码都成立。要让它失效只有一条路：换数据密钥。</p>
+<p>泄露过的旧密钥包，等于泄露了数据密钥。如果有人在你改密之前拿走了服务器上的密钥包，而且知道当时的密码，他解出来的就是那把 32 字节。这把钥匙在改密之后仍然能解开你之后写入的新记录，因为他可以直接对着服务器上的密文解，压根不需要你的密钥包。</p>
+<p>服务器还能回滚。proof 覆盖了密钥包的全部内容，却漏了 <code>envelope_revision</code>，因为 revision 是服务器自己的计数器。一个不诚实的服务器可以把旧的密钥包配上更高的 revision 发下来，验签会通过，客户端会接受，于是你改之前那个旧密码又活了。要堵住它，得在客户端存一个只增不减的计数器，或者把 revision 一起写进 AAD，前提是这台服务器不会重置计数器。自建单库的模型里这两条都落不住，只能做到「客户端多校验一道」，「服务器必须诚实」做不到。</p>
+<p>真正的撤销要换数据密钥：<code>key_version</code> 加一，所有记录重加密，历史版本、图片分块、已导出备份全部作废重做。代码里其实留了位置，<code>CipherRecord</code> 的 AAD 带着它：</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">String</span> <span class="keyword">get</span> aad =&gt; jsonEncode([</span><br><span class="line">  <span class="string">&#x27;xingji-record&#x27;</span>, format, vaultId, recordId, operationId, keyVersion, deleted,</span><br><span class="line">]);</span><br></pre></td></tr></table></figure>
+
+<p>放进 AAD 而不是当普通元数据，是为了将来真轮换的时候，旧密文不会被新密钥顺手解开，而是明确地认证失败。这一版没做轮换，<code>key_version</code> 恒为 1。</p>
+<h2 id="🧪-测过的"><a href="#🧪-测过的" class="headerlink" title="🧪 测过的"></a>🧪 测过的</h2><p><code>test/core_test.dart</code> 里跟这条链子直接相关的几条。改密码之后旧密码抛错、新密码能开、恢复码还能开、老密文照旧解开；只换 <code>recovery.nonce</code> 就验签失败；1 TiB 内存参数被拒；错误密码不改变解锁状态；改密文一个字节、换 <code>record_id</code>、翻 <code>deleted</code> 标志都会认证失败；DPAPI 包装可逆，篡改后拒绝解密。</p>
+<p>隔离 PostgreSQL 那组集成测试跑的是两轮改密冲突，两种选择各一次，最后检查服务器上没有任何明文哨兵。</p>
+<p>写这篇时我又读了一遍 <code>changePassword</code>，比想象中短。我一直以为改密码这种功能会牵扯很多地方，实际上只有一层包装，其余全是边界。</p>
+<p>这套模型能换手，不能换钥匙。日常真正会发生的是前者；后者要重加密整个库、所有历史版本和所有备份，还得处理旧备份复活，做半套比不做更危险，所以它留在了没做清单里。</p>
+</div>
+        </div>
+        
+        <footer class="kratos-entry-footer clearfix">
+            
+            
+            
+                <div class="post-actions text-center clearfix" id="post-actions">
+                
+                    <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
+                
+                
+                    <a class="share" href="javascript:;" onclick="krOpenShareModal()"><i class="fa fa-share-alt"></i> 分享</a>
+                
+                </div>
+            
+            <div class="footer-tag clearfix">
+                <div class="pull-left">
+                <i class="fa fa-tags"></i>
+                    <a class="tag-none-link" href="/blog/tags/Argon2id/" rel="tag">Argon2id</a>, <a class="tag-none-link" href="/blog/tags/XChaCha20-Poly1305/" rel="tag">XChaCha20-Poly1305</a>, <a class="tag-none-link" href="/blog/tags/libsodium/" rel="tag">libsodium</a>, <a class="tag-none-link" href="/blog/tags/%E5%AF%86%E9%92%A5%E7%AE%A1%E7%90%86/" rel="tag">密钥管理</a>, <a class="tag-none-link" href="/blog/tags/%E7%AB%AF%E5%88%B0%E7%AB%AF%E5%8A%A0%E5%AF%86/" rel="tag">端到端加密</a>
+                </div>
+                <div class="pull-date">
+                    <time datetime="2026-11-26T06:39:26.232Z" itemprop="dateModified">最后编辑：2026-11-26</time>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+        <nav class="navigation post-navigation clearfix" role="navigation">
+            
+            <div class="nav-previous clearfix">
+                <a title=" 泡泡来信 BubblePost：把一只电子宠物鱼养在 QQ 里" href="/blog/2026/11/24/BubblePost/"><i class="fa fa-angle-left"></i> 上一篇</a>
+            </div>
+            
+            
+        </nav>
+    
+    
+</article>
+
+        
+
+            </section>
+
+            
+                
+
+<section id="kratos-widget-area" class="col-md-4 hidden-xs hidden-sm">
+    <!-- 文章和页面根据splitter来分割，没有的话就从头开始设置为sticky -->
+    
+    
+                <aside id="krw-about" class="widget widget-kratos-about clearfix">
+    <div class="photo-background"></div>
+    <div class="photo-wrapper clearfix">
+        <div class="photo-wrapper-tip text-center">
+            <img class="about-photo" src="/blog/images/logo.png" alt="董子阳" loading="lazy" decoding="auto" />
+        </div>
+    </div>
+    <div class="textwidget">
+        <p class="text-center">软件开发 | RISC-V | Java | 算法</p>
+    </div>
+    <div class="site-meta">
+        <a class="meta-item" href="/blog/archives/">
+            <span class="title">
+                文章
+            </span>
+            <span class="count">
+                13
+            </span>
+        </a>
+        <a class="meta-item" href="/blog/categories/">
+            <span class="title">
+                分类
+            </span>
+            <span class="count">
+                8
+            </span>
+        </a>
+        <a class="meta-item" href="/blog/tags/">
+            <span class="title">
+                标签
+            </span>
+            <span class="count">
+                37
+            </span>
+        </a>
+    </div>
+</aside>
+            
+                    <div class="sticky-area">
+                
+                
+  <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
+    <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">技术文章</a><span class="category-list-count">7</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/Redis/">Redis</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/%E6%98%9F%E8%AE%B0/">星记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/%E6%99%BA%E5%85%BB%E8%88%92%E5%B1%85/">智养舒居</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/%E6%99%BA%E9%93%BE%E9%A3%9F%E5%AE%89/">智链食安</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/">项目经历</a><span class="category-list-count">5</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/%E9%A1%B9%E7%9B%AE%E7%BB%8F%E5%8E%86/%E5%BC%80%E6%BA%90%E5%AE%9E%E4%B9%A0/">开源实习</a><span class="category-list-count">1</span></li></ul></li></ul>
+  </aside>
+
+
+            
+                
+  <aside id="krw-tags" class="widget widget-kratos-tags clearfix">
+    <h4 class="widget-title"><i class="fa fa-tags"></i>标签聚合</h4>
+      <div class="tag-clouds">
+        <a href="/blog/tags/Agent/" style="font-size: 0.6em;">Agent</a> <a href="/blog/tags/Android/" style="font-size: 0.6em;">Android</a> <a href="/blog/tags/Argon2id/" style="font-size: 0.6em;">Argon2id</a> <a href="/blog/tags/Cluster%E9%9B%86%E7%BE%A4/" style="font-size: 0.7em;">Cluster集群</a> <a href="/blog/tags/FISCO-BCOS/" style="font-size: 0.8em;">FISCO BCOS</a> <a href="/blog/tags/FastAPI/" style="font-size: 0.6em;">FastAPI</a> <a href="/blog/tags/Flutter/" style="font-size: 0.6em;">Flutter</a> <a href="/blog/tags/Hexo-Kratos-Rebirth/" style="font-size: 0.6em;">Hexo & Kratos-Rebirth</a> <a href="/blog/tags/LLM-Agent/" style="font-size: 0.6em;">LLM Agent</a> <a href="/blog/tags/MCP/" style="font-size: 0.6em;">MCP</a> <a href="/blog/tags/Next-js/" style="font-size: 0.6em;">Next.js</a> <a href="/blog/tags/OneBot-v11/" style="font-size: 0.6em;">OneBot v11</a> <a href="/blog/tags/PostgreSQL/" style="font-size: 0.6em;">PostgreSQL</a> <a href="/blog/tags/Python-%E5%BC%82%E6%AD%A5/" style="font-size: 0.6em;">Python 异步</a> <a href="/blog/tags/Redis/" style="font-size: 0.7em;">Redis</a> <a href="/blog/tags/SQLite/" style="font-size: 0.6em;">SQLite</a> <a href="/blog/tags/Spring-Boot/" style="font-size: 0.7em;">Spring Boot</a> <a href="/blog/tags/Vue/" style="font-size: 0.7em;">Vue</a>
+      </div>
+  </aside>
+
+            
+                
+  <aside id="krw-posts" class="widget widget-kratos-posts">
+  <h4 class="widget-title"><i class="fa fa-file"></i>最新文章</h4>
+  <div class="tab-content">
+      <ul class="list-group">
+        
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/11/26/xingji-key-model/"><i class="fa fa-book"></i> 密钥模型：为什么改密码不用换密钥</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/11/24/BubblePost/"><i class="fa fa-book"></i> 泡泡来信 BubblePost：把一只电子宠物鱼养在 QQ 里</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/11/23/%E6%98%9F%E8%AE%B0/"><i class="fa fa-book"></i> 星记 XingJi：端到端加密的双端备忘录，从需求拆解到双端交付</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/10/23/TrustedAgentHub/"><i class="fa fa-book"></i> TrustedAgentHub：Agent Skills 与 MCP 能力包审核分发平台实习复盘</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/blog/2026/06/28/Redis%20Cluster%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95%E4%B8%8E%E5%88%A8%E6%9E%90/"><i class="fa fa-book"></i> 高并发架构演进：Redis 三主三从 Cluster 极限压测与性能瓶颈剖析</a>
+            
+          
+        
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+      </ul>
+  </div>
+  </aside>
+
+            
+    </div>
+</section>
+            
+
+        
+
+        </div>
+</div>
+</div>
+
+<footer>
+    <div id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 footer-list text-center">
+                    <ul class="kratos-social-icons">
+                        
+                    </ul>
+                    <ul class="kratos-copyright">
+                        <div>
+                            <li>&copy; 2026 北白念 版权所有.</li>
+                            <li>本站已运行<span id="kr-since">Loading...</span></li>
+                        </div>
+                        <div>
+                            <li></li>
+                            <li>站点由<i class="fa fa-heart" style="color:#d43f57"></i>北白念<i class="fa fa-heart" style="color:#d43f57"></i> 搭建</li>
+                        </div>
+                        <!-- 额外的追加注入项 -->
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="kr-tool text-center">
+            <div class="tool">
+                <!-- 额外的追加注入项 -->
+                
+                            
+                                <div class="box search-box">
+                                    <a href="/blog/search">
+                                        <span class="fa fa-search"></span>
+                                    </a>
+                                </div>
+                                
+                                    <div class="box theme-box" id="theme-toggle">
+                                        <span class="fa fa-adjust"></span>
+                                    </div>
+            </div>
+            <div id="gotop-box" class="box gotop-box">
+                <span class="fa fa-chevron-up"></span>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</div>
+
+
+    <div id="kr-donate-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseDonateModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-bitcoin"></i>
+            </div>
+            <div class="kr-modal-title">💖 感谢支持，点击查看收款码</div>
+            <button class="kr-modal-close" onclick="krCloseDonateModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-donate-message">你的鼓励是我持续更新的动力！</div>
+            <div class="kr-donate-qr" id="kr-donate-qr">
+                
+            </div>
+            <div class="kr-donate-platforms">
+                
+                    
+                        <button class="kr-donate-platform-button" style="color: #07C160;" title="微信" onclick="krDonateModalShowPlatformQR('wxp://f2f0U-8OUlrs0izTyZ-5lVarqsgP8EKsPgzaLP85BiSn9fcO3ZVKct1SLLVbeitwIZHi', '#07C160')">
+                            <i class="fa fa-fa-weixin"></i>
+                        </button>
+                    
+                
+                    
+                        <button class="kr-donate-platform-button" style="color: #1677FF;" title="支付宝" onclick="krDonateModalShowPlatformQR('https://qr.alipay.com/fkx18296ibecsgq8leryn49', '#1677FF')">
+                            <i class="fa fa-fa-alipay"></i>
+                        </button>
+                    
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/blog/js/kr-modal/donate.min.js"></script>
+
+        
+
+            
+                <div id="kr-share-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseShareModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-share-alt"></i>
+            </div>
+            <div class="kr-modal-title">分享</div>
+            <button class="kr-modal-close" onclick="krCloseShareModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-share-message">扫码查看github网址，按钮查看个人网站</div>
+            <div class="kr-share-qr" id="kr-share-qr"></div>
+            <div class="kr-share-platforms">
+                
+                    <button class="kr-share-platform-button" style="color: #62b6e7;" title="北白念" onclick="krShareModalOpenPlatform('http://hweb.fun/blog')">
+                        <svg fill="currentColor" width="18" height="18" viewBox="0 0 329 388"><path d="M0,36.226c0,-19.993 16.233,-36.226 36.226,-36.226c13.788,0 25.787,7.719 31.908,19.068l188.366,229.845l0,-111.259c-6.356,5.508 -14.645,8.843 -23.707,8.843c-19.994,0 -36.226,-16.232 -36.226,-36.226c-0,-8.551 2.968,-16.413 7.93,-22.613l-0.015,-0.013l56.614,-69.08c6.2,-11.073 18.047,-18.565 31.63,-18.565c19.994,0 36.227,16.233 36.227,36.226l-0,314.644c-0,19.994 -16.233,36.226 -36.227,36.226c-13.166,0 -24.701,-7.039 -31.044,-17.555l-189.229,-230.899l-0,212.228c-0,19.994 -16.233,36.226 -36.227,36.226c-19.993,0 -36.226,-16.232 -36.226,-36.226l0,-314.644Z" /></svg>
+                    </button>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/blog/js/kr-modal/share.min.js"></script>
+
+                    
+
+                        <!-- 额外的追加注入项 -->
+                        
+        <script>
+    if (!window.kr) {
+        window.kr = {};
+    }
+    window.kr.notMobile = (!(navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)));
+    window.kr.siteRoot = "/blog/";
+</script>
+
+
+  <script defer src="/blog/vendors/nprogress@0.2.0/nprogress.js"></script>
+
+
+
+  <script defer src="/blog/vendors/viewerjs@1.11.6/dist/viewer.min.js"></script>
+
+
+<script defer src="/blog/js/kr-core.min.js"></script>
+
+
+  <script defer src="/blog/js/kr-pjax.min.js"></script>
+
+
+<!-- 额外的追加注入项 -->
+
+
+    </body>
+</html>
