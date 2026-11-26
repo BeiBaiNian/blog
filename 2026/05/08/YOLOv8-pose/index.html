@@ -28,7 +28,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://beibainian.github.io/blog/blog/other/model_integration_flow.jpg">
 <meta property="article:published_time" content="2026-05-08T02:23:56.000Z">
-<meta property="article:modified_time" content="2026-06-28T03:52:15.085Z">
+<meta property="article:modified_time" content="2026-11-26T01:17:48.510Z">
 <meta property="article:author" content="董子阳">
 <meta property="article:tag" content="YOLOv8">
 <meta name="twitter:card" content="summary">
@@ -38,7 +38,7 @@
   
   
     <script type="application/ld+json">
-    {"@context":"https://schema.org","@type":"BlogPosting","headline":"YOLOv8-pose 分批次训练与模型集成方案","description":"这篇技术文章复盘了智养舒居项目中，基于YOLOv8-pose实现人体姿态识别模型训练过程中遇到的问题以及解决办法。核心解决个人PC显存不足的痛点，设计分批次训练+动态加权模型集成方案，沉淀可复用的轻量级硬件训练经验。\n","image":"https://beibainian.github.io/blog/2026/05/08/YOLOv8-pose/blog/other/model_integration_flow.jpg","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-05-08T02:23:56.000Z","dateModified":"2026-06-28T03:52:15.085Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/05/08/YOLOv8-pose/"}}
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"YOLOv8-pose 分批次训练与模型集成方案","description":"这篇技术文章复盘了智养舒居项目中，基于YOLOv8-pose实现人体姿态识别模型训练过程中遇到的问题以及解决办法。核心解决个人PC显存不足的痛点，设计分批次训练+动态加权模型集成方案，沉淀可复用的轻量级硬件训练经验。\n","image":"https://beibainian.github.io/blog/2026/05/08/YOLOv8-pose/blog/other/model_integration_flow.jpg","author":{"@type":"Person","name":"董子阳"},"publisher":{"@type":"Organization","name":"北白念","logo":{"@type":"ImageObject","url":"https://beibainian.github.io/blog/blog/images/logo.png"}},"datePublished":"2026-05-08T02:23:56.000Z","dateModified":"2026-11-26T01:17:48.510Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://beibainian.github.io/blog/2026/05/08/YOLOv8-pose/"}}
     </script>
   
   <!-- 关键 CSS 预加载 -->
@@ -190,7 +190,7 @@
                         <i class="fa fa-edit"></i> 
                         
                         
-                            ~3.93K
+                            ~4.04K
                         
                         字
                     </li>
@@ -280,6 +280,11 @@
 <li>动态加权集成优于单模型：整合各子批次优势，复杂场景下表现更稳定，误判率更低，适合居家这类多场景需求。</li>
 </ol>
 <p>本方案聚焦YOLOv8-pose分批次训练与集成的核心流程，精简冗余表述，保留关键技术细节与解决方案，若你也遇到显存不足、模型泛化差等问题，可参考本方案落地实践。</p>
+<hr>
+<h2 id="🔗-相关阅读"><a href="#🔗-相关阅读" class="headerlink" title="🔗 相关阅读"></a>🔗 相关阅读</h2><ul>
+<li>👉 <a href="/blog/2026/04/29/%E6%99%BA%E5%85%BB%E8%88%92%E5%B1%85/">《智养舒居：基于YOLOv8-pose与多模态的居家安全监护系统实战》</a>——本文模型最终落地的整体项目复盘</li>
+<li>👉 <a href="/blog/2026/05/07/Spring%20boot+Vue/">《基于若依框架的智慧居家养老系统开发复盘》</a>——模型输出如何接到管理端与数据大屏</li>
+</ul>
 </div>
         </div>
         
@@ -302,7 +307,7 @@
                     <a class="tag-none-link" href="/blog/tags/YOLOv8/" rel="tag">YOLOv8</a>
                 </div>
                 <div class="pull-date">
-                    <time datetime="2026-06-28T03:52:15.085Z" itemprop="dateModified">最后编辑：2026-06-28</time>
+                    <time datetime="2026-11-26T01:17:48.510Z" itemprop="dateModified">最后编辑：2026-11-26</time>
                 </div>
             </div>
         </footer>
